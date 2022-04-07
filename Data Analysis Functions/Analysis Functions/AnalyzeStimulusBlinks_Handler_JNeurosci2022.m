@@ -1,4 +1,4 @@
-function [] = AnalyzeStimulusBlinks_Pupil_Handler(rootFolder,delim,runFromStart)
+function [] = AnalyzeStimulusBlinks_Handler_JNeurosci2022(rootFolder,delim,runFromStart)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -29,7 +29,7 @@ aa = 1;
 multiWaitbar('Analyzing post-stumulus blinking behavior',0,'Color','P'); pause(0.25);
 for bb = 1:length(animalIDs)
     if isfield(Results_StimulusBlinks,(animalIDs{1,bb})) == false
-        [Results_StimulusBlinks] = AnalyzeStimulusBlinks_Pupil(animalIDs{1,bb},rootFolder,delim,Results_StimulusBlinks);
+        [Results_StimulusBlinks] = AnalyzeStimulusBlinks_JNeurosci2022(animalIDs{1,bb},rootFolder,delim,Results_StimulusBlinks);
     end
     multiWaitbar('Analyzing post-stumulus blinking behavior','Value',aa/waitBarLength);
     aa = aa + 1;

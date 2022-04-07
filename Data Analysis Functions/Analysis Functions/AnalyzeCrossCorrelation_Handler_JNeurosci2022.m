@@ -29,7 +29,7 @@ aa = 1;
 multiWaitbar('Analyzing cross correlation during each behavior',0,'Color','P'); pause(0.25);
 for bb = 1:length(animalIDs)
     if isfield(Results_CrossCorrelation,(animalIDs{1,bb})) == false
-        [Results_CrossCorrelation] = AnalyzeCrossCorrelation_Pupil(animalIDs{1,bb},rootFolder,delim,Results_CrossCorrelation);
+        [Results_CrossCorrelation] = AnalyzeCrossCorrelation_JNeurosci2022(animalIDs{1,bb},rootFolder,delim,Results_CrossCorrelation);
     end
     multiWaitbar('Analyzing cross correlation during each behavior','Value',aa/waitBarLength);
     aa = aa + 1;

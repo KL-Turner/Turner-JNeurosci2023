@@ -4,20 +4,25 @@ function [] = Fig1_JNeurosci2022(rootFolder,saveFigs,delim)
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
-% Purpose:
-%________________________________________________________________________________________________________________________
-%________________________________________________________________________________________________________________________
-% Written by Kevin L. Turner
-% The Pennsylvania State University, Dept. of Biomedical Engineering
-% https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
-%
-% Purpose:
+% Purpose: Generate figures and supporting information for Figure Panel 1
 %________________________________________________________________________________________________________________________
 
-%% load data
+%% respresentative animal data structure
 dataStructure = 'Results_Example.mat';
 load(dataStructure)
+%% threshold for pupil tracking
+dataStructure = 'Results_PupilThreshold.mat';
+load(dataStructure)
+animalIDs = fieldnames(Results_PupilThreshold);
+indStDev = [];
+% concatenate the threshold (in stdev) from each animal
+for aa = 1:length(animalIDs)
+    animalID = animalIDs{aa,1};
+    indStDev = cat(1,indStDev,mean(Results_PupilThreshold.(animalID).thresholdStDev));
+end
+meanThreshold = mean(indStDev,1);
+stdThreshold = std(indStDev,0,1);
+% disp(['Pupil threshold: ' num2str(meanThreshold) ' +/- ' num2str(stdThreshold) ' StDev from mean (n = 22 mice)']); disp(' ')
 %% tracking algorithm images
 % subplot for eye ROI
 Fig1A = figure('Name','Figure Panel 1 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);

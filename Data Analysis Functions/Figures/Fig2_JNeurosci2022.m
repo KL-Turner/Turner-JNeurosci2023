@@ -4,10 +4,10 @@ function [] = Fig2_JNeurosci2022(rootFolder,saveFigs,delim)
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
-% Purpose:
+% Purpose: Generate figures and supporting information for Figure Panel 2
 %________________________________________________________________________________________________________________________
 
-% behavior colors
+%% arousal state colors
 colorRest = [(0/256),(166/256),(81/256)];
 colorWhisk = [(31/256),(120/256),(179/256)];
 colorStim = [(255/256),(28/256),(206/256)];
@@ -16,112 +16,99 @@ colorREM = [(254/256),(139/256),(0/256)];
 colorAlert = [(255/256),(191/256),(0/256)];
 colorAsleep = [(0/256),(128/256),(255/256)];
 colorAll = [(183/256),(115/256),(51/256)];
-%% Evoked pupil changes
+%% stimulus and whisking evoked pupil changes
 resultsStruct = 'Results_Evoked';
 load(resultsStruct);
 dataTypes = {'mmArea','mmDiameter','zArea','zDiameter'};
 timeVector = (0:12*30)/30 - 2;
 animalIDs = fieldnames(Results_Evoked);
+% pre-allocate
 for aa = 1:length(dataTypes)
     dataType = dataTypes{1,aa};
-    data.controlSolenoid.(dataType) = [];
-    data.stimSolenoid.(dataType) = [];
-    data.briefWhisk.(dataType) = [];
-    data.interWhisk.(dataType) = [];
-    data.extendWhisk.(dataType) = [];
+    data.Evoked.controlSolenoid.(dataType).data = [];
+    data.Evoked.stimSolenoid.(dataType).data = [];
+    data.Evoked.briefWhisk.(dataType).data = [];
+    data.Evoked.interWhisk.(dataType).data = [];
+    data.Evoked.extendWhisk.(dataType).data = [];
 end
-%
+% concatenate each stimuli type from each animal
 for cc = 1:length(animalIDs)
     animalID = animalIDs{cc,1};
     for bb = 1:length(dataTypes)
         dataType = dataTypes{1,bb};
         % whisking
-        data.briefWhisk.(dataType) = cat(1,data.briefWhisk.(dataType),Results_Evoked.(animalID).Whisk.(dataType).ShortWhisks.mean);
-        data.interWhisk.(dataType) = cat(1,data.interWhisk.(dataType),Results_Evoked.(animalID).Whisk.(dataType).IntermediateWhisks.mean);
-        data.extendWhisk.(dataType) = cat(1,data.extendWhisk.(dataType),Results_Evoked.(animalID).Whisk.(dataType).LongWhisks.mean);
+        data.Evoked.briefWhisk.(dataType).data = cat(1,data.Evoked.briefWhisk.(dataType).data,Results_Evoked.(animalID).Whisk.(dataType).ShortWhisks.mean);
+        data.Evoked.interWhisk.(dataType).data = cat(1,data.Evoked.interWhisk.(dataType).data,Results_Evoked.(animalID).Whisk.(dataType).IntermediateWhisks.mean);
+        data.Evoked.extendWhisk.(dataType).data = cat(1,data.Evoked.extendWhisk.(dataType).data,Results_Evoked.(animalID).Whisk.(dataType).LongWhisks.mean);
         % solenoids
-        data.stimSolenoid.(dataType) = cat(1,data.stimSolenoid.(dataType),Results_Evoked.(animalID).Stim.(dataType).LPadSol.mean,Results_Evoked.(animalID).Stim.(dataType).RPadSol.mean);
-        data.controlSolenoid.(dataType) = cat(1,data.controlSolenoid.(dataType),Results_Evoked.(animalID).Stim.(dataType).AudSol.mean);
+        data.Evoked.stimSolenoid.(dataType).data = cat(1,data.Evoked.stimSolenoid.(dataType).data,Results_Evoked.(animalID).Stim.(dataType).LPadSol.mean,Results_Evoked.(animalID).Stim.(dataType).RPadSol.mean);
+        data.Evoked.controlSolenoid.(dataType).data = cat(1,data.Evoked.controlSolenoid.(dataType).data,Results_Evoked.(animalID).Stim.(dataType).AudSol.mean);
     end
 end
-%
+% mean and standard error for each stimulation
 for dd = 1:length(dataTypes)
     dataType = dataTypes{1,dd};
-    procData.briefWhisk.(dataType).mean = mean(data.briefWhisk.(dataType),1);
-    procData.briefWhisk.(dataType).sem = std(data.briefWhisk.(dataType),0,1)./sqrt(size(data.briefWhisk.(dataType),1));
-    procData.interWhisk.(dataType).mean = mean(data.interWhisk.(dataType),1);
-    procData.interWhisk.(dataType).sem = std(data.interWhisk.(dataType),0,1)./sqrt(size(data.interWhisk.(dataType),1));
-    procData.extendWhisk.(dataType).mean = mean(data.extendWhisk.(dataType),1);
-    procData.extendWhisk.(dataType).sem = std(data.extendWhisk.(dataType),0,1)./sqrt(size(data.extendWhisk.(dataType),1));
-    procData.stimSolenoid.(dataType).mean = mean(data.stimSolenoid.(dataType),1);
-    procData.stimSolenoid.(dataType).sem = std(data.stimSolenoid.(dataType),0,1)./sqrt(size(data.stimSolenoid.(dataType),1));
-    procData.controlSolenoid.(dataType).mean = mean(data.controlSolenoid.(dataType),1);
-    procData.controlSolenoid.(dataType).sem = std(data.controlSolenoid.(dataType),0,1)./sqrt(size(data.controlSolenoid.(dataType),1));
+    data.Evoked.briefWhisk.(dataType).mean = mean(data.Evoked.briefWhisk.(dataType).data,1);
+    data.Evoked.briefWhisk.(dataType).sem = std(data.Evoked.briefWhisk.(dataType).data,0,1)./sqrt(size(data.Evoked.briefWhisk.(dataType).data,1));
+    data.Evoked.interWhisk.(dataType).mean = mean(data.Evoked.interWhisk.(dataType).data,1);
+    data.Evoked.interWhisk.(dataType).sem = std(data.Evoked.interWhisk.(dataType).data,0,1)./sqrt(size(data.Evoked.interWhisk.(dataType).data,1));
+    data.Evoked.extendWhisk.(dataType).mean = mean(data.Evoked.extendWhisk.(dataType).data,1);
+    data.Evoked.extendWhisk.(dataType).sem = std(data.Evoked.extendWhisk.(dataType).data,0,1)./sqrt(size(data.Evoked.extendWhisk.(dataType).data,1));
+    data.Evoked.stimSolenoid.(dataType).mean = mean(data.Evoked.stimSolenoid.(dataType).data,1);
+    data.Evoked.stimSolenoid.(dataType).sem = std(data.Evoked.stimSolenoid.(dataType).data,0,1)./sqrt(size(data.Evoked.stimSolenoid.(dataType).data,1));
+    data.Evoked.controlSolenoid.(dataType).mean = mean(data.Evoked.controlSolenoid.(dataType).data,1);
+    data.Evoked.controlSolenoid.(dataType).sem = std(data.Evoked.controlSolenoid.(dataType).data,0,1)./sqrt(size(data.Evoked.controlSolenoid.(dataType).data,1));
 end
 %% pupil diameter during different arousel states
 resultsStruct = 'Results_BehavData.mat';
 load(resultsStruct);
 animalIDs = fieldnames(Results_BehavData);
 behavFields = {'Rest','Whisk','Stim','NREM','REM'};
-% mean HbT comparison between behaviors
-% pre-allocate the date for each day
 % pre-allocate
 for cc = 1:length(behavFields)
     behavField = behavFields{1,cc};
-    data.(behavField).indMeanDiameter = [];
-    data.(behavField).indDiameter = [];
-    data.(behavField).indMeanzDiameter = [];
-    data.(behavField).indzDiameter = [];
+    data.Diameter.(behavField).mmDiameter = [];
+    data.Diameter.(behavField).zDiameter = [];
+    data.Diameter.(behavField).animalID = {};
+    data.Diameter.(behavField).behavField = {};
 end
-% concatenate
+% concatenate diameter from each arousal state for each animal
 for cc = 1:length(animalIDs)
     animalID = animalIDs{cc,1};
     for dd = 1:length(behavFields)
         behavField = behavFields{1,dd};
-        data.(behavField).indMeanDiameter = cat(1,data.(behavField).indMeanDiameter,mean(Results_BehavData.(animalID).(behavField).mmDiameter.eventMeans,'omitnan'));
-        data.(behavField).indMeanzDiameter = cat(1,data.(behavField).indMeanzDiameter,mean(Results_BehavData.(animalID).(behavField).zDiameter.eventMeans,'omitnan'));
-        indDiameter = []; indzDiameter = [];
-        for ee = 1:length(Results_BehavData.(animalID).(behavField).mmArea.indData)
-            indDiameter = cat(2,indDiameter,Results_BehavData.(animalID).(behavField).mmDiameter.indData{ee,1});
-            indzDiameter = cat(2,indzDiameter,Results_BehavData.(animalID).(behavField).zDiameter.indData{ee,1});
-        end
-        data.(behavField).indDiameter = cat(2,data.(behavField).indDiameter,indDiameter);
-        data.(behavField).indzDiameter = cat(2,data.(behavField).indzDiameter,indzDiameter);
+        data.Diameter.(behavField).mmDiameter = cat(1,data.Diameter.(behavField).mmDiameter,mean(Results_BehavData.(animalID).(behavField).mmDiameter.eventMeans,'omitnan'));
+        data.Diameter.(behavField).zDiameter = cat(1,data.Diameter.(behavField).zDiameter,mean(Results_BehavData.(animalID).(behavField).zDiameter.eventMeans,'omitnan'));
+        data.Diameter.(behavField).animalID = cat(1,data.Diameter.(behavField).animalID,animalID);
+        data.Diameter.(behavField).behavField = cat(1,data.Diameter.(behavField).behavField,behavField);
     end
 end
-% mean/std
+% mean and standard deviation for the diameter during each arousal state
 for ee = 1:length(behavFields)
     behavField = behavFields{1,ee};
     % diameter
-    data.(behavField).meanDiameter = mean(data.(behavField).indMeanDiameter,1,'omitnan');
-    data.(behavField).stdDiameter = std(data.(behavField).indMeanDiameter,0,1,'omitnan');%./sqrt(length(data.(behavField.indMeanDiameter)));
-    realIndex = ~isnan(data.(behavField).indDiameter);
-    data.(behavField).indDiameter = data.(behavField).indDiameter(realIndex);
+    data.Diameter.(behavField).meanDiameter = mean(data.Diameter.(behavField).mmDiameter,1,'omitnan');
+    data.Diameter.(behavField).stdDiameter = std(data.Diameter.(behavField).mmDiameter,0,1,'omitnan');
     % z diameter
-    data.(behavField).meanzDiameter = mean(data.(behavField).indMeanzDiameter,1,'omitnan');
-    data.(behavField).stdzDiameter = std(data.(behavField).indMeanzDiameter,0,1,'omitnan');%./sqrt(length(data.(behavField.indMeanzDiameter)));
-    realIndex = ~isnan(data.(behavField).indzDiameter);
-    data.(behavField).indzDiameter = data.(behavField).indzDiameter(realIndex);
+    data.Diameter.(behavField).meanzDiameter = mean(data.Diameter.(behavField).zDiameter,1,'omitnan');
+    data.Diameter.(behavField).stdzDiameter = std(data.Diameter.(behavField).zDiameter,0,1,'omitnan');
 end
-numComp = 4;
-% mm diameter
-[~,pWhisk_mm,~,~] = ttest2(data.Rest.indMeanDiameter,data.Whisk.indMeanDiameter);
-disp(['Bonferroni-corrected p-value (Rest vs. Whisk mmDiameter): ' num2str(pWhisk_mm/numComp)]); disp(' ')
-[~,pStim_mm,~,~] = ttest2(data.Rest.indMeanDiameter,data.Stim.indMeanDiameter);
-disp(['Bonferroni-corrected p-value (Rest vs. Stim mmDiameter): ' num2str(pStim_mm/numComp)]); disp(' ')
-[~,pNREM_mm,~,~] = ttest2(data.Rest.indMeanDiameter,data.NREM.indMeanDiameter);
-disp(['Bonferroni-corrected p-value (Rest vs. NREM mmDiameter): ' num2str(pNREM_mm/numComp)]); disp(' ')
-[~,pREM_mm,~,~] = ttest2(data.Rest.indMeanDiameter,data.REM.indMeanDiameter);
-disp(['Bonferroni-corrected p-value (Rest vs. REM mmDiameter): ' num2str(pREM_mm/numComp)]); disp(' ')
-% z diameter
-[~,pWhisk_z,~,~] = ttest2(data.Rest.indMeanDiameter,data.Whisk.indMeanzDiameter);
-disp(['Bonferroni-corrected p-value (Rest vs. Whisk zDiameter): ' num2str(pWhisk_z/numComp)]); disp(' ')
-[~,pStim_z,~,~] = ttest2(data.Rest.indMeanDiameter,data.Stim.indMeanzDiameter);
-disp(['Bonferroni-corrected p-value (Rest vs. Stim zDiameter): ' num2str(pStim_z/numComp)]); disp(' ')
-[~,pNREM_z,~,~] = ttest2(data.Rest.indMeanDiameter,data.NREM.indMeanzDiameter);
-disp(['Bonferroni-corrected p-value (Rest vs. NREM zDiameter): ' num2str(pNREM_z/numComp)]); disp(' ')
-[~,pREM_z,~,~] = ttest2(data.Rest.indMeanDiameter,data.REM.indMeanzDiameter);
-disp(['Bonferroni-corrected p-value (Rest vs. REM zDiameter): ' num2str(pREM_z/numComp)]); disp(' ')
+% statistics - generalized linear mixed effects model (mm diameter)
+mmDiameterTableSize = cat(1,data.Diameter.Rest.mmDiameter,data.Diameter.Whisk.mmDiameter,data.Diameter.Stim.mmDiameter,data.Diameter.NREM.mmDiameter,data.Diameter.REM.mmDiameter);
+mmDiameterTable = table('Size',[size(mmDiameterTableSize,1),3],'VariableTypes',{'string','string','double'},'VariableNames',{'Mouse','Behavior','mmDiameter'});
+mmDiameterTable.Mouse = cat(1,data.Diameter.Rest.animalID,data.Diameter.Whisk.animalID,data.Diameter.Stim.animalID,data.Diameter.NREM.animalID,data.Diameter.REM.animalID);
+mmDiameterTable.Behavior = cat(1,data.Diameter.Rest.behavField,data.Diameter.Whisk.behavField,data.Diameter.Stim.behavField,data.Diameter.NREM.behavField,data.Diameter.REM.behavField);
+mmDiameterTable.mmDiameter = cat(1,data.Diameter.Rest.mmDiameter,data.Diameter.Whisk.mmDiameter,data.Diameter.Stim.mmDiameter,data.Diameter.NREM.mmDiameter,data.Diameter.REM.mmDiameter);
+mmDiameterFitFormula = 'mmDiameter ~ 1 + Behavior + (1|Mouse)';
+mmDiameterStats = fitglme(mmDiameterTable,mmDiameterFitFormula);
+% statistics - generalized linear mixed effects model (z-units)
+zDiameterTableSize = cat(1,data.Diameter.Rest.zDiameter,data.Diameter.Whisk.zDiameter,data.Diameter.Stim.zDiameter,data.Diameter.NREM.zDiameter,data.Diameter.REM.zDiameter);
+zDiameterTable = table('Size',[size(zDiameterTableSize,1),3],'VariableTypes',{'string','string','double'},'VariableNames',{'Mouse','Behavior','zDiameter'});
+zDiameterTable.Mouse = cat(1,data.Diameter.Rest.animalID,data.Diameter.Whisk.animalID,data.Diameter.Stim.animalID,data.Diameter.NREM.animalID,data.Diameter.REM.animalID);
+zDiameterTable.Behavior = cat(1,data.Diameter.Rest.behavField,data.Diameter.Whisk.behavField,data.Diameter.Stim.behavField,data.Diameter.NREM.behavField,data.Diameter.REM.behavField);
+zDiameterTable.zDiameter = cat(1,data.Diameter.Rest.zDiameter,data.Diameter.Whisk.zDiameter,data.Diameter.Stim.zDiameter,data.Diameter.NREM.zDiameter,data.Diameter.REM.zDiameter);
+zDiameterFitFormula = 'zDiameter ~ 1 + Behavior + (1|Mouse)';
+zDiameterStats = fitglme(zDiameterTable,zDiameterFitFormula);
 %% pupil power spectrum
 resultsStruct = 'Results_PowerSpectrum';
 load(resultsStruct);
@@ -133,12 +120,11 @@ for aa = 1:length(behavFields)
     behavField = behavFields{1,aa};
     for bb = 1:length(dataTypes)
         dataType = dataTypes{1,bb};
-        data.(behavField).(dataType).S = [];
-        data.(behavField).(dataType).f = [];
+        data.PowerSpec.(behavField).(dataType).S = [];
+        data.PowerSpec.(behavField).(dataType).f = [];
     end
 end
-% power spectra during different behaviors
-% cd through each animal's directory and extract the appropriate analysis results
+% concatenate power spectra during different arousal states for each animal
 for aa = 1:length(animalIDs)
     animalID = animalIDs{aa,1};
     for bb = 1:length(behavFields)
@@ -147,23 +133,23 @@ for aa = 1:length(animalIDs)
             dataType = dataTypes{1,cc};
             % don't concatenate empty arrays where there was no data for this behavior
             if isempty(Results_PowerSpectrum.(animalID).(behavField).(dataType).S) == false
-                data.(behavField).(dataType).S = cat(2,data.(behavField).(dataType).S,Results_PowerSpectrum.(animalID).(behavField).(dataType).S);
-                data.(behavField).(dataType).f = cat(1,data.(behavField).(dataType).f,Results_PowerSpectrum.(animalID).(behavField).(dataType).f);
+                data.PowerSpec.(behavField).(dataType).S = cat(2,data.PowerSpec.(behavField).(dataType).S,Results_PowerSpectrum.(animalID).(behavField).(dataType).S);
+                data.PowerSpec.(behavField).(dataType).f = cat(1,data.PowerSpec.(behavField).(dataType).f,Results_PowerSpectrum.(animalID).(behavField).(dataType).f);
             end
         end
     end
 end
-% take mean/StD of S/f
+% mean and standard error for arousal state power
 for aa = 1:length(behavFields)
     behavField = behavFields{1,aa};
     for bb = 1:length(dataTypes)
         dataType = dataTypes{1,bb};
-        data.(behavField).(dataType).meanS = mean(data.(behavField).(dataType).S,2);
-        data.(behavField).(dataType).semS = std(data.(behavField).(dataType).S,0,2)./sqrt(size(data.(behavField).(dataType).S,2));
-        data.(behavField).(dataType).meanf = mean(data.(behavField).(dataType).f,1);
+        data.PowerSpec.(behavField).(dataType).meanS = mean(data.PowerSpec.(behavField).(dataType).S,2);
+        data.PowerSpec.(behavField).(dataType).semS = std(data.PowerSpec.(behavField).(dataType).S,0,2)./sqrt(size(data.PowerSpec.(behavField).(dataType).S,2));
+        data.PowerSpec.(behavField).(dataType).meanf = mean(data.PowerSpec.(behavField).(dataType).f,1);
     end
 end
-%% pupil HbT/gamma coherence
+%% pupil HbT/gamma-band coherence
 resultsStruct = 'Results_Coherence';
 load(resultsStruct);
 animalIDs = fieldnames(Results_Coherence);
@@ -178,10 +164,11 @@ for aa = 1:length(behavFields)
         data.Coherr.(behavField).(dataType).HbTf = [];
         data.Coherr.(behavField).(dataType).gammaC = [];
         data.Coherr.(behavField).(dataType).gammaf = [];
+        data.Coherr.(behavField).(dataType).animalID = {};
+        data.Coherr.(behavField).(dataType).behavField = {};
     end
 end
-% power spectra during different behaviors
-% cd through each animal's directory and extract the appropriate analysis results
+% concatenate coherence during different arousal states for each animal
 for aa = 1:length(animalIDs)
     animalID = animalIDs{aa,1};
     for bb = 1:length(behavFields)
@@ -194,25 +181,28 @@ for aa = 1:length(animalIDs)
                 data.Coherr.(behavField).(dataType).HbTf = cat(1,data.Coherr.(behavField).(dataType).HbTf,Results_Coherence.(animalID).(behavField).(dataType).LH_HbT.f,Results_Coherence.(animalID).(behavField).(dataType).RH_HbT.f);
                 data.Coherr.(behavField).(dataType).gammaC = cat(2,data.Coherr.(behavField).(dataType).gammaC,Results_Coherence.(animalID).(behavField).(dataType).LH_gammaBandPower.C,Results_Coherence.(animalID).(behavField).(dataType).RH_gammaBandPower.C);
                 data.Coherr.(behavField).(dataType).gammaf = cat(1,data.Coherr.(behavField).(dataType).gammaf,Results_Coherence.(animalID).(behavField).(dataType).LH_gammaBandPower.f,Results_Coherence.(animalID).(behavField).(dataType).RH_gammaBandPower.f);
+                data.Coherr.(behavField).(dataType).animalID = cat(1,data.Coherr.(behavField).(dataType).animalID,animalID,animalID);
+                data.Coherr.(behavField).(dataType).behavField = cat(1,data.Coherr.(behavField).(dataType).behavField,behavField,behavField);
             end
         end
     end
 end
-% take mean/StD of S/f
+% mean and standard error for arousal state coherence
 for aa = 1:length(behavFields)
     behavField = behavFields{1,aa};
     for bb = 1:length(dataTypes)
         dataType = dataTypes{1,bb};
+        % HbT
         data.Coherr.(behavField).(dataType).meanHbTC = mean(data.Coherr.(behavField).(dataType).HbTC,2);
         data.Coherr.(behavField).(dataType).semHbTC = std(data.Coherr.(behavField).(dataType).HbTC,0,2)./sqrt(size(data.Coherr.(behavField).(dataType).HbTC,2));
         data.Coherr.(behavField).(dataType).meanHbTf = mean(data.Coherr.(behavField).(dataType).HbTf,1);
-
+        % gamma-band
         data.Coherr.(behavField).(dataType).meanGammaC = mean(data.Coherr.(behavField).(dataType).gammaC,2);
         data.Coherr.(behavField).(dataType).semGammaC = std(data.Coherr.(behavField).(dataType).gammaC,0,2)./sqrt(size(data.Coherr.(behavField).(dataType).gammaC,2));
         data.Coherr.(behavField).(dataType).meanGammaf = mean(data.Coherr.(behavField).(dataType).gammaf,1);
     end
 end
-% find 0.1/0.01 Hz peaks in coherence
+% find 0.02 Hz peak in coherence
 for ee = 1:length(behavFields)
     behavField = behavFields{1,ee};
     for ff = 1:length(dataTypes)
@@ -249,7 +239,7 @@ for ee = 1:length(behavFields)
         end
     end
 end
-% take mean/StD of peak C
+% mean and standard deviation of peak coherence
 for ee = 1:length(behavFields)
     behavField = behavFields{1,ee};
     for ff = 1:length(dataTypes)
@@ -271,13 +261,45 @@ for ee = 1:length(behavFields)
         end
     end
 end
-%% pupil cross correlation
+% statistics - generalized linear mixed effects model (0.02 HbT coherence)
+HbTC002TableSize = cat(1,data.Coherr.Awake.zDiameter.HbTC002,data.Coherr.Asleep.zDiameter.HbTC002,data.Coherr.All.zDiameter.HbTC002);
+HbTC002Table = table('Size',[size(HbTC002TableSize,1),3],'VariableTypes',{'string','string','double'},'VariableNames',{'Mouse','Behavior','HbTC002'});
+HbTC002Table.Mouse = cat(1,data.Coherr.Awake.zDiameter.animalID,data.Coherr.Asleep.zDiameter.animalID,data.Coherr.All.zDiameter.animalID);
+HbTC002Table.Behavior = cat(1,data.Coherr.Awake.zDiameter.behavField,data.Coherr.Asleep.zDiameter.behavField,data.Coherr.All.zDiameter.behavField);
+HbTC002Table.HbTC002 = cat(1,data.Coherr.Awake.zDiameter.HbTC002,data.Coherr.Asleep.zDiameter.HbTC002,data.Coherr.All.zDiameter.HbTC002);
+HbTC002FitFormula = 'HbTC002 ~ 1 + Behavior + (1|Mouse)';
+HbTC002Stats = fitglme(HbTC002Table,HbTC002FitFormula);
+% statistics - generalized linear mixed effects model (0.02 gamma coherence)
+gammaC002TableSize = cat(1,data.Coherr.Awake.zDiameter.gammaC002,data.Coherr.Asleep.zDiameter.gammaC002,data.Coherr.All.zDiameter.gammaC002);
+gammaC002Table = table('Size',[size(gammaC002TableSize,1),3],'VariableTypes',{'string','string','double'},'VariableNames',{'Mouse','Behavior','gammaC002'});
+gammaC002Table.Mouse = cat(1,data.Coherr.Awake.zDiameter.animalID,data.Coherr.Asleep.zDiameter.animalID,data.Coherr.All.zDiameter.animalID);
+gammaC002Table.Behavior = cat(1,data.Coherr.Awake.zDiameter.behavField,data.Coherr.Asleep.zDiameter.behavField,data.Coherr.All.zDiameter.behavField);
+gammaC002Table.gammaC002 = cat(1,data.Coherr.Awake.zDiameter.gammaC002,data.Coherr.Asleep.zDiameter.gammaC002,data.Coherr.All.zDiameter.gammaC002);
+gammaC002FitFormula = 'gammaC002 ~ 1 + Behavior + (1|Mouse)';
+gammaC002Stats = fitglme(gammaC002Table,gammaC002FitFormula);
+% statistics - generalized linear mixed effects model (0.35 HbT coherence)
+HbTC035TableSize = cat(1,data.Coherr.Rest.zDiameter.HbTC035,data.Coherr.NREM.zDiameter.HbTC035,data.Coherr.REM.zDiameter.HbTC035,data.Coherr.Awake.zDiameter.HbTC035,data.Coherr.Asleep.zDiameter.HbTC035,data.Coherr.All.zDiameter.HbTC035);
+HbTC035Table = table('Size',[size(HbTC035TableSize,1),3],'VariableTypes',{'string','string','double'},'VariableNames',{'Mouse','Behavior','HbTC035'});
+HbTC035Table.Mouse = cat(1,data.Coherr.Rest.zDiameter.animalID,data.Coherr.NREM.zDiameter.animalID,data.Coherr.REM.zDiameter.animalID,data.Coherr.Awake.zDiameter.animalID,data.Coherr.Asleep.zDiameter.animalID,data.Coherr.All.zDiameter.animalID);
+HbTC035Table.Behavior = cat(1,data.Coherr.Rest.zDiameter.behavField,data.Coherr.NREM.zDiameter.behavField,data.Coherr.REM.zDiameter.behavField,data.Coherr.Awake.zDiameter.behavField,data.Coherr.Asleep.zDiameter.behavField,data.Coherr.All.zDiameter.behavField);
+HbTC035Table.HbTC035 = cat(1,data.Coherr.Rest.zDiameter.HbTC035,data.Coherr.NREM.zDiameter.HbTC035,data.Coherr.REM.zDiameter.HbTC035,data.Coherr.Awake.zDiameter.HbTC035,data.Coherr.Asleep.zDiameter.HbTC035,data.Coherr.All.zDiameter.HbTC035);
+HbTC035FitFormula = 'HbTC035 ~ 1 + Behavior + (1|Mouse)';
+HbTC035Stats = fitglme(HbTC035Table,HbTC035FitFormula);
+% statistics - generalized linear mixed effects model (0.02 HbT coherence)
+gammaC035TableSize = cat(1,data.Coherr.Rest.zDiameter.gammaC035,data.Coherr.NREM.zDiameter.gammaC035,data.Coherr.REM.zDiameter.gammaC035,data.Coherr.Awake.zDiameter.gammaC035,data.Coherr.Asleep.zDiameter.gammaC035,data.Coherr.All.zDiameter.gammaC035);
+gammaC035Table = table('Size',[size(gammaC035TableSize,1),3],'VariableTypes',{'string','string','double'},'VariableNames',{'Mouse','Behavior','gammaC035'});
+gammaC035Table.Mouse = cat(1,data.Coherr.Rest.zDiameter.animalID,data.Coherr.NREM.zDiameter.animalID,data.Coherr.REM.zDiameter.animalID,data.Coherr.Awake.zDiameter.animalID,data.Coherr.Asleep.zDiameter.animalID,data.Coherr.All.zDiameter.animalID);
+gammaC035Table.Behavior = cat(1,data.Coherr.Rest.zDiameter.behavField,data.Coherr.NREM.zDiameter.behavField,data.Coherr.REM.zDiameter.behavField,data.Coherr.Awake.zDiameter.behavField,data.Coherr.Asleep.zDiameter.behavField,data.Coherr.All.zDiameter.behavField);
+gammaC035Table.gammaC035 = cat(1,data.Coherr.Rest.zDiameter.gammaC035,data.Coherr.NREM.zDiameter.gammaC035,data.Coherr.REM.zDiameter.gammaC035,data.Coherr.Awake.zDiameter.gammaC035,data.Coherr.Asleep.zDiameter.gammaC035,data.Coherr.All.zDiameter.gammaC035);
+gammaC035FitFormula = 'gammaC035 ~ 1 + Behavior + (1|Mouse)';
+gammaC035Stats = fitglme(gammaC035Table,gammaC035FitFormula);
+%% pupil HbT/gamma cross correlation
 resultsStruct = 'Results_CrossCorrelation';
 load(resultsStruct);
 animalIDs = fieldnames(Results_CrossCorrelation);
 behavFields = {'Rest','NREM','REM','Alert','Asleep','All'};
 dataTypes = {'mmArea','mmDiameter','zArea','zDiameter'};
-% cd through each animal's directory and extract the appropriate analysis results
+% concatenate the cross-correlation during different arousal states for each animal
 for aa = 1:length(animalIDs)
     animalID = animalIDs{aa,1};
     for bb = 1:length(behavFields)
@@ -287,88 +309,59 @@ for aa = 1:length(animalIDs)
             % pre-allocate necessary variable fields
             data.XCorr.(behavField).(dataType).dummCheck = 1;
             if isfield(data.XCorr.(behavField).(dataType),'LH_xcVals_HbT') == false
+                % LH HbT
                 data.XCorr.(behavField).(dataType).LH_xcVals_HbT = [];
                 data.XCorr.(behavField).(dataType).LH_peakLag_HbT = [];
                 data.XCorr.(behavField).(dataType).LH_peak_HbT = [];
-
+                % RH HbT
                 data.XCorr.(behavField).(dataType).RH_xcVals_HbT = [];
                 data.XCorr.(behavField).(dataType).RH_peakLag_HbT = [];
                 data.XCorr.(behavField).(dataType).RH_peak_HbT = [];
-
+                % LH gamma
                 data.XCorr.(behavField).(dataType).LH_xcVals_gamma = [];
                 data.XCorr.(behavField).(dataType).LH_peakLag_gamma = [];
                 data.XCorr.(behavField).(dataType).LH_peak_gamma = [];
-
+                % RH gamma
                 data.XCorr.(behavField).(dataType).RH_xcVals_gamma = [];
                 data.XCorr.(behavField).(dataType).RH_peakLag_gamma = [];
                 data.XCorr.(behavField).(dataType).RH_peak_gamma = [];
-
+                % lags and stats fields
                 data.XCorr.(behavField).(dataType).lags = [];
-
                 data.XCorr.(behavField).(dataType).animalID = {};
                 data.XCorr.(behavField).(dataType).behavField = {};
                 data.XCorr.(behavField).(dataType).LH = {};
                 data.XCorr.(behavField).(dataType).RH = {};
             end
+            samplingRate = 30;
+            offset = 3; % sec
+            % concatenate cross correlation during each arousal state, find peak + lag time
             if isfield(Results_CrossCorrelation.(animalID),behavField) == true
                 if isempty(Results_CrossCorrelation.(animalID).(behavField).LH_HbT.(dataType).xcVals) == false
-
+                    % LH HbT peak + lag time
                     data.XCorr.(behavField).(dataType).LH_xcVals_HbT = cat(1,data.XCorr.(behavField).(dataType).LH_xcVals_HbT,Results_CrossCorrelation.(animalID).(behavField).LH_HbT.(dataType).xcVals);
                     midPoint = floor(length(Results_CrossCorrelation.(animalID).(behavField).LH_HbT.(dataType).xcVals)/2);
-                    [minVal,minIndex] = min(Results_CrossCorrelation.(animalID).(behavField).LH_HbT.(dataType).xcVals(midPoint:midPoint + 30*3));
-                    %                     [maxVal,maxIndex] = max(Results_CrossCorrelation.(animalID).(behavField).LH_HbT.(dataType).xcVals(midPoint:midPoint + 30*3));
-                    %                     if abs(minVal) > maxVal
-                    index = minIndex;
-                    data.XCorr.(behavField).(dataType).LH_peakLag_HbT = cat(1,data.XCorr.(behavField).(dataType).LH_peakLag_HbT,index/30);
+                    [minVal,minIndex] = min(Results_CrossCorrelation.(animalID).(behavField).LH_HbT.(dataType).xcVals(midPoint - samplingRate*offset:midPoint + samplingRate*offset));
+                    data.XCorr.(behavField).(dataType).LH_peakLag_HbT = cat(1,data.XCorr.(behavField).(dataType).LH_peakLag_HbT,minIndex/samplingRate - offset);
                     data.XCorr.(behavField).(dataType).LH_peak_HbT = cat(1,data.XCorr.(behavField).(dataType).LH_peak_HbT,minVal);
-                    %                     else
-                    %                         index = maxIndex;
-                    %                         data.XCorr.(behavField).(dataType).LH_peakLag_HbT = cat(1,data.XCorr.(behavField).(dataType).LH_peakLag_HbT,index/30);
-                    %                         data.XCorr.(behavField).(dataType).LH_peak_HbT = cat(1,data.XCorr.(behavField).(dataType).LH_peak_HbT,maxVal);
-                    %                     end
-
+                    % RH HbT peak + lag time
                     data.XCorr.(behavField).(dataType).RH_xcVals_HbT = cat(1,data.XCorr.(behavField).(dataType).RH_xcVals_HbT,Results_CrossCorrelation.(animalID).(behavField).RH_HbT.(dataType).xcVals);
                     midPoint = floor(length(Results_CrossCorrelation.(animalID).(behavField).RH_HbT.(dataType).xcVals)/2);
-                    [minVal,minIndex] = min(Results_CrossCorrelation.(animalID).(behavField).RH_HbT.(dataType).xcVals(midPoint:midPoint + 30*3));
-                    %                     [maxVal,maxIndex] = max(Results_CrossCorrelation.(animalID).(behavField).RH_HbT.(dataType).xcVals(midPoint:midPoint + 30*3));
-                    %                     if abs(minVal) > maxVal
-                    index = minIndex;
-                    data.XCorr.(behavField).(dataType).RH_peakLag_HbT = cat(1,data.XCorr.(behavField).(dataType).RH_peakLag_HbT,index/30);
+                    [minVal,minIndex] = min(Results_CrossCorrelation.(animalID).(behavField).RH_HbT.(dataType).xcVals(midPoint - samplingRate*offset:midPoint + samplingRate*offset));
+                    data.XCorr.(behavField).(dataType).RH_peakLag_HbT = cat(1,data.XCorr.(behavField).(dataType).RH_peakLag_HbT,minIndex/samplingRate - offset);
                     data.XCorr.(behavField).(dataType).RH_peak_HbT = cat(1,data.XCorr.(behavField).(dataType).RH_peak_HbT,minVal);
-                    %                     else
-                    %                         index = maxIndex;
-                    %                         data.XCorr.(behavField).(dataType).RH_peakLag_HbT = cat(1,data.XCorr.(behavField).(dataType).RH_peakLag_HbT,index/30);
-                    %                         data.XCorr.(behavField).(dataType).RH_peak_HbT = cat(1,data.XCorr.(behavField).(dataType).RH_peak_HbT,maxVal);
-                    %                     end
-
+                    % LH gamma peak + lag time
                     data.XCorr.(behavField).(dataType).LH_xcVals_gamma = cat(1,data.XCorr.(behavField).(dataType).LH_xcVals_gamma,Results_CrossCorrelation.(animalID).(behavField).LH_gammaBandPower.(dataType).xcVals);
                     midPoint = floor(length(Results_CrossCorrelation.(animalID).(behavField).LH_gammaBandPower.(dataType).xcVals)/2);
-                    [minVal,minIndex] = min(Results_CrossCorrelation.(animalID).(behavField).LH_gammaBandPower.(dataType).xcVals(midPoint - 30*3:midPoint));
-                    %                     [maxVal,maxIndex] = max(Results_CrossCorrelation.(animalID).(behavField).LH_gammaBandPower.(dataType).xcVals(midPoint - 30*3:midPoint));
-                    %                     if abs(minVal) > maxVal
-                    index = minIndex;
-                    data.XCorr.(behavField).(dataType).LH_peakLag_gamma = cat(1,data.XCorr.(behavField).(dataType).LH_peakLag_gamma,(length(midPoint - 30*3:midPoint) - index)/30);
+                    [minVal,minIndex] = min(Results_CrossCorrelation.(animalID).(behavField).LH_gammaBandPower.(dataType).xcVals(midPoint - samplingRate*offset:midPoint + samplingRate*offset));
+                    data.XCorr.(behavField).(dataType).LH_peakLag_gamma = cat(1,data.XCorr.(behavField).(dataType).LH_peakLag_gamma,minIndex/samplingRate - offset);
                     data.XCorr.(behavField).(dataType).LH_peak_gamma = cat(1,data.XCorr.(behavField).(dataType).LH_peak_gamma,minVal);
-                    %                     else
-                    %                         index = maxIndex;
-                    %                         data.XCorr.(behavField).(dataType).LH_peakLag_gamma = cat(1,data.XCorr.(behavField).(dataType).LH_peakLag_gamma,(length(midPoint - 30*3:midPoint) - index)/30);
-                    %                         data.XCorr.(behavField).(dataType).LH_peak_gamma = cat(1,data.XCorr.(behavField).(dataType).LH_peak_gamma,maxVal);
-                    %                     end
-
+                    % RH gamma peak + lag time
                     data.XCorr.(behavField).(dataType).RH_xcVals_gamma = cat(1,data.XCorr.(behavField).(dataType).RH_xcVals_gamma,Results_CrossCorrelation.(animalID).(behavField).RH_gammaBandPower.(dataType).xcVals);
                     midPoint = floor(length(Results_CrossCorrelation.(animalID).(behavField).RH_gammaBandPower.(dataType).xcVals)/2);
-                    [minVal,minIndex] = min(Results_CrossCorrelation.(animalID).(behavField).RH_gammaBandPower.(dataType).xcVals(midPoint - 30*3:midPoint));
-                    %                     [maxVal,maxIndex] = max(Results_CrossCorrelation.(animalID).(behavField).RH_gammaBandPower.(dataType).xcVals(midPoint - 30*3:midPoint));
-                    %                     if abs(minVal) > maxVal
-                    index = minIndex;
-                    data.XCorr.(behavField).(dataType).RH_peakLag_gamma = cat(1,data.XCorr.(behavField).(dataType).RH_peakLag_gamma,(length(midPoint - 30*3:midPoint) - index)/30);
+                    [minVal,minIndex] = min(Results_CrossCorrelation.(animalID).(behavField).RH_gammaBandPower.(dataType).xcVals(midPoint - samplingRate*offset:midPoint + samplingRate*offset));
+                    data.XCorr.(behavField).(dataType).RH_peakLag_gamma = cat(1,data.XCorr.(behavField).(dataType).RH_peakLag_gamma,minIndex/samplingRate - offset);
                     data.XCorr.(behavField).(dataType).RH_peak_gamma = cat(1,data.XCorr.(behavField).(dataType).RH_peak_gamma,minVal);
-                    %                     else
-                    %                         index = maxIndex;
-                    %                         data.XCorr.(behavField).(dataType).RH_peakLag_gamma = cat(1,data.XCorr.(behavField).(dataType).RH_peakLag_gamma,(length(midPoint - 30*3:midPoint) - index)/30);
-                    %                         data.XCorr.(behavField).(dataType).RH_peak_gamma = cat(1,data.XCorr.(behavField).(dataType).RH_peak_gamma,maxVal);
-                    %                     end
-
+                    % lags and stats fields
                     data.XCorr.(behavField).(dataType).lags = cat(1,data.XCorr.(behavField).(dataType).lags,Results_CrossCorrelation.(animalID).(behavField).LH_HbT.(dataType).lags,Results_CrossCorrelation.(animalID).(behavField).RH_HbT.(dataType).lags);
                     data.XCorr.(behavField).(dataType).animalID = cat(1,data.XCorr.(behavField).(dataType).animalID,animalID);
                     data.XCorr.(behavField).(dataType).behavField = cat(1,data.XCorr.(behavField).(dataType).behavField,behavField);
@@ -379,142 +372,140 @@ for aa = 1:length(animalIDs)
         end
     end
 end
-% take the averages of each field through the proper dimension
+% mean and standard error/standard deviation of cross correlation values
 for dd = 1:length(behavFields)
     behavField = behavFields{1,dd};
     for ff = 1:length(dataTypes)
         dataType = dataTypes{1,ff};
-        % HbT XC mean/std
+        % HbT XC mean/sem
         data.XCorr.(behavField).(dataType).xcVals_HbT = cat(1,data.XCorr.(behavField).(dataType).LH_xcVals_HbT,data.XCorr.(behavField).(dataType).RH_xcVals_HbT);
         data.XCorr.(behavField).(dataType).meanXcVals_HbT = mean(data.XCorr.(behavField).(dataType).xcVals_HbT,1);
         data.XCorr.(behavField).(dataType).semXcVals_HbT = std(data.XCorr.(behavField).(dataType).xcVals_HbT,0,1)./sqrt(size(data.XCorr.(behavField).(dataType).xcVals_HbT,1));
         % HbT peak lag mean/std
         data.XCorr.(behavField).(dataType).peakLag_HbT = cat(1,data.XCorr.(behavField).(dataType).LH_peakLag_HbT,data.XCorr.(behavField).(dataType).RH_peakLag_HbT);
         data.XCorr.(behavField).(dataType).meanPeakLag_HbT = mean(data.XCorr.(behavField).(dataType).peakLag_HbT,1);
-        data.XCorr.(behavField).(dataType).stdPeakLag_HbT = std(data.XCorr.(behavField).(dataType).peakLag_HbT,0,1);%./sqrt(size(data.XCorr.(behavField).(dataType).peakLag_HbT,1));
+        data.XCorr.(behavField).(dataType).stdPeakLag_HbT = std(data.XCorr.(behavField).(dataType).peakLag_HbT,0,1);
         % HbT peak mean/std
         data.XCorr.(behavField).(dataType).peak_HbT = cat(1,data.XCorr.(behavField).(dataType).LH_peak_HbT,data.XCorr.(behavField).(dataType).RH_peak_HbT);
         data.XCorr.(behavField).(dataType).meanPeak_HbT = mean(data.XCorr.(behavField).(dataType).peak_HbT,1);
-        data.XCorr.(behavField).(dataType).stdPeak_HbT = std(data.XCorr.(behavField).(dataType).peak_HbT,0,1);%./sqrt(size(data.XCorr.(behavField).(dataType).peak_HbT,1));
-        % Gamma XC mean/std
+        data.XCorr.(behavField).(dataType).stdPeak_HbT = std(data.XCorr.(behavField).(dataType).peak_HbT,0,1);
+        % Gamma XC mean/sem
         data.XCorr.(behavField).(dataType).xcVals_gamma = cat(1,data.XCorr.(behavField).(dataType).LH_xcVals_gamma,data.XCorr.(behavField).(dataType).RH_xcVals_gamma);
         data.XCorr.(behavField).(dataType).meanXcVals_gamma = mean(data.XCorr.(behavField).(dataType).xcVals_gamma,1);
         data.XCorr.(behavField).(dataType).semXcVals_gamma = std(data.XCorr.(behavField).(dataType).xcVals_gamma,0,1)./sqrt(size(data.XCorr.(behavField).(dataType).xcVals_gamma,1));
         % Gamma peak lag mean/std
         data.XCorr.(behavField).(dataType).peakLag_gamma = cat(1,data.XCorr.(behavField).(dataType).LH_peakLag_gamma,data.XCorr.(behavField).(dataType).RH_peakLag_gamma);
         data.XCorr.(behavField).(dataType).meanPeakLag_gamma = mean(data.XCorr.(behavField).(dataType).peakLag_gamma,1);
-        data.XCorr.(behavField).(dataType).stdPeakLag_gamma = std(data.XCorr.(behavField).(dataType).peakLag_gamma,0,1);%./sqrt(size(data.XCorr.(behavField).(dataType).peakLag_gamma,1));
+        data.XCorr.(behavField).(dataType).stdPeakLag_gamma = std(data.XCorr.(behavField).(dataType).peakLag_gamma,0,1);
         % Gamma peak mean/std
         data.XCorr.(behavField).(dataType).peak_gamma = cat(1,data.XCorr.(behavField).(dataType).LH_peak_gamma,data.XCorr.(behavField).(dataType).RH_peak_gamma);
         data.XCorr.(behavField).(dataType).meanPeak_gamma = mean(data.XCorr.(behavField).(dataType).peak_gamma,1);
-        data.XCorr.(behavField).(dataType).stdPeak_gamma = std(data.XCorr.(behavField).(dataType).peak_gamma,0,1);%./sqrt(size(data.XCorr.(behavField).(dataType).peak_gamma,1));
+        data.XCorr.(behavField).(dataType).stdPeak_gamma = std(data.XCorr.(behavField).(dataType).peak_gamma,0,1);
         % Lags time vector
         data.XCorr.(behavField).(dataType).meanLags = mean(data.XCorr.(behavField).(dataType).lags,1);
     end
 end
 % statistics - generalized linear mixed effects model
-gammaPeakTableSize = cat(1,data.XCorr.Rest.zDiameter.peak_gamma,data.XCorr.NREM.zDiameter.peak_gamma,data.XCorr.REM.zDiameter.peak_gamma,...
-    data.XCorr.Alert.zDiameter.peak_gamma,data.XCorr.Asleep.zDiameter.peak_gamma,data.XCorr.All.zDiameter.peak_gamma);
-gammaPeakTable = table('Size',[size(gammaPeakTableSize,1),4],'VariableTypes',{'string','double','string','string'},'VariableNames',{'Mouse','Peak','Behavior','Hemisphere'});
-gammaPeakTable.Mouse = cat(1,data.XCorr.Rest.zDiameter.animalID,data.XCorr.Rest.zDiameter.animalID,data.XCorr.NREM.zDiameter.animalID,data.XCorr.NREM.zDiameter.animalID,...
-    data.XCorr.REM.zDiameter.animalID,data.XCorr.REM.zDiameter.animalID,data.XCorr.Alert.zDiameter.animalID,data.XCorr.Alert.zDiameter.animalID,...
-    data.XCorr.Asleep.zDiameter.animalID,data.XCorr.Asleep.zDiameter.animalID,data.XCorr.All.zDiameter.animalID,data.XCorr.All.zDiameter.animalID);
-gammaPeakTable.Peak = cat(1,data.XCorr.Rest.zDiameter.peak_gamma,data.XCorr.NREM.zDiameter.peak_gamma,data.XCorr.REM.zDiameter.peak_gamma,...
-    data.XCorr.Alert.zDiameter.peak_gamma,data.XCorr.Asleep.zDiameter.peak_gamma,data.XCorr.All.zDiameter.peak_gamma);
-gammaPeakTable.Behavior = cat(1,data.XCorr.Rest.zDiameter.behavField,data.XCorr.Rest.zDiameter.behavField,data.XCorr.NREM.zDiameter.behavField,data.XCorr.NREM.zDiameter.behavField,...
-    data.XCorr.REM.zDiameter.behavField,data.XCorr.REM.zDiameter.behavField,data.XCorr.Alert.zDiameter.behavField,data.XCorr.Alert.zDiameter.behavField,...
-    data.XCorr.Asleep.zDiameter.behavField,data.XCorr.Asleep.zDiameter.behavField,data.XCorr.All.zDiameter.behavField,data.XCorr.All.zDiameter.behavField);
-gammaPeakTable.Hemisphere = cat(1,data.XCorr.Rest.zDiameter.LH,data.XCorr.Rest.zDiameter.RH,data.XCorr.NREM.zDiameter.LH,data.XCorr.NREM.zDiameter.RH,...
-    data.XCorr.REM.zDiameter.LH,data.XCorr.REM.zDiameter.RH,data.XCorr.Alert.zDiameter.LH,data.XCorr.Alert.zDiameter.RH,...
-    data.XCorr.Asleep.zDiameter.LH,data.XCorr.Asleep.zDiameter.RH,data.XCorr.All.zDiameter.LH,data.XCorr.All.zDiameter.RH);
-gammaPeakFitFormula = 'Peak ~ 1 + Behavior + (1|Mouse) + (1|Mouse:Hemisphere)';
-gammaPeakStats = fitglme(gammaPeakTable,gammaPeakFitFormula); %#ok<*NASGU>
+% gammaPeakTableSize = cat(1,data.XCorr.Rest.zDiameter.peak_gamma,data.XCorr.NREM.zDiameter.peak_gamma,data.XCorr.REM.zDiameter.peak_gamma,...
+%     data.XCorr.Alert.zDiameter.peak_gamma,data.XCorr.Asleep.zDiameter.peak_gamma,data.XCorr.All.zDiameter.peak_gamma);
+% gammaPeakTable = table('Size',[size(gammaPeakTableSize,1),4],'VariableTypes',{'string','double','string','string'},'VariableNames',{'Mouse','Peak','Behavior','Hemisphere'});
+% gammaPeakTable.Mouse = cat(1,data.XCorr.Rest.zDiameter.animalID,data.XCorr.Rest.zDiameter.animalID,data.XCorr.NREM.zDiameter.animalID,data.XCorr.NREM.zDiameter.animalID,...
+%     data.XCorr.REM.zDiameter.animalID,data.XCorr.REM.zDiameter.animalID,data.XCorr.Alert.zDiameter.animalID,data.XCorr.Alert.zDiameter.animalID,...
+%     data.XCorr.Asleep.zDiameter.animalID,data.XCorr.Asleep.zDiameter.animalID,data.XCorr.All.zDiameter.animalID,data.XCorr.All.zDiameter.animalID);
+% gammaPeakTable.Peak = cat(1,data.XCorr.Rest.zDiameter.peak_gamma,data.XCorr.NREM.zDiameter.peak_gamma,data.XCorr.REM.zDiameter.peak_gamma,...
+%     data.XCorr.Alert.zDiameter.peak_gamma,data.XCorr.Asleep.zDiameter.peak_gamma,data.XCorr.All.zDiameter.peak_gamma);
+% gammaPeakTable.Behavior = cat(1,data.XCorr.Rest.zDiameter.behavField,data.XCorr.Rest.zDiameter.behavField,data.XCorr.NREM.zDiameter.behavField,data.XCorr.NREM.zDiameter.behavField,...
+%     data.XCorr.REM.zDiameter.behavField,data.XCorr.REM.zDiameter.behavField,data.XCorr.Alert.zDiameter.behavField,data.XCorr.Alert.zDiameter.behavField,...
+%     data.XCorr.Asleep.zDiameter.behavField,data.XCorr.Asleep.zDiameter.behavField,data.XCorr.All.zDiameter.behavField,data.XCorr.All.zDiameter.behavField);
+% gammaPeakTable.Hemisphere = cat(1,data.XCorr.Rest.zDiameter.LH,data.XCorr.Rest.zDiameter.RH,data.XCorr.NREM.zDiameter.LH,data.XCorr.NREM.zDiameter.RH,...
+%     data.XCorr.REM.zDiameter.LH,data.XCorr.REM.zDiameter.RH,data.XCorr.Alert.zDiameter.LH,data.XCorr.Alert.zDiameter.RH,...
+%     data.XCorr.Asleep.zDiameter.LH,data.XCorr.Asleep.zDiameter.RH,data.XCorr.All.zDiameter.LH,data.XCorr.All.zDiameter.RH);
+% gammaPeakFitFormula = 'Peak ~ 1 + Behavior + (1|Mouse) + (1|Mouse:Hemisphere)';
+% gammaPeakStats = fitglme(gammaPeakTable,gammaPeakFitFormula); %#ok<*NASGU>
 %% figures
 Fig2A = figure('Name','Figure Panel 2 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
-%%
-subplot(3,4,1);
-%
-p1 = plot(timeVector,procData.interWhisk.zDiameter.mean,'color',colors('vegas gold'),'LineWidth',2);
+%% stimulus/whisking evoked zDiameter changes
+ax1 = subplot(3,4,1);
+p1 = plot(timeVector,data.Evoked.interWhisk.zDiameter.mean,'color',colors('vegas gold'),'LineWidth',2);
 hold on
-plot(timeVector,procData.interWhisk.zDiameter.mean + procData.interWhisk.zDiameter.sem,'color',colors('vegas gold'),'LineWidth',0.5)
-plot(timeVector,procData.interWhisk.zDiameter.mean - procData.interWhisk.zDiameter.sem,'color',colors('vegas gold'),'LineWidth',0.5)
-%
-p2 = plot(timeVector,procData.stimSolenoid.zDiameter.mean,'color',colors('dark candy apple red'),'LineWidth',2);
-plot(timeVector,procData.stimSolenoid.zDiameter.mean + procData.stimSolenoid.zDiameter.sem,'color',colors('dark candy apple red'),'LineWidth',0.5)
-plot(timeVector,procData.stimSolenoid.zDiameter.mean - procData.stimSolenoid.zDiameter.sem,'color',colors('dark candy apple red'),'LineWidth',0.5)
-%
-p3 = plot(timeVector,procData.controlSolenoid.zDiameter.mean,'color',colors('deep carrot orange'),'LineWidth',2);
-hold on
-plot(timeVector,procData.controlSolenoid.zDiameter.mean + procData.controlSolenoid.zDiameter.sem,'color',colors('deep carrot orange'),'LineWidth',0.5)
-plot(timeVector,procData.controlSolenoid.zDiameter.mean - procData.controlSolenoid.zDiameter.sem,'color',colors('deep carrot orange'),'LineWidth',0.5)
+plot(timeVector,data.Evoked.interWhisk.zDiameter.mean + data.Evoked.interWhisk.zDiameter.sem,'color',colors('vegas gold'),'LineWidth',0.5)
+plot(timeVector,data.Evoked.interWhisk.zDiameter.mean - data.Evoked.interWhisk.zDiameter.sem,'color',colors('vegas gold'),'LineWidth',0.5)
+p2 = plot(timeVector,data.Evoked.stimSolenoid.zDiameter.mean,'color',colors('dark candy apple red'),'LineWidth',2);
+plot(timeVector,data.Evoked.stimSolenoid.zDiameter.mean + data.Evoked.stimSolenoid.zDiameter.sem,'color',colors('dark candy apple red'),'LineWidth',0.5)
+plot(timeVector,data.Evoked.stimSolenoid.zDiameter.mean - data.Evoked.stimSolenoid.zDiameter.sem,'color',colors('dark candy apple red'),'LineWidth',0.5)
+p3 = plot(timeVector,data.Evoked.controlSolenoid.zDiameter.mean,'color',colors('deep carrot orange'),'LineWidth',2);
+plot(timeVector,data.Evoked.controlSolenoid.zDiameter.mean + data.Evoked.controlSolenoid.zDiameter.sem,'color',colors('deep carrot orange'),'LineWidth',0.5)
+plot(timeVector,data.Evoked.controlSolenoid.zDiameter.mean - data.Evoked.controlSolenoid.zDiameter.sem,'color',colors('deep carrot orange'),'LineWidth',0.5)
 ylabel('\DeltaZ Units')
 xlabel('Time (s)')
 title('Evoked pupil zDiameter')
-legend([p1,p2,p3],'Whisk','Stim','Aud')
+legend([p1,p2,p3],'Whisk','Stim','Aud','Location','NorthEast')
 set(gca,'box','off')
 xlim([-2,10])
 axis square
-%% mm pupil diameter scatter
+ax1.TickLength = [0.03,0.03];
+%% mm pupil diameter during arousal states
 ax2 = subplot(3,4,2);
-scatter(ones(1,length(data.Rest.indMeanDiameter))*1,data.Rest.indMeanDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colorRest,'jitter','on','jitterAmount',0.25);
+s1 = scatter(ones(1,length(data.Diameter.Rest.mmDiameter))*1,data.Diameter.Rest.mmDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colorRest,'jitter','on','jitterAmount',0.25);
 hold on
-e1 = errorbar(1,data.Rest.meanDiameter,data.Rest.stdDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e1 = errorbar(1,data.Diameter.Rest.meanDiameter,data.Diameter.Rest.stdDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e1.Color = 'black';
 e1.MarkerSize = 10;
 e1.CapSize = 10;
-scatter(ones(1,length(data.Whisk.indMeanDiameter))*2,data.Whisk.indMeanDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colorWhisk,'jitter','on','jitterAmount',0.25);
-e2 = errorbar(2,data.Whisk.meanDiameter,data.Whisk.stdDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+s2 = scatter(ones(1,length(data.Diameter.Whisk.mmDiameter))*2,data.Diameter.Whisk.mmDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colorWhisk,'jitter','on','jitterAmount',0.25);
+e2 = errorbar(2,data.Diameter.Whisk.meanDiameter,data.Diameter.Whisk.stdDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e2.Color = 'black';
 e2.MarkerSize = 10;
 e2.CapSize = 10;
-scatter(ones(1,length(data.Stim.indMeanDiameter))*3,data.Stim.indMeanDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colorStim,'jitter','on','jitterAmount',0.25);
-e3 = errorbar(3,data.Stim.meanDiameter,data.Stim.stdDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+s3 = scatter(ones(1,length(data.Diameter.Stim.mmDiameter))*3,data.Diameter.Stim.mmDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colorStim,'jitter','on','jitterAmount',0.25);
+e3 = errorbar(3,data.Diameter.Stim.meanDiameter,data.Diameter.Stim.stdDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e3.Color = 'black';
 e3.MarkerSize = 10;
 e3.CapSize = 10;
-scatter(ones(1,length(data.NREM.indMeanDiameter))*4,data.NREM.indMeanDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colorNREM,'jitter','on','jitterAmount',0.25);
-e4 = errorbar(4,data.NREM.meanDiameter,data.NREM.stdDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+s4 = scatter(ones(1,length(data.Diameter.NREM.mmDiameter))*4,data.Diameter.NREM.mmDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colorNREM,'jitter','on','jitterAmount',0.25);
+e4 = errorbar(4,data.Diameter.NREM.meanDiameter,data.Diameter.NREM.stdDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e4.Color = 'black';
 e4.MarkerSize = 10;
 e4.CapSize = 10;
-scatter(ones(1,length(data.REM.indMeanDiameter))*5,data.REM.indMeanDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colorREM,'jitter','on','jitterAmount',0.25);
-e5 = errorbar(5,data.REM.meanDiameter,data.REM.stdDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+s5 = scatter(ones(1,length(data.Diameter.REM.mmDiameter))*5,data.Diameter.REM.mmDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colorREM,'jitter','on','jitterAmount',0.25);
+e5 = errorbar(5,data.Diameter.REM.meanDiameter,data.Diameter.REM.stdDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e5.Color = 'black';
 e5.MarkerSize = 10;
 e5.CapSize = 10;
 ylabel('Diameter (mm)')
 title('Arousal pupil diameter (mm)')
+legend([s1,s2,s3,s4,s5],'Rest','Whisk','Stim','NREM','REM','Location','NorthEast')
 set(gca,'xtick',[])
 set(gca,'xticklabel',[])
 axis square
-xlim([0,length(behavFields) + 1])
+xlim([0,6])
 set(gca,'box','off')
 ax2.TickLength = [0.03,0.03];
-%% mm pupil diameter scatter
-ax4 = subplot(3,4,3);
-scatter(ones(1,length(data.Rest.indMeanzDiameter))*1,data.Rest.indMeanzDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colorRest,'jitter','on','jitterAmount',0.25);
+%% z-unit pupil diameter during arousal states
+ax3 = subplot(3,4,3);
+scatter(ones(1,length(data.Diameter.Rest.zDiameter))*1,data.Diameter.Rest.zDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colorRest,'jitter','on','jitterAmount',0.25);
 hold on
-e1 = errorbar(1,data.Rest.meanzDiameter,data.Rest.stdzDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e1 = errorbar(1,data.Diameter.Rest.meanzDiameter,data.Diameter.Rest.stdzDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e1.Color = 'black';
 e1.MarkerSize = 10;
 e1.CapSize = 10;
-scatter(ones(1,length(data.Whisk.indMeanzDiameter))*2,data.Whisk.indMeanzDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colorWhisk,'jitter','on','jitterAmount',0.25);
-e2 = errorbar(2,data.Whisk.meanzDiameter,data.Whisk.stdzDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+scatter(ones(1,length(data.Diameter.Whisk.zDiameter))*2,data.Diameter.Whisk.zDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colorWhisk,'jitter','on','jitterAmount',0.25);
+e2 = errorbar(2,data.Diameter.Whisk.meanzDiameter,data.Diameter.Whisk.stdzDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e2.Color = 'black';
 e2.MarkerSize = 10;
 e2.CapSize = 10;
-scatter(ones(1,length(data.Stim.indMeanzDiameter))*3,data.Stim.indMeanzDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colorStim,'jitter','on','jitterAmount',0.25);
-e3 = errorbar(3,data.Stim.meanzDiameter,data.Stim.stdzDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+scatter(ones(1,length(data.Diameter.Stim.zDiameter))*3,data.Diameter.Stim.zDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colorStim,'jitter','on','jitterAmount',0.25);
+e3 = errorbar(3,data.Diameter.Stim.meanzDiameter,data.Diameter.Stim.stdzDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e3.Color = 'black';
 e3.MarkerSize = 10;
 e3.CapSize = 10;
-scatter(ones(1,length(data.NREM.indMeanzDiameter))*4,data.NREM.indMeanzDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colorNREM,'jitter','on','jitterAmount',0.25);
-e4 = errorbar(4,data.NREM.meanzDiameter,data.NREM.stdzDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+scatter(ones(1,length(data.Diameter.NREM.zDiameter))*4,data.Diameter.NREM.zDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colorNREM,'jitter','on','jitterAmount',0.25);
+e4 = errorbar(4,data.Diameter.NREM.meanzDiameter,data.Diameter.NREM.stdzDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e4.Color = 'black';
 e4.MarkerSize = 10;
 e4.CapSize = 10;
-scatter(ones(1,length(data.REM.indMeanzDiameter))*5,data.REM.indMeanzDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colorREM,'jitter','on','jitterAmount',0.25);
-e5 = errorbar(5,data.REM.meanzDiameter,data.REM.stdzDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+scatter(ones(1,length(data.Diameter.REM.zDiameter))*5,data.Diameter.REM.zDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colorREM,'jitter','on','jitterAmount',0.25);
+e5 = errorbar(5,data.Diameter.REM.meanzDiameter,data.Diameter.REM.stdzDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e5.Color = 'black';
 e5.MarkerSize = 10;
 e5.CapSize = 10;
@@ -523,34 +514,44 @@ title('Arousal pupil diameter (z units)')
 set(gca,'xtick',[])
 set(gca,'xticklabel',[])
 axis square
-xlim([0,length(behavFields) + 1])
+xlim([0,6])
 set(gca,'box','off')
-ax4.TickLength = [0.03,0.03];
-%%
-subplot(3,4,4);
-L1 = loglog(data.Rest.zDiameter.meanf,data.Rest.zDiameter.meanS,'color',colorRest,'LineWidth',2);
+ax3.TickLength = [0.03,0.03];
+%% zDiameter pupil power spectrum during arousal states
+ax4 = subplot(3,4,4);
+L1 = loglog(data.PowerSpec.Rest.zDiameter.meanf,data.PowerSpec.Rest.zDiameter.meanS,'color',colorRest,'LineWidth',2);
 hold on
+loglog(data.PowerSpec.Rest.zDiameter.meanf,data.PowerSpec.Rest.zDiameter.meanS + data.PowerSpec.Rest.zDiameter.semS,'color',colorRest,'LineWidth',0.5);
+loglog(data.PowerSpec.Rest.zDiameter.meanf,data.PowerSpec.Rest.zDiameter.meanS - data.PowerSpec.Rest.zDiameter.semS,'color',colorRest,'LineWidth',0.5);
 rectangle('Position',[0.005,0.1,0.1 - 0.005,1],'FaceColor','w','EdgeColor','w')
-L2 = loglog(data.NREM.zDiameter.meanf,data.NREM.zDiameter.meanS,'color',colorNREM,'LineWidth',2);
+L2 = loglog(data.PowerSpec.NREM.zDiameter.meanf,data.PowerSpec.NREM.zDiameter.meanS,'color',colorNREM,'LineWidth',2);
+loglog(data.PowerSpec.NREM.zDiameter.meanf,data.PowerSpec.NREM.zDiameter.meanS + data.PowerSpec.NREM.zDiameter.semS,'color',colorNREM,'LineWidth',0.5);
+loglog(data.PowerSpec.NREM.zDiameter.meanf,data.PowerSpec.NREM.zDiameter.meanS - data.PowerSpec.NREM.zDiameter.semS,'color',colorNREM,'LineWidth',0.5);
 rectangle('Position',[0.005,0.1,1/30 - 0.005,5],'FaceColor','w','EdgeColor','w')
-L3 = loglog(data.REM.zDiameter.meanf,data.REM.zDiameter.meanS,'color',colorREM,'LineWidth',2);
-rectangle('Position',[0.005,0.1,1/60 - 0.005,1],'FaceColor','w','EdgeColor','w')
-L4 = loglog(data.Awake.zDiameter.meanf,data.Awake.zDiameter.meanS,'color',colorAlert,'LineWidth',2);
-L5 = loglog(data.Asleep.zDiameter.meanf,data.Asleep.zDiameter.meanS,'color',colorAsleep,'LineWidth',2);
-L6 = loglog(data.All.zDiameter.meanf,data.All.zDiameter.meanS,'color',colorAll,'LineWidth',2);
-xline(1/10,'color','k');
-xline(1/30,'color','k');
-xline(1/60,'color','k');
+L3 = loglog(data.PowerSpec.REM.zDiameter.meanf,data.PowerSpec.REM.zDiameter.meanS,'color',colorREM,'LineWidth',2);
+loglog(data.PowerSpec.REM.zDiameter.meanf,data.PowerSpec.REM.zDiameter.meanS + data.PowerSpec.REM.zDiameter.semS,'color',colorREM,'LineWidth',0.5);
+loglog(data.PowerSpec.REM.zDiameter.meanf,data.PowerSpec.REM.zDiameter.meanS - data.PowerSpec.REM.zDiameter.semS,'color',colorREM,'LineWidth',0.5);
+rectangle('Position',[0.005,0.1,1/60 - 0.005,5],'FaceColor','w','EdgeColor','w')
+L4 = loglog(data.PowerSpec.Awake.zDiameter.meanf,data.PowerSpec.Awake.zDiameter.meanS,'color',colorAlert,'LineWidth',2);
+loglog(data.PowerSpec.Awake.zDiameter.meanf,data.PowerSpec.Awake.zDiameter.meanS + data.PowerSpec.Awake.zDiameter.semS,'color',colorAlert,'LineWidth',0.5);
+loglog(data.PowerSpec.Awake.zDiameter.meanf,data.PowerSpec.Awake.zDiameter.meanS - data.PowerSpec.Awake.zDiameter.semS,'color',colorAlert,'LineWidth',0.5);
+L5 = loglog(data.PowerSpec.Asleep.zDiameter.meanf,data.PowerSpec.Asleep.zDiameter.meanS,'color',colorAsleep,'LineWidth',2);
+loglog(data.PowerSpec.Asleep.zDiameter.meanf,data.PowerSpec.Asleep.zDiameter.meanS + data.PowerSpec.Asleep.zDiameter.semS,'color',colorAsleep,'LineWidth',0.5);
+loglog(data.PowerSpec.Asleep.zDiameter.meanf,data.PowerSpec.Asleep.zDiameter.meanS - data.PowerSpec.Asleep.zDiameter.semS,'color',colorAsleep,'LineWidth',0.5);
+L6 = loglog(data.PowerSpec.All.zDiameter.meanf,data.PowerSpec.All.zDiameter.meanS,'color',colorAll,'LineWidth',2);
+loglog(data.PowerSpec.All.zDiameter.meanf,data.PowerSpec.All.zDiameter.meanS + data.PowerSpec.All.zDiameter.semS,'color',colorAll,'LineWidth',0.5);
+loglog(data.PowerSpec.All.zDiameter.meanf,data.PowerSpec.All.zDiameter.meanS - data.PowerSpec.All.zDiameter.semS,'color',colorAll,'LineWidth',0.5);
 title('Pupil power spectrum')
 ylabel('Power (a.u.)')
 xlabel('Freq (Hz)')
-legend([L1,L2,L3,L4,L5,L6],'Rest','NREM','REM','Alert','Asleep','All','Location','NorthEast')
-% axis square
+legend([L1,L2,L3,L4,L5,L6],'Rest','NREM','REM','Alert','Asleep','All','Location','SouthWest')
+axis square
 axis tight
 xlim([0.003,1])
 set(gca,'box','off')
-%%
-subplot(3,4,5);
+ax4.TickLength = [0.03,0.03];
+%% HbT-pupil coherence
+ax5 = subplot(3,4,5);
 semilogx(data.Coherr.Rest.zDiameter.meanHbTf,data.Coherr.Rest.zDiameter.meanHbTC,'color',colorRest,'LineWidth',2);
 hold on
 semilogx(data.Coherr.Rest.zDiameter.meanHbTf,data.Coherr.Rest.zDiameter.meanHbTC + data.Coherr.Rest.zDiameter.semHbTC,'color',colorRest,'LineWidth',0.5);
@@ -573,19 +574,18 @@ semilogx(data.Coherr.Asleep.zDiameter.meanHbTf,data.Coherr.Asleep.zDiameter.mean
 semilogx(data.Coherr.All.zDiameter.meanHbTf,data.Coherr.All.zDiameter.meanHbTC,'color',colorAll,'LineWidth',2);
 semilogx(data.Coherr.All.zDiameter.meanHbTf,data.Coherr.All.zDiameter.meanHbTC + data.Coherr.All.zDiameter.semHbTC,'color',colorAll,'LineWidth',0.5);
 semilogx(data.Coherr.All.zDiameter.meanHbTf,data.Coherr.All.zDiameter.meanHbTC - data.Coherr.All.zDiameter.semHbTC,'color',colorAll,'LineWidth',0.5);
-xline(1/50,'color','b');
-xline(1/10,'color','k');
-xline(1/30,'color','k');
-xline(1/60,'color','k');
+xline(0.02,'color','b');
+xline(0.35,'color','r');
 title('Pupil-HbT coherence')
 ylabel('Coherence')
 xlabel('Freq (Hz)')
-% axis square
+axis square
 xlim([0.003,1])
 ylim([0,1])
 set(gca,'box','off')
-%% HbT:Pupil Stats
-subplot(3,4,6)
+ax5.TickLength = [0.03,0.03];
+%% HbT-pupil coherence Stats
+ax6 = subplot(3,4,6);
 scatter(ones(1,length(data.Coherr.Awake.zDiameter.HbTC002))*1,data.Coherr.Awake.zDiameter.HbTC002,75,'MarkerEdgeColor','k','MarkerFaceColor',colorAlert,'jitter','on','jitterAmount',0.25);
 hold on
 e1 = errorbar(1,data.Coherr.Awake.zDiameter.meanHbTC002,data.Coherr.Awake.zDiameter.stdHbTC002,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
@@ -593,27 +593,55 @@ e1.Color = 'black';
 e1.MarkerSize = 10;
 e1.CapSize = 10;
 scatter(ones(1,length(data.Coherr.Asleep.zDiameter.HbTC002))*2,data.Coherr.Asleep.zDiameter.HbTC002,75,'MarkerEdgeColor','k','MarkerFaceColor',colorAsleep,'jitter','on','jitterAmount',0.25);
-hold on
 e2 = errorbar(2,data.Coherr.Asleep.zDiameter.meanHbTC002,data.Coherr.Asleep.zDiameter.stdHbTC002,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e2.Color = 'black';
 e2.MarkerSize = 10;
 e2.CapSize = 10;
 scatter(ones(1,length(data.Coherr.All.zDiameter.HbTC002))*3,data.Coherr.All.zDiameter.HbTC002,75,'MarkerEdgeColor','k','MarkerFaceColor',colorAll,'jitter','on','jitterAmount',0.25);
-hold on
 e3 = errorbar(3,data.Coherr.All.zDiameter.meanHbTC002,data.Coherr.All.zDiameter.stdHbTC002,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e3.Color = 'black';
 e3.MarkerSize = 10;
 e3.CapSize = 10;
-title('Pupil-HbT coherence @ 0.02 Hz')
+scatter(ones(1,length(data.Coherr.Rest.zDiameter.HbTC035))*5,data.Coherr.Rest.zDiameter.HbTC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colorRest,'jitter','on','jitterAmount',0.25);
+e4 = errorbar(5,data.Coherr.Rest.zDiameter.meanHbTC035,data.Coherr.Rest.zDiameter.stdHbTC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e4.Color = 'black';
+e4.MarkerSize = 10;
+e4.CapSize = 10;
+scatter(ones(1,length(data.Coherr.NREM.zDiameter.HbTC035))*6,data.Coherr.NREM.zDiameter.HbTC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colorNREM,'jitter','on','jitterAmount',0.25);
+e5 = errorbar(6,data.Coherr.NREM.zDiameter.meanHbTC035,data.Coherr.NREM.zDiameter.stdHbTC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e5.Color = 'black';
+e5.MarkerSize = 10;
+e5.CapSize = 10;
+scatter(ones(1,length(data.Coherr.REM.zDiameter.HbTC035))*7,data.Coherr.REM.zDiameter.HbTC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colorREM,'jitter','on','jitterAmount',0.25);
+e6 = errorbar(7,data.Coherr.REM.zDiameter.meanHbTC035,data.Coherr.REM.zDiameter.stdHbTC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e6.Color = 'black';
+e6.MarkerSize = 10;
+e6.CapSize = 10;
+scatter(ones(1,length(data.Coherr.Awake.zDiameter.HbTC035))*8,data.Coherr.Awake.zDiameter.HbTC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colorAlert,'jitter','on','jitterAmount',0.25);
+e7 = errorbar(8,data.Coherr.Awake.zDiameter.meanHbTC035,data.Coherr.Awake.zDiameter.stdHbTC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e7.Color = 'black';
+e7.MarkerSize = 10;
+e7.CapSize = 10;
+scatter(ones(1,length(data.Coherr.Asleep.zDiameter.HbTC035))*9,data.Coherr.Asleep.zDiameter.HbTC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colorAsleep,'jitter','on','jitterAmount',0.25);
+e8 = errorbar(9,data.Coherr.Asleep.zDiameter.meanHbTC035,data.Coherr.Asleep.zDiameter.stdHbTC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e8.Color = 'black';
+e8.MarkerSize = 10;
+e8.CapSize = 10;
+scatter(ones(1,length(data.Coherr.All.zDiameter.HbTC035))*10,data.Coherr.All.zDiameter.HbTC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colorAll,'jitter','on','jitterAmount',0.25);
+e9 = errorbar(10,data.Coherr.All.zDiameter.meanHbTC035,data.Coherr.All.zDiameter.stdHbTC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e9.Color = 'black';
+e9.MarkerSize = 10;
+e9.CapSize = 10;
+title('Pupil-HbT coherence @ 0.02/0.35 Hz')
 ylabel('Coherece')
 set(gca,'xtick',[])
 set(gca,'xticklabel',[])
 axis square
-xlim([0,4])
+xlim([0,11])
 set(gca,'box','off')
-ax2.TickLength = [0.03,0.03];
-%%
-subplot(3,4,7);
+ax6.TickLength = [0.03,0.03];
+%% gamma-pupil coherence during arousal states
+ax7 = subplot(3,4,7);
 semilogx(data.Coherr.Rest.zDiameter.meanGammaf,data.Coherr.Rest.zDiameter.meanGammaC,'color',colorRest,'LineWidth',2);
 hold on
 semilogx(data.Coherr.Rest.zDiameter.meanGammaf,data.Coherr.Rest.zDiameter.meanGammaC + data.Coherr.Rest.zDiameter.semGammaC,'color',colorRest,'LineWidth',0.5);
@@ -636,19 +664,18 @@ semilogx(data.Coherr.Asleep.zDiameter.meanGammaf,data.Coherr.Asleep.zDiameter.me
 semilogx(data.Coherr.All.zDiameter.meanGammaf,data.Coherr.All.zDiameter.meanGammaC,'color',colorAll,'LineWidth',2);
 semilogx(data.Coherr.All.zDiameter.meanGammaf,data.Coherr.All.zDiameter.meanGammaC + data.Coherr.All.zDiameter.semGammaC,'color',colorAll,'LineWidth',0.5);
 semilogx(data.Coherr.All.zDiameter.meanGammaf,data.Coherr.All.zDiameter.meanGammaC - data.Coherr.All.zDiameter.semGammaC,'color',colorAll,'LineWidth',0.5);
-xline(1/50,'color','b');
-xline(1/10,'color','k');
-xline(1/30,'color','k');
-xline(1/60,'color','k');
+xline(0.02,'color','b');
+xline(0.35,'color','r');
 title('Pupil-Gamma coherence')
 ylabel('Coherence')
 xlabel('Freq (Hz)')
-% axis square
+axis square
 xlim([0.003,1])
 ylim([0,1])
 set(gca,'box','off')
-%% gamma:Pupil Stats
-subplot(3,4,8)
+ax7.TickLength = [0.03,0.03];
+%% gamma-pupil coherence stats
+ax8 = subplot(3,4,8);
 scatter(ones(1,length(data.Coherr.Awake.zDiameter.gammaC002))*1,data.Coherr.Awake.zDiameter.gammaC002,75,'MarkerEdgeColor','k','MarkerFaceColor',colorAlert,'jitter','on','jitterAmount',0.25);
 hold on
 e1 = errorbar(1,data.Coherr.Awake.zDiameter.meanGammaC002,data.Coherr.Awake.zDiameter.stdGammaC002,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
@@ -656,27 +683,55 @@ e1.Color = 'black';
 e1.MarkerSize = 10;
 e1.CapSize = 10;
 scatter(ones(1,length(data.Coherr.Asleep.zDiameter.gammaC002))*2,data.Coherr.Asleep.zDiameter.gammaC002,75,'MarkerEdgeColor','k','MarkerFaceColor',colorAsleep,'jitter','on','jitterAmount',0.25);
-hold on
 e2 = errorbar(2,data.Coherr.Asleep.zDiameter.meanGammaC002,data.Coherr.Asleep.zDiameter.stdGammaC002,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e2.Color = 'black';
 e2.MarkerSize = 10;
 e2.CapSize = 10;
 scatter(ones(1,length(data.Coherr.All.zDiameter.gammaC002))*3,data.Coherr.All.zDiameter.gammaC002,75,'MarkerEdgeColor','k','MarkerFaceColor',colorAll,'jitter','on','jitterAmount',0.25);
-hold on
 e3 = errorbar(3,data.Coherr.All.zDiameter.meanGammaC002,data.Coherr.All.zDiameter.stdGammaC002,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e3.Color = 'black';
 e3.MarkerSize = 10;
 e3.CapSize = 10;
-title('Pupil-Gamma coherence @ 0.02 Hz')
+scatter(ones(1,length(data.Coherr.Rest.zDiameter.gammaC035))*5,data.Coherr.Rest.zDiameter.gammaC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colorRest,'jitter','on','jitterAmount',0.25);
+e4 = errorbar(5,data.Coherr.Rest.zDiameter.meanGammaC035,data.Coherr.Rest.zDiameter.stdGammaC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e4.Color = 'black';
+e4.MarkerSize = 10;
+e4.CapSize = 10;
+scatter(ones(1,length(data.Coherr.NREM.zDiameter.gammaC035))*6,data.Coherr.NREM.zDiameter.gammaC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colorNREM,'jitter','on','jitterAmount',0.25);
+e5 = errorbar(6,data.Coherr.NREM.zDiameter.meanGammaC035,data.Coherr.NREM.zDiameter.stdGammaC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e5.Color = 'black';
+e5.MarkerSize = 10;
+e5.CapSize = 10;
+scatter(ones(1,length(data.Coherr.REM.zDiameter.gammaC035))*7,data.Coherr.REM.zDiameter.gammaC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colorREM,'jitter','on','jitterAmount',0.25);
+e6 = errorbar(7,data.Coherr.REM.zDiameter.meanGammaC035,data.Coherr.REM.zDiameter.stdGammaC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e6.Color = 'black';
+e6.MarkerSize = 10;
+e6.CapSize = 10;
+scatter(ones(1,length(data.Coherr.Awake.zDiameter.gammaC035))*8,data.Coherr.Awake.zDiameter.gammaC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colorAlert,'jitter','on','jitterAmount',0.25);
+e7 = errorbar(8,data.Coherr.Awake.zDiameter.meanGammaC035,data.Coherr.Awake.zDiameter.stdGammaC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e7.Color = 'black';
+e7.MarkerSize = 10;
+e7.CapSize = 10;
+scatter(ones(1,length(data.Coherr.Asleep.zDiameter.gammaC035))*9,data.Coherr.Asleep.zDiameter.gammaC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colorAsleep,'jitter','on','jitterAmount',0.25);
+e8 = errorbar(9,data.Coherr.Asleep.zDiameter.meanGammaC035,data.Coherr.Asleep.zDiameter.stdGammaC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e8.Color = 'black';
+e8.MarkerSize = 10;
+e8.CapSize = 10;
+scatter(ones(1,length(data.Coherr.All.zDiameter.gammaC035))*10,data.Coherr.All.zDiameter.gammaC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colorAll,'jitter','on','jitterAmount',0.25);
+e9 = errorbar(10,data.Coherr.All.zDiameter.meanGammaC035,data.Coherr.All.zDiameter.stdGammaC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e9.Color = 'black';
+e9.MarkerSize = 10;
+e9.CapSize = 10;
+title('Pupil-Gamma coherence @ 0.02/0.35 Hz')
 ylabel('Coherence')
 set(gca,'xtick',[])
 set(gca,'xticklabel',[])
 axis square
-xlim([0,4])
+xlim([0,11])
 set(gca,'box','off')
-ax2.TickLength = [0.03,0.03];
-%% HbT-Pupil cross correlation [rest, NREM, REM]
-subplot(3,4,9);
+ax8.TickLength = [0.03,0.03];
+%% HbT-pupil cross correlation [rest, NREM, REM]
+ax9 = subplot(3,4,9);
 freq = 30;
 lagSec = 5;
 plot(data.XCorr.Rest.zDiameter.meanLags,data.XCorr.Rest.zDiameter.meanXcVals_HbT,'color',colorRest,'LineWidth',2);
@@ -698,10 +753,11 @@ ylabel('Correlation')
 title('Pupil-HbT XCorr')
 axis square
 set(gca,'box','off')
-%% HbT-Pupil cross correlation [alert, asleep, all]
-subplot(3,4,10);
+ax9.TickLength = [0.03,0.03];
+%% HbT-pupil cross correlation [alert, asleep, all]
+ax10 = subplot(3,4,10);
 freq = 30;
-lagSec = 10;
+lagSec = 30;
 plot(data.XCorr.Alert.zDiameter.meanLags,data.XCorr.Alert.zDiameter.meanXcVals_HbT,'color',colorAlert,'LineWidth',2);
 hold on
 plot(data.XCorr.Alert.zDiameter.meanLags,data.XCorr.Alert.zDiameter.meanXcVals_HbT + data.XCorr.Alert.zDiameter.semXcVals_HbT,'color',colorAlert,'LineWidth',0.5);
@@ -714,15 +770,16 @@ plot(data.XCorr.All.zDiameter.meanLags,data.XCorr.All.zDiameter.meanXcVals_HbT +
 plot(data.XCorr.All.zDiameter.meanLags,data.XCorr.All.zDiameter.meanXcVals_HbT - data.XCorr.All.zDiameter.semXcVals_HbT,'color',colorAll,'LineWidth',0.5);
 title({'Blank-SAP treated RH REM','MUA-[HbT] XCorr'})
 xticks([-lagSec*freq,-lagSec*freq/2,0,lagSec*freq/2,lagSec*freq])
-xticklabels({'-10','-5','0','5','10'})
+xticklabels({'-30','-15','0','15','30'})
 xlim([-lagSec*freq,lagSec*freq])
 xlabel('Lags (s)')
 ylabel('Correlation')
 title('Pupil-HbT XCorr')
 axis square
 set(gca,'box','off')
-%% Gamma-Pupil cross correlation [rest, NREM, REM]
-subplot(3,4,11);
+ax10.TickLength = [0.03,0.03];
+%% gamma-pupil cross correlation [rest, NREM, REM]
+ax11 = subplot(3,4,11);
 freq = 30;
 lagSec = 5;
 plot(data.XCorr.Rest.zDiameter.meanLags,data.XCorr.Rest.zDiameter.meanXcVals_gamma,'color',colorRest,'LineWidth',2);
@@ -744,10 +801,11 @@ ylabel('Correlation')
 title('Pupil-Gamma XCorr')
 axis square
 set(gca,'box','off')
-%% Gamma-Pupil cross correlation [alert, asleep, all]
-subplot(3,4,12);
+ax11.TickLength = [0.03,0.03];
+%% gamma-pupil cross correlation [alert, asleep, all]
+ax12 = subplot(3,4,12);
 freq = 30;
-lagSec = 10;
+lagSec = 30;
 plot(data.XCorr.Alert.zDiameter.meanLags,data.XCorr.Alert.zDiameter.meanXcVals_gamma,'color',colorAlert,'LineWidth',2);
 hold on
 plot(data.XCorr.Alert.zDiameter.meanLags,data.XCorr.Alert.zDiameter.meanXcVals_gamma + data.XCorr.Alert.zDiameter.semXcVals_gamma,'color',colorAlert,'LineWidth',0.5);
@@ -760,13 +818,17 @@ plot(data.XCorr.All.zDiameter.meanLags,data.XCorr.All.zDiameter.meanXcVals_gamma
 plot(data.XCorr.All.zDiameter.meanLags,data.XCorr.All.zDiameter.meanXcVals_gamma - data.XCorr.All.zDiameter.semXcVals_gamma,'color',colorAll,'LineWidth',0.5);
 title({'Blank-SAP treated RH REM','MUA-[HbT] XCorr'})
 xticks([-lagSec*freq,-lagSec*freq/2,0,lagSec*freq/2,lagSec*freq])
-xticklabels({'-10','-5','0','5','10'})
+xticklabels({'-30','-15','0','15','30'})
 xlim([-lagSec*freq,lagSec*freq])
 xlabel('Lags (s)')
 ylabel('Correlation')
 title('Pupil-Gamma XCorr')
 axis square
 set(gca,'box','off')
+ax12.TickLength = [0.03,0.03];
+% link axis
+linkaxes([ax9,ax10],'y')
+linkaxes([ax11,ax12],'y')
 %% save figure(s)
 if saveFigs == true
     dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'Figure Panels' delim];
@@ -776,201 +838,6 @@ if saveFigs == true
     savefig(Fig2A,[dirpath 'Fig2A_JNeurosci2022']);
     set(Fig2A,'PaperPositionMode','auto');
     print('-vector','-dpdf','-bestfit',[dirpath 'Fig2A_JNeurosci2022'])
-end
-%%
-Fig2B = figure('Name','Figure Panel 2 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
-subplot(2,2,1)
-scatter(ones(1,length(data.XCorr.Rest.zDiameter.peak_HbT))*1,data.XCorr.Rest.zDiameter.peak_HbT,75,'MarkerEdgeColor','k','MarkerFaceColor',colorRest,'jitter','on','jitterAmount',0.25);
-hold on
-e1 = errorbar(1,data.XCorr.Rest.zDiameter.meanPeak_HbT,data.XCorr.Rest.zDiameter.stdPeak_HbT,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e1.Color = 'black';
-e1.MarkerSize = 10;
-e1.CapSize = 10;
-scatter(ones(1,length(data.XCorr.NREM.zDiameter.peak_HbT))*2,data.XCorr.NREM.zDiameter.peak_HbT,75,'MarkerEdgeColor','k','MarkerFaceColor',colorNREM,'jitter','on','jitterAmount',0.25);
-hold on
-e2 = errorbar(2,data.XCorr.NREM.zDiameter.meanPeak_HbT,data.XCorr.NREM.zDiameter.stdPeak_HbT,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e2.Color = 'black';
-e2.MarkerSize = 10;
-e2.CapSize = 10;
-scatter(ones(1,length(data.XCorr.REM.zDiameter.peak_HbT))*3,data.XCorr.REM.zDiameter.peak_HbT,75,'MarkerEdgeColor','k','MarkerFaceColor',colorREM,'jitter','on','jitterAmount',0.25);
-hold on
-e3 = errorbar(3,data.XCorr.REM.zDiameter.meanPeak_HbT,data.XCorr.REM.zDiameter.stdPeak_HbT,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e3.Color = 'black';
-e3.MarkerSize = 10;
-e3.CapSize = 10;
-scatter(ones(1,length(data.XCorr.Alert.zDiameter.peak_HbT))*4,data.XCorr.Alert.zDiameter.peak_HbT,75,'MarkerEdgeColor','k','MarkerFaceColor',colorAlert,'jitter','on','jitterAmount',0.25);
-hold on
-e4 = errorbar(4,data.XCorr.Alert.zDiameter.meanPeak_HbT,data.XCorr.Alert.zDiameter.stdPeak_HbT,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e4.Color = 'black';
-e4.MarkerSize = 10;
-e4.CapSize = 10;
-scatter(ones(1,length(data.XCorr.Asleep.zDiameter.peak_HbT))*5,data.XCorr.Asleep.zDiameter.peak_HbT,75,'MarkerEdgeColor','k','MarkerFaceColor',colorAsleep,'jitter','on','jitterAmount',0.25);
-hold on
-e5 = errorbar(5,data.XCorr.Asleep.zDiameter.meanPeak_HbT,data.XCorr.Asleep.zDiameter.stdPeak_HbT,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e5.Color = 'black';
-e5.MarkerSize = 10;
-e5.CapSize = 10;
-scatter(ones(1,length(data.XCorr.All.zDiameter.peak_HbT))*6,data.XCorr.All.zDiameter.peak_HbT,75,'MarkerEdgeColor','k','MarkerFaceColor',colorAll,'jitter','on','jitterAmount',0.25);
-hold on
-e6 = errorbar(6,data.XCorr.All.zDiameter.meanPeak_HbT,data.XCorr.All.zDiameter.stdPeak_HbT,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e6.Color = 'black';
-e6.MarkerSize = 10;
-e6.CapSize = 10;
-title('HbT peak correlation')
-ylabel('Corr. Coef')
-set(gca,'xtick',[])
-set(gca,'xticklabel',[])
-axis square
-xlim([0,7])
-set(gca,'box','off')
-ax2.TickLength = [0.03,0.03];
-%%
-subplot(2,2,2)
-scatter(ones(1,length(data.XCorr.Rest.zDiameter.peakLag_HbT))*1,data.XCorr.Rest.zDiameter.peakLag_HbT,75,'MarkerEdgeColor','k','MarkerFaceColor',colorRest,'jitter','on','jitterAmount',0.25);
-hold on
-e1 = errorbar(1,data.XCorr.Rest.zDiameter.meanPeakLag_HbT,data.XCorr.Rest.zDiameter.stdPeakLag_HbT,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e1.Color = 'black';
-e1.MarkerSize = 10;
-e1.CapSize = 10;
-scatter(ones(1,length(data.XCorr.NREM.zDiameter.peakLag_HbT))*2,data.XCorr.NREM.zDiameter.peakLag_HbT,75,'MarkerEdgeColor','k','MarkerFaceColor',colorNREM,'jitter','on','jitterAmount',0.25);
-hold on
-e2 = errorbar(2,data.XCorr.NREM.zDiameter.meanPeakLag_HbT,data.XCorr.NREM.zDiameter.stdPeakLag_HbT,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e2.Color = 'black';
-e2.MarkerSize = 10;
-e2.CapSize = 10;
-scatter(ones(1,length(data.XCorr.REM.zDiameter.peakLag_HbT))*3,data.XCorr.REM.zDiameter.peakLag_HbT,75,'MarkerEdgeColor','k','MarkerFaceColor',colorREM,'jitter','on','jitterAmount',0.25);
-hold on
-e3 = errorbar(3,data.XCorr.REM.zDiameter.meanPeakLag_HbT,data.XCorr.REM.zDiameter.stdPeakLag_HbT,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e3.Color = 'black';
-e3.MarkerSize = 10;
-e3.CapSize = 10;
-scatter(ones(1,length(data.XCorr.Alert.zDiameter.peakLag_HbT))*4,data.XCorr.Alert.zDiameter.peakLag_HbT,75,'MarkerEdgeColor','k','MarkerFaceColor',colorAlert,'jitter','on','jitterAmount',0.25);
-hold on
-e4 = errorbar(4,data.XCorr.Alert.zDiameter.meanPeakLag_HbT,data.XCorr.Alert.zDiameter.stdPeakLag_HbT,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e4.Color = 'black';
-e4.MarkerSize = 10;
-e4.CapSize = 10;
-scatter(ones(1,length(data.XCorr.Asleep.zDiameter.peakLag_HbT))*5,data.XCorr.Asleep.zDiameter.peakLag_HbT,75,'MarkerEdgeColor','k','MarkerFaceColor',colorAsleep,'jitter','on','jitterAmount',0.25);
-hold on
-e5 = errorbar(5,data.XCorr.Asleep.zDiameter.meanPeakLag_HbT,data.XCorr.Asleep.zDiameter.stdPeakLag_HbT,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e5.Color = 'black';
-e5.MarkerSize = 10;
-e5.CapSize = 10;
-scatter(ones(1,length(data.XCorr.All.zDiameter.peakLag_HbT))*6,data.XCorr.All.zDiameter.peakLag_HbT,75,'MarkerEdgeColor','k','MarkerFaceColor',colorAll,'jitter','on','jitterAmount',0.25);
-hold on
-e6 = errorbar(6,data.XCorr.All.zDiameter.meanPeakLag_HbT,data.XCorr.All.zDiameter.stdPeakLag_HbT,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e6.Color = 'black';
-e6.MarkerSize = 10;
-e6.CapSize = 10;
-title('HbT peak lag time')
-ylabel('Time (s)')
-set(gca,'xtick',[])
-set(gca,'xticklabel',[])
-axis square
-xlim([0,7])
-set(gca,'box','off')
-ax2.TickLength = [0.03,0.03];
-%%
-subplot(2,2,3)
-scatter(ones(1,length(data.XCorr.Rest.zDiameter.peak_gamma))*1,data.XCorr.Rest.zDiameter.peak_gamma,75,'MarkerEdgeColor','k','MarkerFaceColor',colorRest,'jitter','on','jitterAmount',0.25);
-hold on
-e1 = errorbar(1,data.XCorr.Rest.zDiameter.meanPeak_gamma,data.XCorr.Rest.zDiameter.stdPeak_gamma,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e1.Color = 'black';
-e1.MarkerSize = 10;
-e1.CapSize = 10;
-scatter(ones(1,length(data.XCorr.NREM.zDiameter.peak_gamma))*2,data.XCorr.NREM.zDiameter.peak_gamma,75,'MarkerEdgeColor','k','MarkerFaceColor',colorNREM,'jitter','on','jitterAmount',0.25);
-hold on
-e2 = errorbar(2,data.XCorr.NREM.zDiameter.meanPeak_gamma,data.XCorr.NREM.zDiameter.stdPeak_gamma,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e2.Color = 'black';
-e2.MarkerSize = 10;
-e2.CapSize = 10;
-scatter(ones(1,length(data.XCorr.REM.zDiameter.peak_gamma))*3,data.XCorr.REM.zDiameter.peak_gamma,75,'MarkerEdgeColor','k','MarkerFaceColor',colorREM,'jitter','on','jitterAmount',0.25);
-hold on
-e3 = errorbar(3,data.XCorr.REM.zDiameter.meanPeak_gamma,data.XCorr.REM.zDiameter.stdPeak_gamma,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e3.Color = 'black';
-e3.MarkerSize = 10;
-e3.CapSize = 10;
-scatter(ones(1,length(data.XCorr.Alert.zDiameter.peak_gamma))*4,data.XCorr.Alert.zDiameter.peak_gamma,75,'MarkerEdgeColor','k','MarkerFaceColor',colorAlert,'jitter','on','jitterAmount',0.25);
-hold on
-e4 = errorbar(4,data.XCorr.Alert.zDiameter.meanPeak_gamma,data.XCorr.Alert.zDiameter.stdPeak_gamma,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e4.Color = 'black';
-e4.MarkerSize = 10;
-e4.CapSize = 10;
-scatter(ones(1,length(data.XCorr.Asleep.zDiameter.peak_gamma))*5,data.XCorr.Asleep.zDiameter.peak_gamma,75,'MarkerEdgeColor','k','MarkerFaceColor',colorAsleep,'jitter','on','jitterAmount',0.25);
-hold on
-e5 = errorbar(5,data.XCorr.Asleep.zDiameter.meanPeak_gamma,data.XCorr.Asleep.zDiameter.stdPeak_gamma,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e5.Color = 'black';
-e5.MarkerSize = 10;
-e5.CapSize = 10;
-scatter(ones(1,length(data.XCorr.All.zDiameter.peak_gamma))*6,data.XCorr.All.zDiameter.peak_gamma,75,'MarkerEdgeColor','k','MarkerFaceColor',colorAll,'jitter','on','jitterAmount',0.25);
-hold on
-e6 = errorbar(6,data.XCorr.All.zDiameter.meanPeak_gamma,data.XCorr.All.zDiameter.stdPeak_gamma,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e6.Color = 'black';
-e6.MarkerSize = 10;
-e6.CapSize = 10;
-title('Gamma peak correlation')
-ylabel('Corr. Coef')
-set(gca,'xtick',[])
-set(gca,'xticklabel',[])
-axis square
-xlim([0,7])
-set(gca,'box','off')
-ax2.TickLength = [0.03,0.03];
-%%
-subplot(2,2,4)
-scatter(ones(1,length(data.XCorr.Rest.zDiameter.peakLag_gamma))*1,data.XCorr.Rest.zDiameter.peakLag_gamma,75,'MarkerEdgeColor','k','MarkerFaceColor',colorRest,'jitter','on','jitterAmount',0.25);
-hold on
-e1 = errorbar(1,data.XCorr.Rest.zDiameter.meanPeakLag_gamma,data.XCorr.Rest.zDiameter.stdPeakLag_gamma,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e1.Color = 'black';
-e1.MarkerSize = 10;
-e1.CapSize = 10;
-scatter(ones(1,length(data.XCorr.NREM.zDiameter.peakLag_gamma))*2,data.XCorr.NREM.zDiameter.peakLag_gamma,75,'MarkerEdgeColor','k','MarkerFaceColor',colorNREM,'jitter','on','jitterAmount',0.25);
-hold on
-e2 = errorbar(2,data.XCorr.NREM.zDiameter.meanPeakLag_gamma,data.XCorr.NREM.zDiameter.stdPeakLag_gamma,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e2.Color = 'black';
-e2.MarkerSize = 10;
-e2.CapSize = 10;
-scatter(ones(1,length(data.XCorr.REM.zDiameter.peakLag_gamma))*3,data.XCorr.REM.zDiameter.peakLag_gamma,75,'MarkerEdgeColor','k','MarkerFaceColor',colorREM,'jitter','on','jitterAmount',0.25);
-hold on
-e3 = errorbar(3,data.XCorr.REM.zDiameter.meanPeakLag_gamma,data.XCorr.REM.zDiameter.stdPeakLag_gamma,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e3.Color = 'black';
-e3.MarkerSize = 10;
-e3.CapSize = 10;
-scatter(ones(1,length(data.XCorr.Alert.zDiameter.peakLag_gamma))*4,data.XCorr.Alert.zDiameter.peakLag_gamma,75,'MarkerEdgeColor','k','MarkerFaceColor',colorAlert,'jitter','on','jitterAmount',0.25);
-hold on
-e4 = errorbar(4,data.XCorr.Alert.zDiameter.meanPeakLag_gamma,data.XCorr.Alert.zDiameter.stdPeakLag_gamma,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e4.Color = 'black';
-e4.MarkerSize = 10;
-e4.CapSize = 10;
-scatter(ones(1,length(data.XCorr.Asleep.zDiameter.peakLag_gamma))*5,data.XCorr.Asleep.zDiameter.peakLag_gamma,75,'MarkerEdgeColor','k','MarkerFaceColor',colorAsleep,'jitter','on','jitterAmount',0.25);
-hold on
-e5 = errorbar(5,data.XCorr.Asleep.zDiameter.meanPeakLag_gamma,data.XCorr.Asleep.zDiameter.stdPeakLag_gamma,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e5.Color = 'black';
-e5.MarkerSize = 10;
-e5.CapSize = 10;
-scatter(ones(1,length(data.XCorr.All.zDiameter.peakLag_gamma))*6,data.XCorr.All.zDiameter.peakLag_gamma,75,'MarkerEdgeColor','k','MarkerFaceColor',colorAll,'jitter','on','jitterAmount',0.25);
-hold on
-e6 = errorbar(6,data.XCorr.All.zDiameter.meanPeakLag_gamma,data.XCorr.All.zDiameter.stdPeakLag_gamma,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e6.Color = 'black';
-e6.MarkerSize = 10;
-e6.CapSize = 10;
-title('Gamma peak lag time')
-ylabel('Time (s)')
-set(gca,'xtick',[])
-set(gca,'xticklabel',[])
-axis square
-xlim([0,7])
-set(gca,'box','off')
-ax2.TickLength = [0.03,0.03];
-%% save figure(s)
-if saveFigs == true
-    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'Figure Panels' delim];
-    if ~exist(dirpath,'dir')
-        mkdir(dirpath);
-    end
-    savefig(Fig2B,[dirpath 'Fig2B_JNeurosci2022']);
-    set(Fig2B,'PaperPositionMode','auto');
-    print('-vector','-dpdf','-bestfit',[dirpath 'Fig2B_JNeurosci2022'])
 end
 
 end

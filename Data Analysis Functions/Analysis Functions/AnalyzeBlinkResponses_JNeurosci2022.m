@@ -1,14 +1,14 @@
-function [Results_BlinkResponses] = AnalyzeBlinkResponses_Pupil(animalID,rootFolder,delim,Results_BlinkResponses)
+function [Results_BlinkResponses] = AnalyzeBlinkResponses_JNeurosci2022(animalID,rootFolder,delim,Results_BlinkResponses)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %________________________________________________________________________________________________________________________
 %
-%   Purpose:
+%   Purpose: Analyze behavioral, neural, and hemodynamic responses to blinking and create a triggered average
 %________________________________________________________________________________________________________________________
 
-%% only run analysis for valid animal IDs
+% cd to animal folder/data location
 dataLocation = [rootFolder delim 'Data' delim animalID delim 'Bilateral Imaging'];
 cd(dataLocation)
 % find and load RestingBaselines.mat struct
@@ -16,7 +16,7 @@ baselineDataFileStruct = dir('*_RestingBaselines.mat');
 baselineDataFile = {baselineDataFileStruct.name}';
 baselineDataFileID = char(baselineDataFile);
 load(baselineDataFileID,'-mat')
-% procdata file IDs
+% list of ProcData file IDs
 procDataFileStruct = dir('*_ProcData.mat');
 procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
@@ -25,49 +25,54 @@ scoringResultsFileStruct = dir('*Forest_ScoringResults.mat');
 scoringResultsFile = {scoringResultsFileStruct.name}';
 scoringResultsFileID = char(scoringResultsFile);
 load(scoringResultsFileID,'-mat')
-samplingRate = 30;    % lowpass filter
+% lowpass filter and sampling rates
+samplingRate = 30; % Hz
+specSamplingRate = 10; % Hz
+edgeTime = 10; % sec
+blinkStates = {'Awake','Asleep'};
 [z,p,k] = butter(4,10/(samplingRate/2),'low');
 [sos,g] = zp2sos(z,p,k);
-[z2,p2,k2] = butter(4,1/(samplingRate/2),'low');
-[sos2,g2] = zp2sos(z2,p2,k2);
-specSamplingRate = 10;
-blinkStates = {'Awake','Asleep'};
-edgeTime = 10; % sec
+% pre-allocation
 for aa = 1:length(blinkStates)
     blinkState = blinkStates{1,aa};
     data.(blinkState).zDiameter =[];
+    data.(blinkState).whisk = [];
     data.(blinkState).LH_HbT = [];
     data.(blinkState).RH_HbT = [];
     data.(blinkState).LH_cort = [];
     data.(blinkState).RH_cort = [];
     data.(blinkState).hip = [];
-    data.(blinkState).whisk = [];
     data.(blinkState).EMG = [];
-    data.(blinkState).zDiameter_T =[];
-    data.(blinkState).LH_HbT_T = [];
-    data.(blinkState).RH_HbT_T = [];
-    data.(blinkState).LH_cort_T = [];
-    data.(blinkState).RH_cort_T = [];
-    data.(blinkState).hip_T = [];
-    data.(blinkState).whisk_T = [];
-    data.(blinkState).EMG_T = [];
-    data.(blinkState).zDiameter_F =[];
-    data.(blinkState).LH_HbT_F = [];
-    data.(blinkState).RH_HbT_F = [];
-    data.(blinkState).LH_cort_F = [];
-    data.(blinkState).RH_cort_F = [];
-    data.(blinkState).hip_F = [];
-    data.(blinkState).whisk_F = [];
-    data.(blinkState).EMG_F = [];
+    data.(blinkState).zDiameter_lowWhisk =[];
+    data.(blinkState).whisk_lowWhisk = [];
+    data.(blinkState).EMG_lowWhisk = [];
+    data.(blinkState).LH_HbT_lowWhisk = [];
+    data.(blinkState).RH_HbT_lowWhisk = [];
+    data.(blinkState).LH_cort_lowWhisk = [];
+    data.(blinkState).RH_cort_lowWhisk = [];
+    data.(blinkState).hip_lowWhisk = [];
+    data.(blinkState).zDiameter_highWhisk =[];
+    data.(blinkState).whisk_highWhisk = [];
+    data.(blinkState).EMG_highWhisk = [];
+    data.(blinkState).LH_HbT_highWhisk = [];
+    data.(blinkState).RH_HbT_highWhisk = [];
+    data.(blinkState).LH_cort_highWhisk = [];
+    data.(blinkState).RH_cort_highWhisk = [];
+    data.(blinkState).hip_highWhisk = [];
+    data.(blinkState).T = [];
+    data.(blinkState).F = [];
 end
+% go through each ProcData file
 for aa = 1:size(procDataFileIDs,1)
     procDataFileID = procDataFileIDs(aa,:);
-    [animalID,fileDate,fileID] = GetFileInfo_IOS(procDataFileID);
-    strDay = ConvertDate_IOS(fileDate);
+    [animalID,fileDate,fileID] = GetFileInfo_JNeurosci2022(procDataFileID);
+    strDay = ConvertDate_JNeurosci2022(fileDate);
     load(procDataFileID)
-    if strcmp(ProcData.data.Pupil.frameCheck,'y') == true
+    % only extract data from files with an accurate diameter measurements
+    if strcmp(ProcData.data.Pupil.diameterCheck,'y') == true
         specDataFileID = [animalID '_' fileID '_SpecDataB.mat'];
         load(specDataFileID)
+        % extract blinking index
         if isfield(ProcData.data.Pupil,'shiftedBlinks') == true
             blinks = ProcData.data.Pupil.shiftedBlinks;
         elseif isempty(ProcData.data.Pupil.blinkInds) == false
@@ -77,6 +82,7 @@ for aa = 1:size(procDataFileIDs,1)
         end
         bb = 1;
         verifiedBlinks = [];
+        % only keep manually verified blinks
         for cc = 1:length(blinks)
             if strcmp(ProcData.data.Pupil.blinkCheck{1,cc},'y') == true
                 verifiedBlinks(1,bb) = blinks(1,cc);
@@ -84,30 +90,38 @@ for aa = 1:size(procDataFileIDs,1)
             end
         end
         % stimulation times
-        try
+        if isfield(ProcData.data,'stimulations') == true
             stimTimes = cat(2,ProcData.data.stimulations.LPadSol,ProcData.data.stimulations.RPadSol,ProcData.data.stimulations.AudSol);
             stimSamples = sort(round(stimTimes)*samplingRate,'ascend');
-        catch
+        elseif isfield(ProcData.data,'solenoids') == true
             stimTimes = cat(2,ProcData.data.solenoids.LPadSol,ProcData.data.solenoids.RPadSol,ProcData.data.solenoids.AudSol);
             stimSamples = sort(round(stimTimes)*samplingRate,'ascend');
         end
         qq = 1;
         blinkEvents = [];
+        % verify that each blink is 5 seconds away from a puff window
         for xx = 1:length(verifiedBlinks)
             blinkSample = verifiedBlinks(1,xx);
             sampleCheck = true;
             for yy = 1:length(stimSamples)
                 stimSample = stimSamples(1,yy);
-                if blinkSample >= stimSample && blinkSample <= stimSample + samplingRate*5
-                    sampleCheck = false;
+                if (blinkSample >= stimSample) == true
+                    if (blinkSample <= stimSample + samplingRate*5) == true
+                        sampleCheck = false;
+                    end
+                elseif (blinkSample <= stimSample) == true
+                    if (blinkSample >= stimSample - samplingRate*5) == true
+                        sampleCheck = false;
+                    end
                 end
             end
+            % keep blinks that have been screened to occur outside of stimulation window
             if sampleCheck == true
                 blinkEvents(1,qq) = blinkSample;
                 qq = qq + 1;
             end
         end
-        % condense blinks
+        % condense blinks that occur with 1 second of each other
         condensedBlinkTimes = [];
         if isempty(blinkEvents) == false
             cc = 1;
@@ -117,72 +131,51 @@ for aa = 1:size(procDataFileIDs,1)
                     cc = cc + 1;
                 else
                     timeDifference = blinkEvents(1,bb) - blinkEvents(1,bb - 1);
-                    if timeDifference > 30
+                    if timeDifference > samplingRate
                         condensedBlinkTimes(1,cc) = blinkEvents(1,bb);
                         cc = cc + 1;
                     end
                 end
             end
-            % extract blink triggered data
+            % extract blink triggered data and group based on arousal state
             for dd = 1:length(condensedBlinkTimes)
                 blink = condensedBlinkTimes(1,dd);
+                % can only keep blinks that occur within the window of a trial for +/- 10 seconds
                 if (blink/samplingRate) >= 11 && (blink/samplingRate) <= 889
                     for zz = 1:length(ScoringResults.fileIDs)
+                        % find sleep scores associated with this file ID
                         if strcmp(ScoringResults.fileIDs{zz,1},fileID) == true
                             labels = ScoringResults.labels{zz,1};
                         end
                     end
                     blinkArousalBin = ceil((blink/samplingRate)/5);
-                    try
-                        blinkScore = labels(blinkArousalBin - 1,1);
-                    catch
-                        blinkScore = labels(blinkArousalBin,1);
-                    end
+                    blinkScore = labels(blinkArousalBin - 1,1);
                     if strcmp(blinkScore,'Not Sleep') == true
                         blinkState = 'Awake';
                     elseif strcmp(blinkScore,'NREM Sleep') == true || strcmp(blinkScore,'REM Sleep') == true
                         blinkState = 'Asleep';
                     end
-                    
-                    linkThresh = 0.5;   % seconds, Link events < 0.5 seconds apart
-                    breakThresh = 0;   % seconds changed by atw on 2/6/18 from 0.07
+                    % pupil diameter
+                    zDiameter = ProcData.data.Pupil.zDiameter;
+                    zDiameterArray = zDiameter((blink - (edgeTime*samplingRate)):(blink + (edgeTime*samplingRate)));
+                    data.(blinkState).zDiameter = cat(1,data.(blinkState).zDiameter,zDiameterArray);
+                    % whisking events
                     binWhiskerAngle = [0,ProcData.data.binWhiskerAngle,0];
-                    binWhiskers = LinkBinaryEvents_IOS(gt(binWhiskerAngle,0),[linkThresh breakThresh]*30);
-                    binWhiskerAngleArray = binWhiskers((blink - (edgeTime*samplingRate)):(blink + (edgeTime*samplingRate)));
-                    data.(blinkState).whisk = cat(1,data.(blinkState).whisk,binWhiskerAngle);
-                    
-                    if strcmp(ProcData.data.Pupil.diameterCheck,'y') == true
-                        try
-                            zDiameter = filtfilt(sos2,g2,ProcData.data.Pupil.zDiameter);
-                        catch
-                            zDiameter = ProcData.data.Pupil.zDiameter;
-                        end
-                        zDiameterArray = zDiameter((blink - (edgeTime*samplingRate)):(blink + (edgeTime*samplingRate)));
-                        zDiameterArray2 = zDiameterArray;% - mean(zDiameterArray((edgeTime - 5.5)*samplingRate:(edgeTime - 0.5)*samplingRate));
-                        data.(blinkState).zDiameter = cat(1,data.(blinkState).zDiameter,zDiameterArray2);
-                        
-                        if sum(binWhiskerAngleArray(270:330)) <= 10
-                            data.(blinkState).zDiameter_T = cat(1,data.(blinkState).zDiameter_T,zDiameterArray2);
-                        else
-                            data.(blinkState).zDiameter_F = cat(1,data.(blinkState).zDiameter_F,zDiameterArray2);
-                        end
-                        
-                    end
-                    
-                    
-                    
-%                     LH_HbT = filtfilt(sos2,g2,ProcData.data.CBV_HbT.adjLH);
+                    binWhiskerAngleArray = binWhiskerAngle((blink - (edgeTime*samplingRate)):(blink + (edgeTime*samplingRate)));
+                    data.(blinkState).whisk = cat(1,data.(blinkState).whisk,binWhiskerAngleArray);
+                    % EMG
+                    EMG = filtfilt(sos,g,ProcData.data.EMG.emg - RestingBaselines.manualSelection.EMG.emg.(strDay).mean);
+                    emgArray = EMG((blink - (edgeTime*samplingRate)):(blink + (edgeTime*samplingRate)));
+                    data.(blinkState).EMG = cat(1,data.(blinkState).EMG,emgArray);
+                    % LH HBT
                     LH_HbT = ProcData.data.CBV_HbT.adjLH;
                     LH_hbtArray = LH_HbT((blink - (edgeTime*samplingRate)):(blink + (edgeTime*samplingRate)));
-                    LH_hbtArray2 = LH_hbtArray;% - mean(LH_hbtArray((edgeTime - 5.5)*samplingRate:(edgeTime - 0.5)*samplingRate));
-                    data.(blinkState).LH_HbT = cat(1,data.(blinkState).LH_HbT,LH_hbtArray2);
-                    
-%                     RH_HbT = filtfilt(sos2,g2,ProcData.data.CBV_HbT.adjRH);
+                    data.(blinkState).LH_HbT = cat(1,data.(blinkState).LH_HbT,LH_hbtArray);
+                    % RH HbT
                     RH_HbT = ProcData.data.CBV_HbT.adjRH;
                     RH_hbtArray = RH_HbT((blink - (edgeTime*samplingRate)):(blink + (edgeTime*samplingRate)));
-                    RH_hbtArray2 = RH_hbtArray;% - mean(RH_hbtArray((edgeTime - 5.5)*samplingRate:(edgeTime - 0.5)*samplingRate));
-                    data.(blinkState).RH_HbT = cat(1,data.(blinkState).RH_HbT,RH_hbtArray2);
-                    
+                    data.(blinkState).RH_HbT = cat(1,data.(blinkState).RH_HbT,RH_hbtArray);
+                    % LH cortical
                     LH_corticalS_Data = SpecData.cortical_LH.normS;
                     data.(blinkState).F = SpecData.cortical_LH.F;
                     T = round(SpecData.cortical_LH.T,1);
@@ -191,161 +184,80 @@ for aa = 1:size(procDataFileIDs,1)
                     durationIndex = startTimeIndex + edgeTime*2*specSamplingRate;
                     LH_corticalS_Vals = LH_corticalS_Data(:,startTimeIndex:durationIndex);
                     data.(blinkState).LH_cort = cat(3,data.(blinkState).LH_cort,LH_corticalS_Vals);
-                    
+                    % RH cortical
                     RH_corticalS_Data = SpecData.cortical_RH.normS;
                     RH_corticalS_Vals = RH_corticalS_Data(:,startTimeIndex:durationIndex);
                     data.(blinkState).RH_cort = cat(3,data.(blinkState).RH_cort,RH_corticalS_Vals);
-                    
+                    % hippocampus
                     hipS_Data = SpecData.hippocampus.normS;
                     hipS_Vals = hipS_Data(:,startTimeIndex:durationIndex);
                     data.(blinkState).hip = cat(3,data.(blinkState).hip,hipS_Vals);
-                    
-                    EMG = filtfilt(sos,g,ProcData.data.EMG.emg - RestingBaselines.manualSelection.EMG.emg.(strDay).mean);
-                    emgArray = EMG((blink - (edgeTime*samplingRate)):(blink + (edgeTime*samplingRate)));
-                    emgArray2 = emgArray - mean(emgArray((edgeTime - 5.5)*samplingRate:(edgeTime - 0.5)*samplingRate));
-                    data.(blinkState).EMG = cat(1,data.(blinkState).EMG,emgArray2);
-                    
-                    if sum(binWhiskerAngleArray(270:330)) <= 10
-                        data.(blinkState).whisk_T = cat(1,data.(blinkState).whisk_T,binWhiskerAngleArray);
-                        data.(blinkState).LH_HbT_T = cat(1,data.(blinkState).LH_HbT_T,LH_hbtArray2);
-                        data.(blinkState).RH_HbT_T = cat(1,data.(blinkState).RH_HbT_T,RH_hbtArray2);
-                        data.(blinkState).LH_cort_T = cat(3,data.(blinkState).LH_cort_T,LH_corticalS_Vals);
-                        data.(blinkState).RH_cort_T = cat(3,data.(blinkState).RH_cort_T,RH_corticalS_Vals);
-                        data.(blinkState).hip_T = cat(3,data.(blinkState).hip_T,hipS_Vals);
-                        data.(blinkState).EMG_T = cat(1,data.(blinkState).EMG_T,emgArray2);
-                    elseif sum(binWhiskerAngleArray(270:330)) >= 30
-                        data.(blinkState).whisk_F = cat(1,data.(blinkState).whisk_F,binWhiskerAngleArray);
-                        data.(blinkState).LH_HbT_F = cat(1,data.(blinkState).LH_HbT_F,LH_hbtArray2);
-                        data.(blinkState).RH_HbT_F = cat(1,data.(blinkState).RH_HbT_F,RH_hbtArray2);
-                        data.(blinkState).LH_cort_F = cat(3,data.(blinkState).LH_cort_F,LH_corticalS_Vals);
-                        data.(blinkState).RH_cort_F = cat(3,data.(blinkState).RH_cort_F,RH_corticalS_Vals);
-                        data.(blinkState).hip_F = cat(3,data.(blinkState).hip_F,hipS_Vals);
-                        data.(blinkState).EMG_F = cat(1,data.(blinkState).EMG_F,emgArray2);
+                    % separate into high vs. low whisking criteria
+                    if sum(binWhiskerAngleArray((edgeTime - 1)*samplingRate:(edgeTime + 1)*samplingRate)) <= samplingRate/3
+                        data.(blinkState).zDiameter_lowWhisk = cat(1,data.(blinkState).zDiameter_lowWhisk,zDiameterArray);
+                        data.(blinkState).whisk_lowWhisk = cat(1,data.(blinkState).whisk_lowWhisk,binWhiskerAngleArray);
+                        data.(blinkState).LH_HbT_lowWhisk = cat(1,data.(blinkState).LH_HbT_lowWhisk,LH_hbtArray);
+                        data.(blinkState).RH_HbT_lowWhisk = cat(1,data.(blinkState).RH_HbT_lowWhisk,RH_hbtArray);
+                        data.(blinkState).LH_cort_lowWhisk = cat(3,data.(blinkState).LH_cort_lowWhisk,LH_corticalS_Vals);
+                        data.(blinkState).RH_cort_lowWhisk = cat(3,data.(blinkState).RH_cort_lowWhisk,RH_corticalS_Vals);
+                        data.(blinkState).hip_lowWhisk = cat(3,data.(blinkState).hip_lowWhisk,hipS_Vals);
+                        data.(blinkState).EMG_lowWhisk = cat(1,data.(blinkState).EMG_lowWhisk,emgArray);
+                    elseif sum(binWhiskerAngleArray((edgeTime - 1)*samplingRate:(edgeTime + 1)*samplingRate)) >= samplingRate
+                        data.(blinkState).zDiameter_highWhisk = cat(1,data.(blinkState).zDiameter_highWhisk,zDiameterArray);
+                        data.(blinkState).whisk_highWhisk = cat(1,data.(blinkState).whisk_highWhisk,binWhiskerAngleArray);
+                        data.(blinkState).LH_HbT_highWhisk = cat(1,data.(blinkState).LH_HbT_highWhisk,LH_hbtArray);
+                        data.(blinkState).RH_HbT_highWhisk = cat(1,data.(blinkState).RH_HbT_highWhisk,RH_hbtArray);
+                        data.(blinkState).LH_cort_highWhisk = cat(3,data.(blinkState).LH_cort_highWhisk,LH_corticalS_Vals);
+                        data.(blinkState).RH_cort_highWhisk = cat(3,data.(blinkState).RH_cort_highWhisk,RH_corticalS_Vals);
+                        data.(blinkState).hip_highWhisk = cat(3,data.(blinkState).hip_highWhisk,hipS_Vals);
+                        data.(blinkState).EMG_highWhisk = cat(1,data.(blinkState).EMG_highWhisk,emgArray);
                     end
                 end
             end
         end
     end
 end
-%
-blinkStates = {'Awake','Asleep'};
+% take the mean of each category
 for bb = 1:length(blinkStates)
     blinkState = blinkStates{1,bb};
+    % pupil diameter
     Results_BlinkResponses.(animalID).(blinkState).zDiameter = mean(data.(blinkState).zDiameter,1);
-    Results_BlinkResponses.(animalID).(blinkState).zDiameter_T = mean(data.(blinkState).zDiameter_T,1);
-    Results_BlinkResponses.(animalID).(blinkState).zDiameter_F = mean(data.(blinkState).zDiameter_F,1);
-    
+    Results_BlinkResponses.(animalID).(blinkState).zDiameter_lowWhisk = mean(data.(blinkState).zDiameter_lowWhisk,1);
+    Results_BlinkResponses.(animalID).(blinkState).zDiameter_highWhisk = mean(data.(blinkState).zDiameter_highWhisk,1);
+    % whisking
     Results_BlinkResponses.(animalID).(blinkState).whisk = mean(data.(blinkState).whisk,1);
-    Results_BlinkResponses.(animalID).(blinkState).whisk_T = mean(data.(blinkState).whisk_T,1);
-    Results_BlinkResponses.(animalID).(blinkState).whisk_F = mean(data.(blinkState).whisk_F,1);
-    
-    Results_BlinkResponses.(animalID).(blinkState).LH_HbT = mean(data.(blinkState).LH_HbT,1);
-    Results_BlinkResponses.(animalID).(blinkState).LH_HbT_T = mean(data.(blinkState).LH_HbT_T,1);
-    Results_BlinkResponses.(animalID).(blinkState).LH_HbT_F = mean(data.(blinkState).LH_HbT_F,1);
-    
-    Results_BlinkResponses.(animalID).(blinkState).RH_HbT = mean(data.(blinkState).RH_HbT,1);
-    Results_BlinkResponses.(animalID).(blinkState).RH_HbT_T = mean(data.(blinkState).RH_HbT_T,1);
-    Results_BlinkResponses.(animalID).(blinkState).RH_HbT_F = mean(data.(blinkState).RH_HbT_F,1);
-    
-    %
-    try
-    meanLH_CortS = mean(data.(blinkState).LH_cort,3);
-    baseLH_CortSVals = mean(meanLH_CortS(:,(edgeTime - 5.5)*specSamplingRate:(edgeTime - 0.5)*specSamplingRate),2);
-    baseMatrixLH_CortSVals = baseLH_CortSVals.*ones(size(meanLH_CortS));
-    msLH_SVals = (meanLH_CortS);% - baseMatrixLH_CortSVals);
-    Results_BlinkResponses.(animalID).(blinkState).LH_cort = msLH_SVals;
-    catch
-            Results_BlinkResponses.(animalID).(blinkState).LH_cort = [];
-    end
-    
-    try
-        meanLH_CortS = mean(data.(blinkState).LH_cort_T,3);
-        baseLH_CortSVals = mean(meanLH_CortS(:,(edgeTime - 5.5)*specSamplingRate:(edgeTime - 0.5)*specSamplingRate),2);
-        baseMatrixLH_CortSVals = baseLH_CortSVals.*ones(size(meanLH_CortS));
-        msLH_SVals = (meanLH_CortS);% - baseMatrixLH_CortSVals);
-        Results_BlinkResponses.(animalID).(blinkState).LH_cort_T = msLH_SVals;
-    catch
-        Results_BlinkResponses.(animalID).(blinkState).LH_cort_T = [];
-    end
-    
-    try
-    meanLH_CortS = mean(data.(blinkState).LH_cort_F,3);
-    baseLH_CortSVals = mean(meanLH_CortS(:,(edgeTime - 5.5)*specSamplingRate:(edgeTime - 0.5)*specSamplingRate),2);
-    baseMatrixLH_CortSVals = baseLH_CortSVals.*ones(size(meanLH_CortS));
-    msLH_SVals = (meanLH_CortS);% - baseMatrixLH_CortSVals);
-    Results_BlinkResponses.(animalID).(blinkState).LH_cort_F = msLH_SVals;
-    catch
-            Results_BlinkResponses.(animalID).(blinkState).LH_cort_F = [];
-    end
-    
-    %
-    try
-    meanRH_CortS = mean(data.(blinkState).RH_cort,3);
-    baseRH_CortSVals = mean(meanRH_CortS(:,(edgeTime - 5.5)*specSamplingRate:(edgeTime - 0.5)*specSamplingRate),2);
-    baseMatrixRH_CortSVals = baseRH_CortSVals.*ones(size(meanRH_CortS));
-    msRH_SVals = (meanRH_CortS);% - baseMatrixRH_CortSVals);
-    Results_BlinkResponses.(animalID).(blinkState).RH_cort = msRH_SVals;
-    catch
-            Results_BlinkResponses.(animalID).(blinkState).RH_cort = [];
-    end
-    
-    try
-        meanRH_CortS = mean(data.(blinkState).RH_cort_T,3);
-        baseRH_CortSVals = mean(meanRH_CortS(:,(edgeTime - 5.5)*specSamplingRate:(edgeTime - 0.5)*specSamplingRate),2);
-        baseMatrixRH_CortSVals = baseRH_CortSVals.*ones(size(meanRH_CortS));
-        msRH_SVals = (meanRH_CortS);% - baseMatrixRH_CortSVals);
-        Results_BlinkResponses.(animalID).(blinkState).RH_cort_T = msRH_SVals;
-    catch
-        Results_BlinkResponses.(animalID).(blinkState).RH_cort_T = [];
-    end
-    
-    try
-    meanRH_CortS = mean(data.(blinkState).RH_cort_F,3);
-    baseRH_CortSVals = mean(meanRH_CortS(:,(edgeTime - 5.5)*specSamplingRate:(edgeTime - 0.5)*specSamplingRate),2);
-    baseMatrixRH_CortSVals = baseRH_CortSVals.*ones(size(meanRH_CortS));
-    msRH_SVals = (meanRH_CortS);% - baseMatrixRH_CortSVals);
-    Results_BlinkResponses.(animalID).(blinkState).RH_cort_F = msRH_SVals;
-    catch
-            Results_BlinkResponses.(animalID).(blinkState).RH_cort_F = [];
-    end
-    %
-    try
-    meanHip_CortS = mean(data.(blinkState).hip,3);
-    baseHip_CortSVals = mean(meanHip_CortS(:,(edgeTime - 5.5)*specSamplingRate:(edgeTime - 0.5)*specSamplingRate),2);
-    baseMatrixHip_CortSVals = baseHip_CortSVals.*ones(size(meanHip_CortS));
-    msHip_SVals = (meanHip_CortS);% - baseMatrixHip_CortSVals);
-    Results_BlinkResponses.(animalID).(blinkState).hip = msHip_SVals;
-    catch
-            Results_BlinkResponses.(animalID).(blinkState).hip = [];
-
-    end
-    
-    try
-        meanHip_CortS = mean(data.(blinkState).hip_T,3);
-        baseHip_CortSVals = mean(meanHip_CortS(:,(edgeTime - 5.5)*specSamplingRate:(edgeTime - 0.5)*specSamplingRate),2);
-        baseMatrixHip_CortSVals = baseHip_CortSVals.*ones(size(meanHip_CortS));
-        msHip_SVals = (meanHip_CortS);% - baseMatrixHip_CortSVals);
-        Results_BlinkResponses.(animalID).(blinkState).hip_T = msHip_SVals;
-    catch
-        Results_BlinkResponses.(animalID).(blinkState).hip_T = [];
-    end
-    
-    try
-    meanHip_CortS = mean(data.(blinkState).hip_F,3);
-    baseHip_CortSVals = mean(meanHip_CortS(:,(edgeTime - 5.5)*specSamplingRate:(edgeTime - 0.5)*specSamplingRate),2);
-    baseMatrixHip_CortSVals = baseHip_CortSVals.*ones(size(meanHip_CortS));
-    msHip_SVals = (meanHip_CortS);% - baseMatrixHip_CortSVals);
-    Results_BlinkResponses.(animalID).(blinkState).hip_F = msHip_SVals;
-    catch
-            Results_BlinkResponses.(animalID).(blinkState).hip_F = [];
-    end
-    %
+    Results_BlinkResponses.(animalID).(blinkState).whisk_lowWhisk = mean(data.(blinkState).whisk_lowWhisk,1);
+    Results_BlinkResponses.(animalID).(blinkState).whisk_highWhisk = mean(data.(blinkState).whisk_highWhisk,1);
+    % EMG
     Results_BlinkResponses.(animalID).(blinkState).EMG = mean(data.(blinkState).EMG,1);
-    Results_BlinkResponses.(animalID).(blinkState).EMG_T = mean(data.(blinkState).EMG_T,1);
-    Results_BlinkResponses.(animalID).(blinkState).EMG_F = mean(data.(blinkState).EMG_F,1);
-    
+    Results_BlinkResponses.(animalID).(blinkState).EMG_lowWhisk = mean(data.(blinkState).EMG_lowWhisk,1);
+    Results_BlinkResponses.(animalID).(blinkState).EMG_highWhisk = mean(data.(blinkState).EMG_highWhisk,1);
+    % LH HbT
+    Results_BlinkResponses.(animalID).(blinkState).LH_HbT = mean(data.(blinkState).LH_HbT,1);
+    Results_BlinkResponses.(animalID).(blinkState).LH_HbT_lowWhisk = mean(data.(blinkState).LH_HbT_lowWhisk,1);
+    Results_BlinkResponses.(animalID).(blinkState).LH_HbT_highWhisk = mean(data.(blinkState).LH_HbT_highWhisk,1);
+    % RH HbT
+    Results_BlinkResponses.(animalID).(blinkState).RH_HbT = mean(data.(blinkState).RH_HbT,1);
+    Results_BlinkResponses.(animalID).(blinkState).RH_HbT_lowWhisk = mean(data.(blinkState).RH_HbT_lowWhisk,1);
+    Results_BlinkResponses.(animalID).(blinkState).RH_HbT_highWhisk = mean(data.(blinkState).RH_HbT_highWhisk,1);
+    % LH cortical
+    Results_BlinkResponses.(animalID).(blinkState).LH_cort = mean(data.(blinkState).LH_cort,3);
+    Results_BlinkResponses.(animalID).(blinkState).LH_cort_lowWhisk = mean(data.(blinkState).LH_cort_lowWhisk,3);
+    Results_BlinkResponses.(animalID).(blinkState).LH_cort_highWhisk = mean(data.(blinkState).LH_cort_highWhisk,3);
+    % RH cortical
+    Results_BlinkResponses.(animalID).(blinkState).RH_cort = mean(data.(blinkState).RH_cort,3);
+    Results_BlinkResponses.(animalID).(blinkState).RH_cort_lowWhisk = mean(data.(blinkState).RH_cort_lowWhisk,3);
+    Results_BlinkResponses.(animalID).(blinkState).RH_cort_highWhisk = mean(data.(blinkState).RH_cort_highWhisk,3);
+    % hippocampus
+    Results_BlinkResponses.(animalID).(blinkState).hip = mean(data.(blinkState).hip,3);
+    Results_BlinkResponses.(animalID).(blinkState).hip_lowWhisk = mean(data.(blinkState).hip_lowWhisk,3);
+    Results_BlinkResponses.(animalID).(blinkState).hip_highWhisk = mean(data.(blinkState).hip_highWhisk,3);
+    % time/frequency vectors and counts for each stimulation
     Results_BlinkResponses.(animalID).(blinkState).T = data.(blinkState).T;
     Results_BlinkResponses.(animalID).(blinkState).F = data.(blinkState).F;
+    Results_BlinkResponses.(animalID).(blinkState).count = size(data.(blinkState).zDiameter,1);
+    Results_BlinkResponses.(animalID).(blinkState).count_lowWhisk = size(data.(blinkState).zDiameter_lowWhisk,1);
+    Results_BlinkResponses.(animalID).(blinkState).count_highWhisk = size(data.(blinkState).zDiameter_highWhisk,1);
 end
 % save data
 cd([rootFolder delim])

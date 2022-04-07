@@ -1,4 +1,4 @@
-function [Results_StimulusBlinks] = AnalyzeStimulusBlinks_Pupil(animalID,rootFolder,delim,Results_StimulusBlinks)
+function [Results_StimulusBlinks] = AnalyzeStimulusBlinks_JNeurosci2022(animalID,rootFolder,delim,Results_StimulusBlinks)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -31,7 +31,7 @@ for aa = 1:size(procDataFileIDs,1)
         solenoids = ProcData.data.stimulations.LPadSol;
     end
     if isempty(solenoids) == false
-        if strcmp(ProcData.data.Pupil.frameCheck,'y') == true
+        if strcmp(ProcData.data.Pupil.diameterCheck,'y') == true
             if isfield(ProcData.data.Pupil,'shiftedBlinks') == true
                 blinks = ProcData.data.Pupil.shiftedBlinks;
             elseif isempty(ProcData.data.Pupil.blinkInds) == false
@@ -59,7 +59,6 @@ for aa = 1:size(procDataFileIDs,1)
             breakThresh = 0;   % seconds changed by atw on 2/6/18 from 0.07
             binWhiskerAngle = [0,ProcData.data.binWhiskerAngle,0];
             binWhiskers = binWhiskerAngle;
-%             binWhiskers = LinkBinaryEvents_IOS(gt(binWhiskerAngle,0),[linkThresh breakThresh]*30);          
             for tt = 1:length(stimSamples)
                 stimSample = stimSamples(1,tt);
                 blinkGroup = [];
@@ -167,6 +166,8 @@ for aa = 1:length(data.stimIndex)
         elseif blinkTime >= stimTime + 121 && blinkTime <= stimTime + 135
             kk = kk + 1;
         elseif blinkTime >= stimTime + 136 && blinkTime <= stimTime + 150
+            ll = ll + 1;
+        elseif blinkTime >= stimTime + 151 && blinkTime <= stimTime + 165
             ll = ll + 1;
         else
             keyboard

@@ -4,293 +4,418 @@ function [] = Fig4_JNeurosci2022(rootFolder,saveFigs,delim)
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
-% Purpose:
+%   Purpose: Generate figure panel 8 for Turner_Gheres_Proctor_Drew_eLife2020
 %________________________________________________________________________________________________________________________
 
-resultsStruct = 'Results_BlinkResponses';
+%% variables for loops
+resultsStruct = 'Results_BlinkCoherogram';
 load(resultsStruct);
-animalIDs = fieldnames(Results_BlinkResponses);
-timeVector = (0:20*30)/30 - 10;
-data.Awake.zDiameter = []; data.Awake.whisk = []; data.Awake.HbT = []; data.Awake.cort = []; data.Awake.hip = []; data.Awake.EMG = [];
-data.Asleep.zDiameter = []; data.Asleep.whisk = []; data.Asleep.HbT = []; data.Asleep.cort = []; data.Asleep.hip = []; data.Asleep.EMG = [];
-data.Awake.zDiameter_T = []; data.Awake.whisk_T = []; data.Awake.HbT_T = []; data.Awake.cort_T = []; data.Awake.hip_T = []; data.Awake.EMG_T = [];
-data.Asleep.zDiameter_T = []; data.Asleep.whisk_T = []; data.Asleep.HbT_T = []; data.Asleep.cort_T = []; data.Asleep.hip_T = []; data.Asleep.EMG_T = [];
-data.Awake.zDiameter_F = []; data.Awake.whisk_F = []; data.Awake.HbT_F = []; data.Awake.cort_F = []; data.Awake.hip_F = []; data.Awake.EMG_F = [];
-data.Asleep.zDiameter_F = []; data.Asleep.whisk_F = []; data.Asleep.HbT_F = []; data.Asleep.cort_F = []; data.Asleep.hip_F = []; data.Asleep.EMG_F = [];
-blinkStates = {'Awake','Asleep'};
+animalIDs = fieldnames(Results_BlinkCoherogram);
+behavFields = {'Awake','Asleep','All'};
+dataTypes = {'HbT','gamma','left','right'};
+%% take data from each animal corresponding to the CBV-gamma relationship
 for aa = 1:length(animalIDs)
     animalID = animalIDs{aa,1};
-    for bb = 1:length(blinkStates)
-        blinkState = blinkStates{1,bb};
-        %%
-        if isempty(Results_BlinkResponses.(animalID).(blinkState).zDiameter) == false
-            data.(blinkState).zDiameter  = cat(1,data.(blinkState).zDiameter,Results_BlinkResponses.(animalID).(blinkState).zDiameter);
+    for bb = 1:length(dataTypes)
+        dataType = dataTypes{1,bb};
+        data.(dataType).dummyCheck = 1;
+        for cc = 1:length(behavFields)
+            behavField = behavFields{1,cc};
+            if isfield(data.(dataType),behavField) == false
+                data.(dataType).(behavField).C = [];
+                data.(dataType).(behavField).f = [];
+                data.(dataType).(behavField).t = [];
+                data.(dataType).(behavField).leadC = [];
+                data.(dataType).(behavField).lagC = [];
+                data.(dataType).(behavField).leadf = [];
+                data.(dataType).(behavField).lagf = [];
+                data.(dataType).(behavField).leadS = [];
+                data.(dataType).(behavField).lagS = [];
+            end
+            C = Results_BlinkCoherogram.(animalID).(dataType).(behavField).C;
+            meanC = mean(C(:,1:40*10),2);
+            matC = meanC.*ones(size(C));
+            msC = (C - matC);
+            data.(dataType).(behavField).C = cat(3,data.(dataType).(behavField).C,msC);
+            data.(dataType).(behavField).t = cat(1,data.(dataType).(behavField).t,Results_BlinkCoherogram.(animalID).(dataType).(behavField).t);
+            data.(dataType).(behavField).f = cat(1,data.(dataType).(behavField).f,Results_BlinkCoherogram.(animalID).(dataType).(behavField).f);
+            data.(dataType).(behavField).leadC = cat(2,data.(dataType).(behavField).leadC,Results_BlinkCoherogram.(animalID).(dataType).(behavField).leadC);
+            data.(dataType).(behavField).lagC = cat(2,data.(dataType).(behavField).lagC,Results_BlinkCoherogram.(animalID).(dataType).(behavField).lagC);
+            data.(dataType).(behavField).leadf = cat(1,data.(dataType).(behavField).leadf,Results_BlinkCoherogram.(animalID).(dataType).(behavField).leadf);
+            data.(dataType).(behavField).lagf = cat(1,data.(dataType).(behavField).lagf,Results_BlinkCoherogram.(animalID).(dataType).(behavField).lagf);
+            data.(dataType).(behavField).leadS = cat(2,data.(dataType).(behavField).leadS,Results_BlinkCoherogram.(animalID).(dataType).(behavField).LH_leadS,Results_BlinkCoherogram.(animalID).(dataType).(behavField).RH_leadS);
+            data.(dataType).(behavField).lagS = cat(2,data.(dataType).(behavField).lagS,Results_BlinkCoherogram.(animalID).(dataType).(behavField).LH_lagS,Results_BlinkCoherogram.(animalID).(dataType).(behavField).RH_lagS);
         end
-        data.(blinkState).whisk  = cat(1,data.(blinkState).whisk,Results_BlinkResponses.(animalID).(blinkState).whisk);
-        data.(blinkState).HbT  = cat(1,data.(blinkState).HbT,Results_BlinkResponses.(animalID).(blinkState).LH_HbT,Results_BlinkResponses.(animalID).(blinkState).RH_HbT);
-        data.(blinkState).cort = cat(3,data.(blinkState).cort,Results_BlinkResponses.(animalID).(blinkState).LH_cort,Results_BlinkResponses.(animalID).(blinkState).RH_cort);
-        data.(blinkState).hip = cat(3,data.(blinkState).hip,Results_BlinkResponses.(animalID).(blinkState).hip);
-        data.(blinkState).EMG = cat(1,data.(blinkState).EMG,Results_BlinkResponses.(animalID).(blinkState).EMG);
-        %%
-        if isempty(Results_BlinkResponses.(animalID).(blinkState).zDiameter_T) == false
-            data.(blinkState).zDiameter_T  = cat(1,data.(blinkState).zDiameter_T,Results_BlinkResponses.(animalID).(blinkState).zDiameter_T);
-        end
-        if isempty(Results_BlinkResponses.(animalID).(blinkState).whisk_T) == false
-            data.(blinkState).whisk_T  = cat(1,data.(blinkState).whisk_T,Results_BlinkResponses.(animalID).(blinkState).whisk_T);
-            data.(blinkState).HbT_T  = cat(1,data.(blinkState).HbT_T,Results_BlinkResponses.(animalID).(blinkState).LH_HbT_T,Results_BlinkResponses.(animalID).(blinkState).RH_HbT_T);
-            data.(blinkState).cort_T = cat(3,data.(blinkState).cort_T,Results_BlinkResponses.(animalID).(blinkState).LH_cort_T,Results_BlinkResponses.(animalID).(blinkState).RH_cort_T);
-            data.(blinkState).hip_T = cat(3,data.(blinkState).hip_T,Results_BlinkResponses.(animalID).(blinkState).hip_T);
-            data.(blinkState).EMG_T = cat(1,data.(blinkState).EMG_T,Results_BlinkResponses.(animalID).(blinkState).EMG_T);
-        end
-        %%
-        if isempty(Results_BlinkResponses.(animalID).(blinkState).zDiameter_F) == false
-            data.(blinkState).zDiameter_F  = cat(1,data.(blinkState).zDiameter_F,Results_BlinkResponses.(animalID).(blinkState).zDiameter_F);
-        end
-        if isempty(Results_BlinkResponses.(animalID).(blinkState).whisk_F) == false
-            data.(blinkState).whisk_F  = cat(1,data.(blinkState).whisk_F,Results_BlinkResponses.(animalID).(blinkState).whisk_F);
-            data.(blinkState).HbT_F  = cat(1,data.(blinkState).HbT_F,Results_BlinkResponses.(animalID).(blinkState).LH_HbT_F,Results_BlinkResponses.(animalID).(blinkState).RH_HbT_F);
-            data.(blinkState).cort_F = cat(3,data.(blinkState).cort_F,Results_BlinkResponses.(animalID).(blinkState).LH_cort_F,Results_BlinkResponses.(animalID).(blinkState).RH_cort_F);
-            data.(blinkState).hip_F = cat(3,data.(blinkState).hip_F,Results_BlinkResponses.(animalID).(blinkState).hip_F);
-            data.(blinkState).EMG_F = cat(1,data.(blinkState).EMG_F,Results_BlinkResponses.(animalID).(blinkState).EMG_F);
-        end
-        T = Results_BlinkResponses.(animalID).(blinkState).T;
-        F = Results_BlinkResponses.(animalID).(blinkState).F;
     end
 end
-%
-for bb = 1:length(blinkStates)
-    blinkState = blinkStates{1,bb};
-    data.(blinkState).meanDiameter = mean(data.(blinkState).zDiameter,1);
-    data.(blinkState).stdDiameter = std(data.(blinkState).zDiameter,0,1)./sqrt(size(data.(blinkState).zDiameter,1));
-    data.(blinkState).meanHbT = mean(data.(blinkState).HbT,1);
-    data.(blinkState).stdHbT = std(data.(blinkState).HbT,0,1)./sqrt(size(data.(blinkState).HbT,1));
-    data.(blinkState).meanCort = mean(data.(blinkState).cort,3).*100;
-    data.(blinkState).meanHip = mean(data.(blinkState).hip,3).*100;
-    data.(blinkState).meanEMG = mean(data.(blinkState).EMG,1);
-    data.(blinkState).stdEMG = std(data.(blinkState).EMG,0,1)./sqrt(size(data.(blinkState).EMG,1));
-    data.(blinkState).meanWhisk = mean(data.(blinkState).whisk*100,1);
-    data.(blinkState).stdWhisk = std(data.(blinkState).whisk*100,0,1)./sqrt(size(data.(blinkState).whisk,1));
-    
-    data.(blinkState).meanDiameter_T = mean(data.(blinkState).zDiameter_T,1);
-    data.(blinkState).stdDiameter_T = std(data.(blinkState).zDiameter_T,0,1)./sqrt(size(data.(blinkState).zDiameter_T,1));
-    data.(blinkState).meanHbT_T = mean(data.(blinkState).HbT_T,1);
-    data.(blinkState).stdHbT_T = std(data.(blinkState).HbT_T,0,1)./sqrt(size(data.(blinkState).HbT_T,1));
-    data.(blinkState).meanCort_T = mean(data.(blinkState).cort_T,3).*100;
-    data.(blinkState).meanHip_T = mean(data.(blinkState).hip_T,3).*100;
-    data.(blinkState).meanEMG_T = mean(data.(blinkState).EMG_T,1);
-    data.(blinkState).stdEMG_T = std(data.(blinkState).EMG_T,0,1)./sqrt(size(data.(blinkState).EMG_T,1));
-    data.(blinkState).meanWhisk_T = mean(data.(blinkState).whisk_T*100,1);
-    data.(blinkState).stdWhisk_T = std(data.(blinkState).whisk_T*100,0,1)./sqrt(size(data.(blinkState).whisk_T,1));
-    
-    data.(blinkState).meanDiameter_F = mean(data.(blinkState).zDiameter_F,1);
-    data.(blinkState).stdDiameter_F = std(data.(blinkState).zDiameter_F,0,1)./sqrt(size(data.(blinkState).zDiameter_F,1));
-    data.(blinkState).meanHbT_F = mean(data.(blinkState).HbT_F,1);
-    data.(blinkState).stdHbT_F = std(data.(blinkState).HbT_F,0,1)./sqrt(size(data.(blinkState).HbT_F,1));
-    data.(blinkState).meanCort_F = mean(data.(blinkState).cort_F,3).*100;
-    data.(blinkState).meanHip_F = mean(data.(blinkState).hip_F,3).*100;
-    data.(blinkState).meanEMG_F = mean(data.(blinkState).EMG_F,1);
-    data.(blinkState).stdEMG_F = std(data.(blinkState).EMG_F,0,1)./sqrt(size(data.(blinkState).EMG_F,1));
-    data.(blinkState).meanWhisk_F = mean(data.(blinkState).whisk_F*100,1);
-    data.(blinkState).stdWhisk_F = std(data.(blinkState).whisk_F*100,0,1)./sqrt(size(data.(blinkState).whisk_F,1));
+for aa = 1:length(behavFields)
+    behavField = behavFields{1,aa};
+    data.gammaHbT.(behavField).C = cat(3,data.left.(behavField).C,data.right.(behavField).C);
+    data.gammaHbT.(behavField).t = cat(1,data.left.(behavField).t,data.right.(behavField).t);
+    data.gammaHbT.(behavField).f = cat(1,data.left.(behavField).f,data.right.(behavField).f);
+    data.gammaHbT.(behavField).leadC = cat(1,data.left.(behavField).leadC,data.right.(behavField).leadC);
+    data.gammaHbT.(behavField).lagC = cat(1,data.left.(behavField).lagC,data.right.(behavField).lagC);
+    data.gammaHbT.(behavField).leadf = cat(2,data.left.(behavField).leadf,data.right.(behavField).leadf);
+    data.gammaHbT.(behavField).lagf = cat(2,data.left.(behavField).lagf,data.right.(behavField).lagf);
 end
-%% HbT
-Fig4A = figure('Name','Figure Panel 4 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
-subplot(4,4,1);
-plot(timeVector,data.Awake.meanHbT_T,'color',colors('smoky black'),'LineWidth',2);
-hold on
-plot(timeVector,data.Awake.meanHbT_T + data.Awake.stdHbT_T,'color',colors('smoky black'),'LineWidth',0.5)
-plot(timeVector,data.Awake.meanHbT_T - data.Awake.stdHbT_T,'color',colors('smoky black'),'LineWidth',0.5)
-title('Low Whisk Blink Awake HbT')
-ylabel('\DeltaHbT (\muM)')
-xlabel('Peri-blink time (s)')
-set(gca,'box','off')
-xlim([-10,10])
-axis square
-subplot(4,4,2);
-plot(timeVector,data.Awake.meanHbT_F,'color',colors('smoky black'),'LineWidth',2);
-hold on
-plot(timeVector,data.Awake.meanHbT_F + data.Awake.stdHbT_F,'color',colors('smoky black'),'LineWidth',0.5)
-plot(timeVector,data.Awake.meanHbT_F - data.Awake.stdHbT_F,'color',colors('smoky black'),'LineWidth',0.5)
-title('High Whisk Blink Awake HbT')
-ylabel('\DeltaHbT (\muM)')
-xlabel('Peri-blink time (s)')
-set(gca,'box','off')
-xlim([-10,10])
-axis square
-subplot(4,4,3);
-plot(timeVector,data.Asleep.meanHbT_T,'color',colors('smoky black'),'LineWidth',2);
-hold on
-plot(timeVector,data.Asleep.meanHbT_T + data.Asleep.stdHbT_T,'color',colors('smoky black'),'LineWidth',0.5)
-plot(timeVector,data.Asleep.meanHbT_T - data.Asleep.stdHbT_T,'color',colors('smoky black'),'LineWidth',0.5)
-title('Low Whisk Blink Asleep HbT')
-ylabel('\DeltaHbT (\muM)')
-xlabel('Peri-blink time (s)')
-set(gca,'box','off')
-xlim([-10,10])
-axis square
-subplot(4,4,4);
-plot(timeVector,data.Asleep.meanHbT_F,'color',colors('smoky black'),'LineWidth',2);
-hold on
-plot(timeVector,data.Asleep.meanHbT_F + data.Asleep.stdHbT_F,'color',colors('smoky black'),'LineWidth',0.5)
-plot(timeVector,data.Asleep.meanHbT_F - data.Asleep.stdHbT_F,'color',colors('smoky black'),'LineWidth',0.5)
-title('High Whisk Blink Asleep HbT')
-ylabel('\DeltaHbT (\muM)')
-xlabel('Peri-blink time (s)')
-set(gca,'box','off')
-xlim([-10,10])
-axis square
-%% EMG
-subplot(4,4,5);
-plot(timeVector,data.Awake.meanEMG_T,'color',colors('smoky black'),'LineWidth',2);
-hold on
-plot(timeVector,data.Awake.meanEMG_T + data.Awake.stdEMG_T,'color',colors('smoky black'),'LineWidth',0.5)
-plot(timeVector,data.Awake.meanEMG_T - data.Awake.stdEMG_T,'color',colors('smoky black'),'LineWidth',0.5)
-title('Awake EMG')
-ylabel('Power (a.u.)')
-xlabel('Peri-blink time (s)')
-set(gca,'box','off')
-xlim([-10,10])
-axis square
-subplot(4,4,6);
-plot(timeVector,data.Awake.meanEMG_F,'color',colors('smoky black'),'LineWidth',2);
-hold on
-plot(timeVector,data.Awake.meanEMG_F + data.Awake.stdEMG_F,'color',colors('smoky black'),'LineWidth',0.5)
-plot(timeVector,data.Awake.meanEMG_F - data.Awake.stdEMG_F,'color',colors('smoky black'),'LineWidth',0.5)
-title('Awake EMG')
-ylabel('Power (a.u.)')
-xlabel('Peri-blink time (s)')
-set(gca,'box','off')
-xlim([-10,10])
-axis square
-subplot(4,4,7);
-plot(timeVector,data.Asleep.meanEMG_T,'color',colors('smoky black'),'LineWidth',2);
-hold on
-plot(timeVector,data.Asleep.meanEMG_T + data.Asleep.stdEMG_T,'color',colors('smoky black'),'LineWidth',0.5)
-plot(timeVector,data.Asleep.meanEMG_T - data.Asleep.stdEMG_T,'color',colors('smoky black'),'LineWidth',0.5)
-title('Asleep EMG')
-ylabel('Power (a.u.)')
-xlabel('Peri-blink time (s)')
-set(gca,'box','off')
-xlim([-10,10])
-axis square
-subplot(4,4,8);
-plot(timeVector,data.Asleep.meanEMG_F,'color',colors('smoky black'),'LineWidth',2);
-hold on
-plot(timeVector,data.Asleep.meanEMG_F + data.Asleep.stdEMG_F,'color',colors('smoky black'),'LineWidth',0.5)
-plot(timeVector,data.Asleep.meanEMG_F - data.Asleep.stdEMG_F,'color',colors('smoky black'),'LineWidth',0.5)
-title('Asleep EMG')
-ylabel('Power (a.u.)')
-xlabel('Peri-blink time (s)')
-set(gca,'box','off')
-xlim([-10,10])
-axis square
-%% CORT
-subplot(4,4,9);
-imagesc(T,F,data.Awake.meanCort_T)
-title('Awake Cortical LFP')
-ylabel('Freq (Hz)')
-xlabel('Peri-blink time (s)')
-set(gca,'box','off')
-xlim([-10,10])
-caxis([-20,20]) 
+%% mean
+dataTypes = {'HbT','gamma'};
+for aa = 1:length(dataTypes)
+    dataType = dataTypes{1,aa};
+    for bb = 1:length(behavFields)
+        behavField = behavFields{1,bb};
+        data.(dataType).(behavField).meanC = mean(data.(dataType).(behavField).C,3);
+        data.(dataType).(behavField).meanT = mean(data.(dataType).(behavField).t,1);
+        data.(dataType).(behavField).meanF = mean(data.(dataType).(behavField).f,1);
+        data.(dataType).(behavField).meanLeadC = mean(data.(dataType).(behavField).leadC,2);
+        data.(dataType).(behavField).meanLagC = mean(data.(dataType).(behavField).lagC,2);
+        data.(dataType).(behavField).meanLeadF = mean(data.(dataType).(behavField).leadf,1);
+        data.(dataType).(behavField).meanLagF = mean(data.(dataType).(behavField).lagf,1);
+        data.(dataType).(behavField).stdLeadC = std(data.(dataType).(behavField).leadC,0,2)./sqrt(size(data.(dataType).(behavField).leadC,2));
+        data.(dataType).(behavField).stdLagC = std(data.(dataType).(behavField).lagC,0,2)./sqrt(size(data.(dataType).(behavField).lagC,2));
+        data.(dataType).(behavField).meanLeadS = mean(data.(dataType).(behavField).leadS,2);
+        data.(dataType).(behavField).meanLagS = mean(data.(dataType).(behavField).lagS,2);
+        data.(dataType).(behavField).stdLeadS = std(data.(dataType).(behavField).leadS,0,2)./sqrt(size(data.(dataType).(behavField).leadS,2));
+        data.(dataType).(behavField).stdLagS = std(data.(dataType).(behavField).lagS,0,2)./sqrt(size(data.(dataType).(behavField).lagS,2));
+        
+    end
+end
+
+% find 0.1/0.01 Hz peaks in coherence
+for ee = 1:length(dataTypes)
+    dataType = dataTypes{1,ee};
+    for ff = 1:length(behavFields)
+        behavField = behavFields{1,ff};
+        for gg = 1:size(data.(dataType).(behavField).leadC,2)
+            F = round(data.(dataType).(behavField).leadf(gg,:),2);
+            leadC = data.(dataType).(behavField).leadC(:,gg);
+            lagC = data.(dataType).(behavField).lagC(:,gg);
+            index035 = find(F == 0.23);
+            data.(dataType).(behavField).leadC035(gg,1) = mean(leadC(1:index035(1)));
+            data.(dataType).(behavField).lagC035(gg,1) = mean(lagC(1:index035(1)));
+        end
+    end
+end
+% take mean/StD of peak C
+for ee = 1:length(dataTypes)
+    dataType = dataTypes{1,ee};
+    for ff = 1:length(behavFields)
+        behavField = behavFields{1,ff};
+        data.(dataType).(behavField).meanLeadC035 = mean(data.(dataType).(behavField).leadC035,1);
+        data.(dataType).(behavField).stdLeadC035 = std(data.(dataType).(behavField).leadC035,0,1);
+        data.(dataType).(behavField).meanLagC035 = mean(data.(dataType).(behavField).lagC035,1);
+        data.(dataType).(behavField).stdLagC035 = std(data.(dataType).(behavField).lagC035,0,1);
+    end
+end
+[HbTStats.h,HbTStats.p,HbTStats.ci,HbTStats.stats] = ttest2(data.HbT.Awake.leadC035,data.HbT.Awake.lagC035,'Alpha',0.01);
+[GammaStats.h,GammaStats.p,GammaStats.ci,GammaStats.stats] = ttest2(data.gamma.Awake.leadC035,data.gamma.Awake.lagC035,'Alpha',0.01);
+%%
+Fig5A =  figure('Name','Figure Panel 2 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
+ax1 = subplot(2,4,1);
+Semilog_ImageSC(data.HbT.Awake.meanT,data.HbT.Awake.meanF,data.HbT.Awake.meanC,'y')
 c1 = colorbar;
-ylabel(c1,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
-axis square
-axis xy
-subplot(4,4,10);
-imagesc(T,F,data.Awake.meanCort_F)
-title('Awake Cortical LFP')
+ylabel(c1,'\DeltaCoherence (%)','rotation',-90,'VerticalAlignment','bottom')
+caxis([-0.15,0.05])
 ylabel('Freq (Hz)')
-xlabel('Peri-blink time (s)')
-set(gca,'box','off')
-xlim([-10,10])
-caxis([-20,20]) 
-c2 = colorbar;
-ylabel(c2,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
+xlabel('Time (sec)')
+title('HbT coherogram')
+xticks([10,20,30,40,50])
+xticklabels({'-20','-10','0','10','20'})
 axis square
 axis xy
-subplot(4,4,11);
-imagesc(T,F,data.Asleep.meanCort_T)
-title('Asleep Cortical LFP')
+set(gca,'box','off')
+%%
+subplot(2,4,2)
+s1 = semilogx(data.HbT.Awake.meanLeadF,data.HbT.Awake.meanLeadC,'r','LineWidth',2);
+hold on
+semilogx(data.HbT.Awake.meanLeadF,data.HbT.Awake.meanLeadC + data.HbT.Awake.stdLeadC,'r','LineWidth',0.5)
+semilogx(data.HbT.Awake.meanLeadF,data.HbT.Awake.meanLeadC - data.HbT.Awake.stdLeadC,'r','LineWidth',0.5)
+s2 = semilogx(data.HbT.Awake.meanLagF,data.HbT.Awake.meanLagC,'b','LineWidth',2);
+semilogx(data.HbT.Awake.meanLagF,data.HbT.Awake.meanLagC + data.HbT.Awake.stdLagC,'b','LineWidth',0.5)
+semilogx(data.HbT.Awake.meanLagF,data.HbT.Awake.meanLagC - data.HbT.Awake.stdLagC,'b','LineWidth',0.5)
+xline(0.23)
+axis tight
+ylabel('Coherence')
+xlabel('Freq (Hz)')
+title('HbT lead/lag coherence')
+legend([s1,s2],'leading blink +/- SEM','lagging blink +/- SEM')
+axis square
+%%
+subplot(2,4,3)
+scatter(ones(1,length(data.HbT.Awake.leadC035))*1,data.HbT.Awake.leadC035,75,'MarkerEdgeColor','k','MarkerFaceColor','r','jitter','on','jitterAmount',0.25);
+hold on
+e1 = errorbar(1,data.HbT.Awake.meanLeadC035,data.HbT.Awake.stdLeadC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e1.Color = 'black';
+e1.MarkerSize = 10;
+e1.CapSize = 10;
+scatter(ones(1,length(data.HbT.Awake.lagC035))*2,data.HbT.Awake.lagC035,75,'MarkerEdgeColor','k','MarkerFaceColor','b','jitter','on','jitterAmount',0.25);
+hold on
+e2 = errorbar(2,data.HbT.Awake.meanLagC035,data.HbT.Awake.stdLagC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e2.Color = 'black';
+e2.MarkerSize = 10;
+e2.CapSize = 10;
+ylabel('Coherence')
+title('HbT coherence from 0-0.23 Hz')
+set(gca,'xtick',[])
+set(gca,'xticklabel',[])
+axis square
+xlim([0,3])
+ylim([0,1])
+set(gca,'box','off')
+%%
+subplot(2,4,4)
+loglog(data.HbT.Awake.meanLeadF,data.HbT.Awake.meanLeadS,'r','LineWidth',2);
+hold on;
+% loglog(data.HbT.Awake.meanLeadF,data.HbT.Awake.meanLeadS + data.HbT.Awake.stdLeadS,'r','LineWidth',0.5);
+% loglog(data.HbT.Awake.meanLeadF,data.HbT.Awake.meanLeadS - data.HbT.Awake.stdLeadS,'r','LineWidth',0.5);
+loglog(data.HbT.Awake.meanLagF,data.HbT.Awake.meanLagS,'b','LineWidth',2);
+% loglog(data.HbT.Awake.meanLeadF,data.HbT.Awake.meanLagS + data.HbT.Awake.stdLagS,'b','LineWidth',0.5);
+% loglog(data.HbT.Awake.meanLeadF,data.HbT.Awake.meanLagS - data.HbT.Awake.stdLagS,'b','LineWidth',0.5);
+ylabel('Power (a.u.)')
+xlabel('Freq (Hz)')
+title('HbT lead/lag power')
+axis square
+axis tight
+xlim([0.03,1])
+set(gca,'box','off')
+%%
+ax2 = subplot(2,4,5);
+Semilog_ImageSC(data.gamma.Awake.meanT,data.gamma.Awake.meanF,data.gamma.Awake.meanC,'y')
+c1 = colorbar;
+ylabel(c1,'\DeltaCoherence (%)','rotation',-90,'VerticalAlignment','bottom')
+caxis([-0.15,0.05])
 ylabel('Freq (Hz)')
-xlabel('Peri-blink time (s)')
-set(gca,'box','off')
-xlim([-10,10])
-caxis([-100,100]) 
-c3 = colorbar;
-ylabel(c3,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
+xlabel('Time (sec)')
+title('Gamma coherogram')
+xticks([10,20,30,40,50])
+xticklabels({'-20','-10','0','10','20'})
 axis square
 axis xy
-subplot(4,4,12);
-imagesc(T,F,data.Asleep.meanCort_F)
-title('Asleep Cortical LFP')
-ylabel('Freq (Hz)')
-xlabel('Peri-blink time (s)')
 set(gca,'box','off')
-xlim([-10,10])
-caxis([-100,100]) 
-c4 = colorbar;
-ylabel(c4,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
+%%
+subplot(2,4,6)
+s1 = semilogx(data.gamma.Awake.meanLeadF,data.gamma.Awake.meanLeadC,'r','LineWidth',2);
+hold on
+semilogx(data.gamma.Awake.meanLeadF,data.gamma.Awake.meanLeadC + data.gamma.Awake.stdLeadC,'r','LineWidth',0.5)
+semilogx(data.gamma.Awake.meanLeadF,data.gamma.Awake.meanLeadC - data.gamma.Awake.stdLeadC,'r','LineWidth',0.5)
+s2 = semilogx(data.gamma.Awake.meanLagF,data.gamma.Awake.meanLagC,'b','LineWidth',2);
+semilogx(data.gamma.Awake.meanLagF,data.gamma.Awake.meanLagC + data.gamma.Awake.stdLagC,'b','LineWidth',0.5)
+semilogx(data.gamma.Awake.meanLagF,data.gamma.Awake.meanLagC - data.gamma.Awake.stdLagC,'b','LineWidth',0.5)
+xline(0.23)
+axis tight
+ylabel('Coherence')
+xlabel('Freq (Hz)')
+title('Gamma lead/lag coherence')
+legend([s1,s2],'leading blink +/- SEM','lagging blink +/- SEM')
 axis square
-axis xy
-%% HIP
-subplot(4,4,13);
-imagesc(T,F,data.Awake.meanHip_T)
-title('Awake Hippocampal LFP')
-ylabel('Freq (Hz)')
-xlabel('Peri-blink time (s)')
+%%
+subplot(2,4,7)
+scatter(ones(1,length(data.gamma.Awake.leadC035))*1,data.gamma.Awake.leadC035,75,'MarkerEdgeColor','k','MarkerFaceColor','r','jitter','on','jitterAmount',0.25);
+hold on
+e1 = errorbar(1,data.gamma.Awake.meanLeadC035,data.gamma.Awake.stdLeadC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e1.Color = 'black';
+e1.MarkerSize = 10;
+e1.CapSize = 10;
+scatter(ones(1,length(data.gamma.Awake.lagC035))*2,data.gamma.Awake.lagC035,75,'MarkerEdgeColor','k','MarkerFaceColor','b','jitter','on','jitterAmount',0.25);
+hold on
+e2 = errorbar(2,data.gamma.Awake.meanLagC035,data.gamma.Awake.stdLagC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e2.Color = 'black';
+e2.MarkerSize = 10;
+e2.CapSize = 10;
+ylabel('Coherence')
+title('Gamma coherence from 0-0.23 Hz')
+set(gca,'xtick',[])
+set(gca,'xticklabel',[])
+axis square
+xlim([0,3])
+ylim([0,1])
 set(gca,'box','off')
-xlim([-10,10])
-caxis([-20,20]) 
-c5 = colorbar;
-ylabel(c5,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
+%%
+subplot(2,4,8)
+loglog(data.gamma.Awake.meanLeadF,data.gamma.Awake.meanLeadS,'r','LineWidth',2);
+hold on;
+% loglog(data.gamma.Awake.meanLeadF,data.gamma.Awake.meanLeadS + data.gamma.Awake.stdLeadS,'r','LineWidth',0.5);
+% loglog(data.gamma.Awake.meanLeadF,data.gamma.Awake.meanLeadS - data.gamma.Awake.stdLeadS,'r','LineWidth',0.5);
+loglog(data.gamma.Awake.meanLagF,data.gamma.Awake.meanLagS,'b','LineWidth',2);
+% loglog(data.gamma.Awake.meanLeadF,data.gamma.Awake.meanLagS + data.gamma.Awake.stdLagS,'b','LineWidth',0.5);
+% loglog(data.gamma.Awake.meanLeadF,data.gamma.Awake.meanLagS - data.gamma.Awake.stdLagS,'b','LineWidth',0.5);
+ylabel('Power (a.u.)')
+xlabel('Freq (Hz)')
+title('Gamma lead/lag power')
 axis square
-axis xy
-subplot(4,4,14);
-imagesc(T,F,data.Awake.meanHip_F)
-title('Awake Hippocampal LFP')
-ylabel('Freq (Hz)')
-xlabel('Peri-blink time (s)')
+axis tight
+xlim([0.03,1])
 set(gca,'box','off')
-xlim([-10,10])
-caxis([-20,20]) 
-c6 = colorbar;
-ylabel(c6,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
-axis square
-axis xy
-subplot(4,4,15);
-imagesc(T,F,data.Asleep.meanHip_T)
-title('Asleep Hippocampal LFP')
-ylabel('Freq (Hz)')
-xlabel('Peri-blink time (s)')
-set(gca,'box','off')
-xlim([-10,10])
-caxis([-100,100]) 
-c7 = colorbar;
-ylabel(c7,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
-axis square
-axis xy
-subplot(4,4,16);
-imagesc(T,F,data.Asleep.meanHip_F)
-title('Asleep Hippocampal LFP')
-ylabel('Freq (Hz)')
-xlabel('Peri-blink time (s)')
-set(gca,'box','off')
-xlim([-10,10])
-caxis([-100,100]) 
-c8 = colorbar;
-ylabel(c8,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
-axis square
-axis xy
 %% save figure(s)
 if saveFigs == true
     dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'Figure Panels' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
-    savefig(Fig4A,[dirpath 'Fig4_JNeurosci2022']);
-    set(Fig4A,'PaperPositionMode','auto');
-    print('-vector','-dpdf','-bestfit',[dirpath 'Fig4_JNeurosci2022'])
+    savefig(Fig5A,[dirpath 'Fig5A_JNeurosci2022']);
+    % remove surface subplots because they take forever to render
+    cla(ax1);
+    set(ax1,'YLim',[0,3]);
+    cla(ax2);
+    set(ax2,'YLim',[0,3]);
+    set(Fig5A,'PaperPositionMode','auto');
+    print('-vector','-dpdf','-bestfit',[dirpath 'Fig5A_JNeurosci2022'])
+    close(Fig5A)
+    % subplot figure
+    subplotImgs = figure;
+    % example 1 LH cortical LFP
+    subplot(1,2,1)
+    Semilog_ImageSC(data.HbT.Awake.meanT,data.HbT.Awake.meanF,data.HbT.Awake.meanC,'y')
+    caxis([-0.15,0.05])
+    axis square
+    axis xy
+    axis off
+    set(gca,'box','off')
+    subplot(1,2,2)
+    Semilog_ImageSC(data.gamma.Awake.meanT,data.gamma.Awake.meanF,data.gamma.Awake.meanC,'y')
+    caxis([-0.15,0.05])
+    axis square
+    axis xy
+    axis off
+    set(gca,'box','off')
+    print('-vector','-dtiffn',[dirpath 'Fig5_CohImages'])
+    close(subplotImgs)
+    figure('Name','Figure Panel 5 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
+    subplot(2,4,1);
+    Semilog_ImageSC(data.HbT.Awake.meanT,data.HbT.Awake.meanF,data.HbT.Awake.meanC,'y')
+    c1 = colorbar;
+    ylabel(c1,'\DeltaCoherence (%)','rotation',-90,'VerticalAlignment','bottom')
+    caxis([-0.15,0.05])
+    ylabel('Freq (Hz)')
+    xlabel('Time (sec)')
+    title('HbT coherogram')
+    xticks([10,20,30,40,50])
+    xticklabels({'-20','-10','0','10','20'})
+    axis square
+    axis xy
+    set(gca,'box','off')
+    %%
+    subplot(2,4,2)
+    s1 = semilogx(data.HbT.Awake.meanLeadF,data.HbT.Awake.meanLeadC,'r','LineWidth',2);
+    hold on
+    semilogx(data.HbT.Awake.meanLeadF,data.HbT.Awake.meanLeadC + data.HbT.Awake.stdLeadC,'r','LineWidth',0.5)
+    semilogx(data.HbT.Awake.meanLeadF,data.HbT.Awake.meanLeadC - data.HbT.Awake.stdLeadC,'r','LineWidth',0.5)
+    s2 = semilogx(data.HbT.Awake.meanLagF,data.HbT.Awake.meanLagC,'b','LineWidth',2);
+    semilogx(data.HbT.Awake.meanLagF,data.HbT.Awake.meanLagC + data.HbT.Awake.stdLagC,'b','LineWidth',0.5)
+    semilogx(data.HbT.Awake.meanLagF,data.HbT.Awake.meanLagC - data.HbT.Awake.stdLagC,'b','LineWidth',0.5)
+    xline(0.23)
+    axis tight
+    ylabel('Coherence')
+    xlabel('Freq (Hz)')
+    title('HbT lead/lag coherence')
+    legend([s1,s2],'leading blink +/- SEM','lagging blink +/- SEM')
+    axis square
+    %%
+    subplot(2,4,3)
+    scatter(ones(1,length(data.HbT.Awake.leadC035))*1,data.HbT.Awake.leadC035,75,'MarkerEdgeColor','k','MarkerFaceColor','r','jitter','on','jitterAmount',0.25);
+    hold on
+    e1 = errorbar(1,data.HbT.Awake.meanLeadC035,data.HbT.Awake.stdLeadC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+    e1.Color = 'black';
+    e1.MarkerSize = 10;
+    e1.CapSize = 10;
+    scatter(ones(1,length(data.HbT.Awake.lagC035))*2,data.HbT.Awake.lagC035,75,'MarkerEdgeColor','k','MarkerFaceColor','b','jitter','on','jitterAmount',0.25);
+    hold on
+    e2 = errorbar(2,data.HbT.Awake.meanLagC035,data.HbT.Awake.stdLagC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+    e2.Color = 'black';
+    e2.MarkerSize = 10;
+    e2.CapSize = 10;
+    ylabel('Coherence')
+    title('HbT coherence from 0-0.23 Hz')
+    set(gca,'xtick',[])
+    set(gca,'xticklabel',[])
+    axis square
+    xlim([0,3])
+    ylim([0,1])
+    set(gca,'box','off')
+    %%
+    subplot(2,4,4)
+    loglog(data.HbT.Awake.meanLeadF,data.HbT.Awake.meanLeadS,'r','LineWidth',2);
+    hold on;
+    % loglog(data.HbT.Awake.meanLeadF,data.HbT.Awake.meanLeadS + data.HbT.Awake.stdLeadS,'r','LineWidth',0.5);
+    % loglog(data.HbT.Awake.meanLeadF,data.HbT.Awake.meanLeadS - data.HbT.Awake.stdLeadS,'r','LineWidth',0.5);
+    loglog(data.HbT.Awake.meanLagF,data.HbT.Awake.meanLagS,'b','LineWidth',2);
+    % loglog(data.HbT.Awake.meanLeadF,data.HbT.Awake.meanLagS + data.HbT.Awake.stdLagS,'b','LineWidth',0.5);
+    % loglog(data.HbT.Awake.meanLeadF,data.HbT.Awake.meanLagS - data.HbT.Awake.stdLagS,'b','LineWidth',0.5);
+    ylabel('Power (a.u.)')
+    xlabel('Freq (Hz)')
+    title('HbT lead/lag power')
+    axis square
+    axis tight
+    xlim([0.03,1])
+    set(gca,'box','off')
+    %%
+    subplot(2,4,5);
+    Semilog_ImageSC(data.gamma.Awake.meanT,data.gamma.Awake.meanF,data.gamma.Awake.meanC,'y')
+    c1 = colorbar;
+    ylabel(c1,'\DeltaCoherence (%)','rotation',-90,'VerticalAlignment','bottom')
+    caxis([-0.15,0.05])
+    ylabel('Freq (Hz)')
+    xlabel('Time (sec)')
+    title('Gamma coherogram')
+    xticks([10,20,30,40,50])
+    xticklabels({'-20','-10','0','10','20'})
+    axis square
+    axis xy
+    set(gca,'box','off')
+    %%
+    subplot(2,4,6)
+    s1 = semilogx(data.gamma.Awake.meanLeadF,data.gamma.Awake.meanLeadC,'r','LineWidth',2);
+    hold on
+    semilogx(data.gamma.Awake.meanLeadF,data.gamma.Awake.meanLeadC + data.gamma.Awake.stdLeadC,'r','LineWidth',0.5)
+    semilogx(data.gamma.Awake.meanLeadF,data.gamma.Awake.meanLeadC - data.gamma.Awake.stdLeadC,'r','LineWidth',0.5)
+    s2 = semilogx(data.gamma.Awake.meanLagF,data.gamma.Awake.meanLagC,'b','LineWidth',2);
+    semilogx(data.gamma.Awake.meanLagF,data.gamma.Awake.meanLagC + data.gamma.Awake.stdLagC,'b','LineWidth',0.5)
+    semilogx(data.gamma.Awake.meanLagF,data.gamma.Awake.meanLagC - data.gamma.Awake.stdLagC,'b','LineWidth',0.5)
+    xline(0.23)
+    axis tight
+    ylabel('Coherence')
+    xlabel('Freq (Hz)')
+    title('Gamma lead/lag coherence')
+    legend([s1,s2],'leading blink +/- SEM','lagging blink +/- SEM')
+    axis square
+    %%
+    subplot(2,4,7)
+    scatter(ones(1,length(data.gamma.Awake.leadC035))*1,data.gamma.Awake.leadC035,75,'MarkerEdgeColor','k','MarkerFaceColor','r','jitter','on','jitterAmount',0.25);
+    hold on
+    e1 = errorbar(1,data.gamma.Awake.meanLeadC035,data.gamma.Awake.stdLeadC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+    e1.Color = 'black';
+    e1.MarkerSize = 10;
+    e1.CapSize = 10;
+    scatter(ones(1,length(data.gamma.Awake.lagC035))*2,data.gamma.Awake.lagC035,75,'MarkerEdgeColor','k','MarkerFaceColor','b','jitter','on','jitterAmount',0.25);
+    hold on
+    e2 = errorbar(2,data.gamma.Awake.meanLagC035,data.gamma.Awake.stdLagC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+    e2.Color = 'black';
+    e2.MarkerSize = 10;
+    e2.CapSize = 10;
+    ylabel('Coherence')
+    title('Gamma coherence from 0-0.23 Hz')
+    set(gca,'xtick',[])
+    set(gca,'xticklabel',[])
+    axis square
+    xlim([0,3])
+    ylim([0,1])
+    set(gca,'box','off')
+    %%
+    subplot(2,4,8)
+    loglog(data.gamma.Awake.meanLeadF,data.gamma.Awake.meanLeadS,'r','LineWidth',2);
+    hold on;
+    % loglog(data.gamma.Awake.meanLeadF,data.gamma.Awake.meanLeadS + data.gamma.Awake.stdLeadS,'r','LineWidth',0.5);
+    % loglog(data.gamma.Awake.meanLeadF,data.gamma.Awake.meanLeadS - data.gamma.Awake.stdLeadS,'r','LineWidth',0.5);
+    loglog(data.gamma.Awake.meanLagF,data.gamma.Awake.meanLagS,'b','LineWidth',2);
+    % loglog(data.gamma.Awake.meanLeadF,data.gamma.Awake.meanLagS + data.gamma.Awake.stdLagS,'b','LineWidth',0.5);
+    % loglog(data.gamma.Awake.meanLeadF,data.gamma.Awake.meanLagS - data.gamma.Awake.stdLagS,'b','LineWidth',0.5);
+    ylabel('Power (a.u.)')
+    xlabel('Freq (Hz)')
+    title('Gamma lead/lag power')
+    axis square
+    axis tight
+    xlim([0.03,1])
+    set(gca,'box','off')
 end
 
 end

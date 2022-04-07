@@ -1,4 +1,4 @@
-function [] = Fig5_JNeurosci2022(rootFolder,saveFigs,delim)
+function [AnalysisResults] = Fig5_JNeurosci2022(rootFolder,saveFigs,delim,AnalysisResults)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -7,244 +7,407 @@ function [] = Fig5_JNeurosci2022(rootFolder,saveFigs,delim)
 %   Purpose: Generate figure panel 8 for Turner_Gheres_Proctor_Drew_eLife2020
 %________________________________________________________________________________________________________________________
 
-%% variables for loops
-resultsStruct = 'Results_BlinkCoherogram';
+%% Pupil-HbT relationship
+resultsStruct = 'Results_PupilHbTRelationship';
 load(resultsStruct);
-animalIDs = fieldnames(Results_BlinkCoherogram);
-behavFields = {'Awake','Asleep','All'};
-dataTypes = {'HbT','gamma','left','right'};
-%% take data from each animal corresponding to the CBV-gamma relationship
+animalIDs = fieldnames(Results_PupilHbTRelationship);
+behavFields = {'Awake','NREM','REM'};
+% take data from each animal corresponding to the CBV-gamma relationship
+data.HbTRel.catHbT = [];  data.HbTRel.catPupil = [];
 for aa = 1:length(animalIDs)
     animalID = animalIDs{aa,1};
-    for bb = 1:length(dataTypes)
-        dataType = dataTypes{1,bb};
-        data.(dataType).dummyCheck = 1;
-        for cc = 1:length(behavFields)
-            behavField = behavFields{1,cc};
-            if isfield(data.(dataType),behavField) == false
-                data.(dataType).(behavField).C = [];
-                data.(dataType).(behavField).f = [];
-                data.(dataType).(behavField).t = [];
-                data.(dataType).(behavField).leadC = [];
-                data.(dataType).(behavField).lagC = [];
-                data.(dataType).(behavField).leadf = [];
-                data.(dataType).(behavField).lagf = [];
-                data.(dataType).(behavField).leadS = [];
-                data.(dataType).(behavField).lagS = [];
-            end
-            C = Results_BlinkCoherogram.(animalID).(dataType).(behavField).C;
-            meanC = mean(C(:,1:40*10),2);
-            matC = meanC.*ones(size(C));
-            msC = (C - matC);
-            data.(dataType).(behavField).C = cat(3,data.(dataType).(behavField).C,msC);
-            data.(dataType).(behavField).t = cat(1,data.(dataType).(behavField).t,Results_BlinkCoherogram.(animalID).(dataType).(behavField).t);
-            data.(dataType).(behavField).f = cat(1,data.(dataType).(behavField).f,Results_BlinkCoherogram.(animalID).(dataType).(behavField).f);
-            data.(dataType).(behavField).leadC = cat(2,data.(dataType).(behavField).leadC,Results_BlinkCoherogram.(animalID).(dataType).(behavField).leadC);
-            data.(dataType).(behavField).lagC = cat(2,data.(dataType).(behavField).lagC,Results_BlinkCoherogram.(animalID).(dataType).(behavField).lagC);
-            data.(dataType).(behavField).leadf = cat(1,data.(dataType).(behavField).leadf,Results_BlinkCoherogram.(animalID).(dataType).(behavField).leadf);
-            data.(dataType).(behavField).lagf = cat(1,data.(dataType).(behavField).lagf,Results_BlinkCoherogram.(animalID).(dataType).(behavField).lagf);
-            data.(dataType).(behavField).leadS = cat(2,data.(dataType).(behavField).leadS,Results_BlinkCoherogram.(animalID).(dataType).(behavField).LH_leadS,Results_BlinkCoherogram.(animalID).(dataType).(behavField).RH_leadS);
-            data.(dataType).(behavField).lagS = cat(2,data.(dataType).(behavField).lagS,Results_BlinkCoherogram.(animalID).(dataType).(behavField).LH_lagS,Results_BlinkCoherogram.(animalID).(dataType).(behavField).RH_lagS);
-        end
-    end
-end
-for aa = 1:length(behavFields)
-    behavField = behavFields{1,aa};
-    data.gammaHbT.(behavField).C = cat(3,data.left.(behavField).C,data.right.(behavField).C);
-    data.gammaHbT.(behavField).t = cat(1,data.left.(behavField).t,data.right.(behavField).t);
-    data.gammaHbT.(behavField).f = cat(1,data.left.(behavField).f,data.right.(behavField).f);
-    data.gammaHbT.(behavField).leadC = cat(1,data.left.(behavField).leadC,data.right.(behavField).leadC);
-    data.gammaHbT.(behavField).lagC = cat(1,data.left.(behavField).lagC,data.right.(behavField).lagC);
-    data.gammaHbT.(behavField).leadf = cat(2,data.left.(behavField).leadf,data.right.(behavField).leadf);
-    data.gammaHbT.(behavField).lagf = cat(2,data.left.(behavField).lagf,data.right.(behavField).lagf);
-end
-%% mean
-dataTypes = {'HbT','gamma'};
-for aa = 1:length(dataTypes)
-    dataType = dataTypes{1,aa};
     for bb = 1:length(behavFields)
         behavField = behavFields{1,bb};
-        data.(dataType).(behavField).meanC = mean(data.(dataType).(behavField).C,3);
-        data.(dataType).(behavField).meanT = mean(data.(dataType).(behavField).t,1);
-        data.(dataType).(behavField).meanF = mean(data.(dataType).(behavField).f,1);
-        data.(dataType).(behavField).meanLeadC = mean(data.(dataType).(behavField).leadC,2);
-        data.(dataType).(behavField).meanLagC = mean(data.(dataType).(behavField).lagC,2);
-        data.(dataType).(behavField).meanLeadF = mean(data.(dataType).(behavField).leadf,1);
-        data.(dataType).(behavField).meanLagF = mean(data.(dataType).(behavField).lagf,1);
-        data.(dataType).(behavField).stdLeadC = std(data.(dataType).(behavField).leadC,0,2)./sqrt(size(data.(dataType).(behavField).leadC,2));
-        data.(dataType).(behavField).stdLagC = std(data.(dataType).(behavField).lagC,0,2)./sqrt(size(data.(dataType).(behavField).lagC,2));
-        data.(dataType).(behavField).meanLeadS = mean(data.(dataType).(behavField).leadS,2);
-        data.(dataType).(behavField).meanLagS = mean(data.(dataType).(behavField).lagS,2);
-        data.(dataType).(behavField).stdLeadS = std(data.(dataType).(behavField).leadS,0,2)./sqrt(size(data.(dataType).(behavField).leadS,2));
-        data.(dataType).(behavField).stdLagS = std(data.(dataType).(behavField).lagS,0,2)./sqrt(size(data.(dataType).(behavField).lagS,2));
-        
-    end
-end
-
-% find 0.1/0.01 Hz peaks in coherence
-for ee = 1:length(dataTypes)
-    dataType = dataTypes{1,ee};
-    for ff = 1:length(behavFields)
-        behavField = behavFields{1,ff};
-        for gg = 1:size(data.(dataType).(behavField).leadC,2)
-            F = round(data.(dataType).(behavField).leadf(gg,:),2);
-            leadC = data.(dataType).(behavField).leadC(:,gg);
-            lagC = data.(dataType).(behavField).lagC(:,gg);
-            index035 = find(F == 0.23);
-            data.(dataType).(behavField).leadC035(gg,1) = mean(leadC(1:index035(1)));
-            data.(dataType).(behavField).lagC035(gg,1) = mean(lagC(1:index035(1)));
+        if isfield(data.HbTRel.catHbT,behavField) == false
+            data.HbTRel.catHbT.(behavField) = [];
+            data.HbTRel.catPupil.(behavField) = [];
         end
+        data.HbTRel.catHbT.(behavField) = cat(1,data.HbTRel.catHbT.(behavField),Results_PupilHbTRelationship.(animalID).(behavField).HbT);
+        data.HbTRel.catPupil.(behavField) = cat(1,data.HbTRel.catPupil.(behavField),Results_PupilHbTRelationship.(animalID).(behavField).Pupil);
     end
 end
-% take mean/StD of peak C
-for ee = 1:length(dataTypes)
-    dataType = dataTypes{1,ee};
-    for ff = 1:length(behavFields)
-        behavField = behavFields{1,ff};
-        data.(dataType).(behavField).meanLeadC035 = mean(data.(dataType).(behavField).leadC035,1);
-        data.(dataType).(behavField).stdLeadC035 = std(data.(dataType).(behavField).leadC035,0,1);
-        data.(dataType).(behavField).meanLagC035 = mean(data.(dataType).(behavField).lagC035,1);
-        data.(dataType).(behavField).stdLagC035 = std(data.(dataType).(behavField).lagC035,0,1);
+%% Pupil-Gamma relationship
+resultsStruct = 'Results_PupilGammaRelationship';
+load(resultsStruct);
+animalIDs = fieldnames(Results_PupilGammaRelationship);
+behavFields = {'Awake','NREM','REM'};
+% take data from each animal corresponding to the CBV-gamma relationship
+data.GammaRel.catGamma = [];  data.GammaRel.catPupil = [];
+for aa = 1:length(animalIDs)
+    animalID = animalIDs{aa,1};
+    for bb = 1:length(behavFields)
+        behavField = behavFields{1,bb};
+        if isfield(data.GammaRel.catGamma,behavField) == false
+            data.GammaRel.catGamma.(behavField) = [];
+            data.GammaRel.catPupil.(behavField) = [];
+        end
+        data.GammaRel.catGamma.(behavField) = cat(1,data.GammaRel.catGamma.(behavField),Results_PupilGammaRelationship.(animalID).(behavField).Gamma*100);
+        data.GammaRel.catPupil.(behavField) = cat(1,data.GammaRel.catPupil.(behavField),Results_PupilGammaRelationship.(animalID).(behavField).Pupil);
     end
 end
-[HbTStats.h,HbTStats.p,HbTStats.ci,HbTStats.stats] = ttest2(data.HbT.Awake.leadC035,data.HbT.Awake.lagC035,'Alpha',0.01);
-[GammaStats.h,GammaStats.p,GammaStats.ci,GammaStats.stats] = ttest2(data.gamma.Awake.leadC035,data.gamma.Awake.lagC035,'Alpha',0.01);
-%%
-Fig5A =  figure('Name','Figure Panel 2 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
-ax1 = subplot(2,4,1);
-Semilog_ImageSC(data.HbT.Awake.meanT,data.HbT.Awake.meanF,data.HbT.Awake.meanC,'y')
-c1 = colorbar;
-ylabel(c1,'\DeltaCoherence (%)','rotation',-90,'VerticalAlignment','bottom')
-caxis([-0.15,0.05])
-ylabel('Freq (Hz)')
-xlabel('Time (sec)')
-title('HbT coherogram')
-xticks([10,20,30,40,50])
-xticklabels({'-20','-10','0','10','20'})
+%% Sleep probability based on pupil mm diameter
+resultsStruct = 'Results_SleepProbability';
+load(resultsStruct);
+diameterAllCatMeans = Results_SleepProbability.diameterCatMeans;
+awakeProbPerc = Results_SleepProbability.awakeProbPerc;
+nremProbPerc = Results_SleepProbability.nremProbPerc;
+remProbPerc = Results_SleepProbability.remProbPerc;
+asleepProbPerc = Results_SleepProbability.asleepProbPerc;
+%% Sleep model accuracy based on pupil zDiameter alone
+resultsStructB = 'Results_PupilSleepModel';
+load(resultsStructB);
+animalIDs = fieldnames(Results_PupilSleepModel);
+data.pupil.holdXlabels = []; data.pupil.holdYlabels = [];
+for dd = 1:length(animalIDs)
+    animalID = animalIDs{dd,1};
+    if strcmp(animalID,'T141') == true
+        Xodd = Results_PupilSleepModel.(animalID).SVM.Xodd;
+        Yodd = Results_PupilSleepModel.(animalID).SVM.Yodd;
+        exampleBoundary = Results_PupilSleepModel.(animalID).SVM.zBoundary;
+    end
+    data.pupil.rocX{dd,1} = Results_PupilSleepModel.(animalID).SVM.rocX';
+    data.pupil.rocY{dd,1} = Results_PupilSleepModel.(animalID).SVM.rocY';
+    data.pupil.rocAUC(dd,1) = Results_PupilSleepModel.(animalID).SVM.rocAUC;
+    data.pupil.rocOPTROCPT{dd,1} = Results_PupilSleepModel.(animalID).SVM.rocOPTROCPT;
+    data.pupil.loss(dd,:) = Results_PupilSleepModel.(animalID).SVM.loss;
+    data.pupil.zBoundary(dd,1) = Results_PupilSleepModel.(animalID).SVM.zBoundary;
+    data.pupil.mBoundary(dd,1) = Results_PupilSleepModel.(animalID).SVM.mmBoundary;
+    data.pupil.holdXlabels = cat(1,data.pupil.holdXlabels,Results_PupilSleepModel.(animalID).SVM.testXlabels);
+    data.pupil.holdYlabels = cat(1,data.pupil.holdYlabels,Results_PupilSleepModel.(animalID).SVM.testYlabels);
+end
+data.pupil.rocMeanAUC = mean(data.pupil.rocAUC,1);
+data.pupil.rocStdAUC = std(data.pupil.rocAUC,0,1);
+data.pupil.meanLoss = mean(data.pupil.loss,1);
+data.pupil.stdLoss = std(data.pupil.loss,0,1);
+data.pupil.meanZBoundary = mean(data.pupil.zBoundary,1);
+data.pupil.stdZBoundary = std(data.pupil.zBoundary,0,1);
+data.pupil.meanMBoundary = mean(data.pupil.mBoundary,1);
+data.pupil.stdMBoundary = std(data.pupil.mBoundary,0,1);
+%% Sleep model accuracy based on physiology
+resultsStructB = 'Results_PhysioSleepModel';
+load(resultsStructB);
+animalIDs = fieldnames(Results_PhysioSleepModel);
+data.physio.holdXlabels = []; data.physio.holdYlabels = [];
+for dd = 1:length(animalIDs)
+    animalID = animalIDs{dd,1};
+    data.physio.loss(dd,1) = Results_PhysioSleepModel.(animalID).SVM.loss;
+    data.physio.holdXlabels = cat(1,data.physio.holdXlabels,Results_PhysioSleepModel.(animalID).SVM.testXlabels);
+    data.physio.holdYlabels = cat(1,data.physio.holdYlabels,Results_PhysioSleepModel.(animalID).SVM.testYlabels);
+end
+data.physio.meanLoss = mean(data.physio.loss,1);
+data.physio.stdLoss = std(data.physio.loss,0,1);
+%% pupil model coherence
+resultsStruct = 'Results_PupilModelCoherence.mat';
+load(resultsStruct);
+animalIDs = fieldnames(Results_PupilModelCoherence);
+for aa = 1:length(animalIDs)
+    animalID = animalIDs{aa,1};
+    data.Coherr.pupilf(aa,:) = Results_PupilModelCoherence.(animalID).Pupil.f;
+    data.Coherr.pupilC(aa,:) = Results_PupilModelCoherence.(animalID).Pupil.C;
+    data.Coherr.physiof(aa,:) = Results_PupilModelCoherence.(animalID).Physio.f;
+    data.Coherr.physioC(aa,:) = Results_PupilModelCoherence.(animalID).Physio.C;
+end
+data.Coherr.meanPupilf = mean(data.Coherr.pupilf,1);
+data.Coherr.meanPupilC = mean(data.Coherr.pupilC,1);
+data.Coherr.stdPupilC = std(data.Coherr.pupilC,0,1)/sqrt(size(data.Coherr.pupilC,1));
+data.Coherr.meanPhysiof = mean(data.Coherr.physiof,1);
+data.Coherr.meanPhysioC = mean(data.Coherr.physioC,1);
+data.Coherr.stdPhysioC = std(data.Coherr.physioC,0,1)/sqrt(size(data.Coherr.physioC,1));
+%% load data
+dataStructure = 'Results_Example.mat';
+load(dataStructure)
+binTime = 5;
+for aa = 1:length(Results_Example.trueLabels)
+    if strcmp(Results_Example.trueLabels{aa,1},'Not Sleep') == true
+        trueAwake(aa,1) = 1;
+        trueAsleep(aa,1) = 0;
+    elseif strcmp(Results_Example.trueLabels{aa,1},'NREM Sleep') == true || strcmp(Results_Example.trueLabels{aa,1},'REM Sleep') == true
+        trueAwake(aa,1) = 0;
+        trueAsleep(aa,1) = 1;
+    end
+end
+for aa = 1:length(Results_Example.trueLabels)
+    if strcmp(Results_Example.trueLabels{aa,1},'Not Sleep') == true
+        trueNREM(aa,1) = 0;
+        trueREM(aa,1) = 0;
+    elseif strcmp(Results_Example.trueLabels{aa,1},'NREM Sleep') == true
+        trueNREM(aa,1) = 1;
+        trueREM(aa,1) = 0;
+    elseif strcmp(Results_Example.trueLabels{aa,1},'REM Sleep') == true
+        trueNREM(aa,1) = 0;
+        trueREM(aa,1) = 1;
+    end
+end
+[physioPred,~] = predict(Results_PhysioSleepModel.T141.SVM.mdl,Results_Example.physioTable);
+physioPredAwake = strcmp(physioPred,'Awake');
+physioPredAsleep = strcmp(physioPred,'Asleep');
+[pupilPred,~] = predict(Results_PupilSleepModel.T141.SVM.mdl,Results_Example.pupilTable);
+pupilPredAwake = strcmp(pupilPred,'Awake');
+pupilPredAsleep = strcmp(pupilPred,'Asleep');
+%% Figure
+HbTawakeHist = figure;
+h1 = histogram2(data.HbTRel.catPupil.Awake,data.HbTRel.catHbT.Awake,'DisplayStyle','tile','ShowEmptyBins','on','XBinedges',-5:0.025:3,'YBinedges',-25:2.5:125,'Normalization','probability');
+h1Vals = h1.Values;
+% RGB image for Awake
+HbTawakeRGB = figure;
+s = pcolor(-4.975:0.025:3,-22.5:2.5:125,h1Vals');
+s.FaceColor = 'interp';
+set(s,'EdgeColor','none');
+n = 50;
+R = linspace(0,1,n);
+G = linspace(0,1,n);
+B = linspace(0,1,n);
+colormap(flipud([R(:),G(:),B(:)]));
+cax = caxis;
+caxis([cax(1),cax(2)/1.5])
+axis off
+h1Frame = getframe(gcf);
+h1Img = frame2im(h1Frame);
+close(HbTawakeHist)
+close(HbTawakeRGB)
+% histogram for NREM
+HbTnremHist = figure;
+h2 = histogram2(data.HbTRel.catPupil.NREM,data.HbTRel.catHbT.NREM,'DisplayStyle','tile','ShowEmptyBins','on','XBinedges',-5:0.025:3,'YBinedges',-25:2.5:125,'Normalization','probability');
+h2Vals = h2.Values;
+% RGB image for NREM
+HbTnremRGB = figure;
+s = pcolor(-4.975:0.025:3,-22.5:2.5:125,h2Vals');
+s.FaceColor = 'interp';
+set(s,'EdgeColor','none');
+n = 50;
+R = linspace(0,1,n);
+G = linspace(0.4,1,n);
+B = linspace(0,1,n);
+colormap(flipud([R(:),G(:),B(:)]));
+cax = caxis;
+caxis([cax(1),cax(2)/1.5])
+axis off
+h2Frame = getframe(gcf);
+h2Img = frame2im(h2Frame);
+close(HbTnremHist)
+close(HbTnremRGB)
+% histogram for REM
+HbTremHist = figure;
+h3 = histogram2(data.HbTRel.catPupil.REM,data.HbTRel.catHbT.REM,'DisplayStyle','tile','ShowEmptyBins','on','XBinedges',-5:0.025:3,'YBinedges',-25:2.5:125,'Normalization','probability');
+h3Vals = h3.Values;
+% RGB image for REM
+HbTRemRGB = figure;
+s = pcolor(-4.975:0.025:3,-22.5:2.5:125,h3Vals');
+s.FaceColor = 'interp';
+set(s,'EdgeColor','none');
+n = 50;
+R = linspace(1,1,n);
+G = linspace(0,1,n);
+B = linspace(1,1,n);
+colormap(flipud([R(:),G(:),B(:)]));
+cax = caxis;
+caxis([cax(1),cax(2)/1.5])
+axis off
+h3Frame = getframe(gcf);
+h3Img = frame2im(h3Frame);
+close(HbTremHist)
+close(HbTRemRGB)
+GammaAwakeHist = figure;
+h4 = histogram2(data.HbTRel.catPupil.Awake,data.GammaRel.catGamma.Awake,'DisplayStyle','tile','ShowEmptyBins','on','XBinedges',-5:0.025:3,'YBinedges',-25:2.5:100,'Normalization','probability');
+h4Vals = h4.Values;
+% RGB image for Awake
+GammaAwakeRGB = figure;
+s = pcolor(-4.975:0.025:3,-22.5:2.5:100,h4Vals');
+s.FaceColor = 'interp';
+set(s,'EdgeColor','none');
+n = 50;
+R = linspace(0,1,n);
+G = linspace(0,1,n);
+B = linspace(0,1,n);
+colormap(flipud([R(:),G(:),B(:)]));
+cax = caxis;
+caxis([cax(1),cax(2)/1.5])
+axis off
+h4Frame = getframe(gcf);
+h4Img = frame2im(h4Frame);
+close(GammaAwakeHist)
+close(GammaAwakeRGB)
+% histogram for NREM
+GammaNremHist = figure;
+h5 = histogram2(data.GammaRel.catPupil.NREM,data.GammaRel.catGamma.NREM,'DisplayStyle','tile','ShowEmptyBins','on','XBinedges',-5:0.025:3,'YBinedges',-25:2.5:100,'Normalization','probability');
+h5Vals = h5.Values;
+% RGB image for NREM
+GammaNremRGB = figure;
+s = pcolor(-4.975:0.025:3,-22.5:2.5:100,h5Vals');
+s.FaceColor = 'interp';
+set(s,'EdgeColor','none');
+n = 50;
+R = linspace(0,1,n);
+G = linspace(0.4,1,n);
+B = linspace(0,1,n);
+colormap(flipud([R(:),G(:),B(:)]));
+cax = caxis;
+caxis([cax(1),cax(2)/1.5])
+axis off
+h5Frame = getframe(gcf);
+h5Img = frame2im(h5Frame);
+close(GammaNremHist)
+close(GammaNremRGB)
+% histogram for REM
+GammaRemHist = figure;
+h6 = histogram2(data.GammaRel.catPupil.REM,data.GammaRel.catGamma.REM,'DisplayStyle','tile','ShowEmptyBins','on','XBinedges',-5:0.025:3,'YBinedges',-25:2.5:100,'Normalization','probability');
+h6Vals = h6.Values;
+% RGB image for REM
+GammaRemRGB = figure;
+s = pcolor(-4.975:0.025:3,-22.5:2.5:100,h6Vals');
+s.FaceColor = 'interp';
+set(s,'EdgeColor','none');
+n = 50;
+R = linspace(1,1,n);
+G = linspace(0,1,n);
+B = linspace(1,1,n);
+colormap(flipud([R(:),G(:),B(:)]));
+cax = caxis;
+caxis([cax(1),cax(2)/1.5])
+axis off
+h6Frame = getframe(gcf);
+h6Img = frame2im(h6Frame);
+close(GammaRemHist)
+close(GammaRemRGB)
+%% axis for composite images
+Fig6A = figure('Name','Figure Panel 6 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
+subplot(1,2,1)
+img = imagesc(-4.975:0.025:3,-22.5:2.5:100,h4Vals');
+xlabel('Diameter (z-units)')
+ylabel('\DeltaP/P (%)')
+title('Pupil-Gamma axis template')
+set(gca,'box','off')
 axis square
 axis xy
+delete(img)
+subplot(1,2,2)
+img = imagesc(-4.975:0.025:3,-22.5:2.5:125,h1Vals');
+xlabel('Diameter (z-units)')
+ylabel('\Delta[HbT] (\muM)')
+title('Pupil-HbT axis template')
 set(gca,'box','off')
-%%
-subplot(2,4,2)
-s1 = semilogx(data.HbT.Awake.meanLeadF,data.HbT.Awake.meanLeadC,'r','LineWidth',2);
-hold on
-semilogx(data.HbT.Awake.meanLeadF,data.HbT.Awake.meanLeadC + data.HbT.Awake.stdLeadC,'r','LineWidth',0.5)
-semilogx(data.HbT.Awake.meanLeadF,data.HbT.Awake.meanLeadC - data.HbT.Awake.stdLeadC,'r','LineWidth',0.5)
-s2 = semilogx(data.HbT.Awake.meanLagF,data.HbT.Awake.meanLagC,'b','LineWidth',2);
-semilogx(data.HbT.Awake.meanLagF,data.HbT.Awake.meanLagC + data.HbT.Awake.stdLagC,'b','LineWidth',0.5)
-semilogx(data.HbT.Awake.meanLagF,data.HbT.Awake.meanLagC - data.HbT.Awake.stdLagC,'b','LineWidth',0.5)
-xline(0.23)
-axis tight
-ylabel('Coherence')
-xlabel('Freq (Hz)')
-title('HbT lead/lag coherence')
-legend([s1,s2],'leading blink +/- SEM','lagging blink +/- SEM')
-axis square
-%%
-subplot(2,4,3)
-scatter(ones(1,length(data.HbT.Awake.leadC035))*1,data.HbT.Awake.leadC035,75,'MarkerEdgeColor','k','MarkerFaceColor','r','jitter','on','jitterAmount',0.25);
-hold on
-e1 = errorbar(1,data.HbT.Awake.meanLeadC035,data.HbT.Awake.stdLeadC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e1.Color = 'black';
-e1.MarkerSize = 10;
-e1.CapSize = 10;
-scatter(ones(1,length(data.HbT.Awake.lagC035))*2,data.HbT.Awake.lagC035,75,'MarkerEdgeColor','k','MarkerFaceColor','b','jitter','on','jitterAmount',0.25);
-hold on
-e2 = errorbar(2,data.HbT.Awake.meanLagC035,data.HbT.Awake.stdLagC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e2.Color = 'black';
-e2.MarkerSize = 10;
-e2.CapSize = 10;
-ylabel('Coherence')
-title('HbT coherence from 0-0.23 Hz')
-set(gca,'xtick',[])
-set(gca,'xticklabel',[])
-axis square
-xlim([0,3])
-ylim([0,1])
-set(gca,'box','off')
-%%
-subplot(2,4,4)
-loglog(data.HbT.Awake.meanLeadF,data.HbT.Awake.meanLeadS,'r','LineWidth',2);
-hold on;
-% loglog(data.HbT.Awake.meanLeadF,data.HbT.Awake.meanLeadS + data.HbT.Awake.stdLeadS,'r','LineWidth',0.5);
-% loglog(data.HbT.Awake.meanLeadF,data.HbT.Awake.meanLeadS - data.HbT.Awake.stdLeadS,'r','LineWidth',0.5);
-loglog(data.HbT.Awake.meanLagF,data.HbT.Awake.meanLagS,'b','LineWidth',2);
-% loglog(data.HbT.Awake.meanLeadF,data.HbT.Awake.meanLagS + data.HbT.Awake.stdLagS,'b','LineWidth',0.5);
-% loglog(data.HbT.Awake.meanLeadF,data.HbT.Awake.meanLagS - data.HbT.Awake.stdLagS,'b','LineWidth',0.5);
-ylabel('Power (a.u.)')
-xlabel('Freq (Hz)')
-title('HbT lead/lag power')
-axis square
-axis tight
-xlim([0.03,1])
-set(gca,'box','off')
-%%
-ax2 = subplot(2,4,5);
-Semilog_ImageSC(data.gamma.Awake.meanT,data.gamma.Awake.meanF,data.gamma.Awake.meanC,'y')
-c1 = colorbar;
-ylabel(c1,'\DeltaCoherence (%)','rotation',-90,'VerticalAlignment','bottom')
-caxis([-0.15,0.05])
-ylabel('Freq (Hz)')
-xlabel('Time (sec)')
-title('Gamma coherogram')
-xticks([10,20,30,40,50])
-xticklabels({'-20','-10','0','10','20'})
 axis square
 axis xy
+delete(img)
+%% save figure(s)
+if saveFigs == true
+    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'Figure Panels' delim];
+    if ~exist(dirpath,'dir')
+        mkdir(dirpath);
+    end
+    set(Fig6A,'PaperPositionMode','auto');
+    savefig(Fig6A,[dirpath 'Fig6A_JNeurosci2022']);
+    print('-vector','-dpdf','-fillpage',[dirpath 'Fig6A_JNeurosci2022'])
+    close(Fig6A)
+    imwrite(h1Img,[dirpath 'Fig6_HbTAwake_JNeurosci2022.png'])
+    imwrite(h2Img,[dirpath 'Fig6_HbTNREM_JNeurosci2022.png'])
+    imwrite(h3Img,[dirpath 'Fig6_HbTREM_JNeurosci2022.png'])
+    imwrite(h4Img,[dirpath 'Fig6_GammaAwake_JNeurosci2022.png'])
+    imwrite(h5Img,[dirpath 'Fig6_GammaNREM_JNeurosci2022.png'])
+    imwrite(h6Img,[dirpath 'Fig6_GammaREM_JNeurosci2022.png'])
+end
+%% Figure
+Fig6B = figure('Name','Figure Panel 6 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
+ax1 = subplot(2,3,1);
+edges = -8:0.1:6.5;
+yyaxis right
+h1 = histogram(diameterAllCatMeans,edges,'Normalization','probability','EdgeColor','k','FaceColor',colors('dark candy apple red'));
+ylabel('Probability','rotation',-90,'VerticalAlignment','bottom')
+yyaxis left
+p1 = plot(edges,sgolayfilt(medfilt1(awakeProbPerc,10,'truncate'),3,17),'-','color',colors('black'),'LineWidth',2);
+hold on
+p2 = plot(edges,sgolayfilt(medfilt1(nremProbPerc,10,'truncate'),3,17),'-','color',[0,0.4,0],'LineWidth',2);
+p3 = plot(edges,sgolayfilt(medfilt1(remProbPerc,10,'truncate'),3,17),'-','color','m','LineWidth',2);
+p4 = plot(edges,sgolayfilt(medfilt1(asleepProbPerc,10,'truncate'),3,17),'-','color',colors('royal purple'),'LineWidth',2);
+ylabel({'Arousal-state probability (%)'})
+xlim([-8,6.5])
+ylim([0,100])
+legend([p1,p2,p3,p4,h1],'Awake','NREM','REM','Asleep','\DeltaArea','Location','NorthEast')
+title('Diameter vs. arousal state')
+xlabel('Diameter (z-units)')
+axis square
 set(gca,'box','off')
-%%
+set(gca,'TickLength',[0.03,0.03]);
+set(h1,'facealpha',0.2);
+ax1.TickLength = [0.03,0.03];
+ax1.YAxis(1).Color = 'k';
+ax1.YAxis(2).Color = colors('dark candy apple red');
+%% Gamma
+subplot(2,3,2)
+gammaPupilImg = imread('GammaPupilStack.png'); % needs made by combining images in ImageJ (Z project min)
+imshow(gammaPupilImg)
+axis off
+title('Pupil-Gamma')
+xlabel('Diameter (z-units)')
+ylabel('\DeltaP/P (%)')
+%% HbT
+subplot(2,3,3)
+HbTPupilImg = imread('HbTPupilStack.png'); % needs made by combining images in ImageJ (Z project min)
+imshow(HbTPupilImg)
+axis off
+title('Pupil-HbT')
+xlabel('Diameter (z-units)')
+ylabel('\Delta[HbT] (\muM)')
+%% sleep model confusion matrix
+subplot(2,4,5)
+cm = confusionchart(data.physio.holdYlabels,data.physio.holdXlabels);
+cm.ColumnSummary = 'column-normalized';
+cm.RowSummary = 'row-normalized';
+confVals = cm.NormalizedValues;
+totalScores = sum(confVals(:));
+modelAccuracy = round((sum(confVals([1,4])/totalScores))*100,1);
+cm.Title = {'Physio SVM',['total accuracy: ' num2str(modelAccuracy) ' (%)']};
+%% sleep model confusion matrix
 subplot(2,4,6)
-s1 = semilogx(data.gamma.Awake.meanLeadF,data.gamma.Awake.meanLeadC,'r','LineWidth',2);
+cm = confusionchart(data.pupil.holdYlabels,data.pupil.holdXlabels);
+cm.ColumnSummary = 'column-normalized';
+cm.RowSummary = 'row-normalized';
+confVals = cm.NormalizedValues;
+totalScores = sum(confVals(:));
+modelAccuracy = round((sum(confVals([1,4])/totalScores))*100,1);
+cm.Title = {'Pupil SVM',['total accuracy: ' num2str(modelAccuracy) ' (%)']};
+%% sleep model 10-fold loss
+ax6 = subplot(2,4,7);
+s1 = scatter(ones(1,length(data.physio.loss))*1,data.physio.loss,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('black'),'jitter','on','jitterAmount',0.25);
 hold on
-semilogx(data.gamma.Awake.meanLeadF,data.gamma.Awake.meanLeadC + data.gamma.Awake.stdLeadC,'r','LineWidth',0.5)
-semilogx(data.gamma.Awake.meanLeadF,data.gamma.Awake.meanLeadC - data.gamma.Awake.stdLeadC,'r','LineWidth',0.5)
-s2 = semilogx(data.gamma.Awake.meanLagF,data.gamma.Awake.meanLagC,'b','LineWidth',2);
-semilogx(data.gamma.Awake.meanLagF,data.gamma.Awake.meanLagC + data.gamma.Awake.stdLagC,'b','LineWidth',0.5)
-semilogx(data.gamma.Awake.meanLagF,data.gamma.Awake.meanLagC - data.gamma.Awake.stdLagC,'b','LineWidth',0.5)
-xline(0.23)
-axis tight
-ylabel('Coherence')
-xlabel('Freq (Hz)')
-title('Gamma lead/lag coherence')
-legend([s1,s2],'leading blink +/- SEM','lagging blink +/- SEM')
-axis square
-%%
-subplot(2,4,7)
-scatter(ones(1,length(data.gamma.Awake.leadC035))*1,data.gamma.Awake.leadC035,75,'MarkerEdgeColor','k','MarkerFaceColor','r','jitter','on','jitterAmount',0.25);
-hold on
-e1 = errorbar(1,data.gamma.Awake.meanLeadC035,data.gamma.Awake.stdLeadC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e1 = errorbar(1,data.physio.meanLoss,data.physio.stdLoss,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e1.Color = 'black';
 e1.MarkerSize = 10;
 e1.CapSize = 10;
-scatter(ones(1,length(data.gamma.Awake.lagC035))*2,data.gamma.Awake.lagC035,75,'MarkerEdgeColor','k','MarkerFaceColor','b','jitter','on','jitterAmount',0.25);
+s2 = scatter(ones(1,length(data.pupil.loss))*2,data.pupil.loss,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('sapphire'),'jitter','on','jitterAmount',0.25);
 hold on
-e2 = errorbar(2,data.gamma.Awake.meanLagC035,data.gamma.Awake.stdLagC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e2 = errorbar(2,data.pupil.meanLoss,data.pupil.stdLoss,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e2.Color = 'black';
 e2.MarkerSize = 10;
 e2.CapSize = 10;
-ylabel('Coherence')
-title('Gamma coherence from 0-0.23 Hz')
+title('10-fold cross validation')
+ylabel('Loss (mean squared error)')
+legend([s1,s2],'Physio mdl','Pupil mdl','Location','NorthWest')
 set(gca,'xtick',[])
 set(gca,'xticklabel',[])
 axis square
 xlim([0,3])
-ylim([0,1])
+ylim([0,0.2])
 set(gca,'box','off')
-%%
-subplot(2,4,8)
-loglog(data.gamma.Awake.meanLeadF,data.gamma.Awake.meanLeadS,'r','LineWidth',2);
-hold on;
-% loglog(data.gamma.Awake.meanLeadF,data.gamma.Awake.meanLeadS + data.gamma.Awake.stdLeadS,'r','LineWidth',0.5);
-% loglog(data.gamma.Awake.meanLeadF,data.gamma.Awake.meanLeadS - data.gamma.Awake.stdLeadS,'r','LineWidth',0.5);
-loglog(data.gamma.Awake.meanLagF,data.gamma.Awake.meanLagS,'b','LineWidth',2);
-% loglog(data.gamma.Awake.meanLeadF,data.gamma.Awake.meanLagS + data.gamma.Awake.stdLagS,'b','LineWidth',0.5);
-% loglog(data.gamma.Awake.meanLeadF,data.gamma.Awake.meanLagS - data.gamma.Awake.stdLagS,'b','LineWidth',0.5);
-ylabel('Power (a.u.)')
+ax6.TickLength = [0.03,0.03];
+%% model coherence
+subplot(2,4,8);
+s1 = semilogx(data.Coherr.meanPhysiof,data.Coherr.meanPhysioC,'color',colors('black'),'LineWidth',2);
+hold on
+semilogx(data.Coherr.meanPhysiof,data.Coherr.meanPhysioC + data.Coherr.stdPhysioC,'color',colors('black'),'LineWidth',0.5);
+semilogx(data.Coherr.meanPhysiof,data.Coherr.meanPhysioC - data.Coherr.stdPhysioC,'color',colors('black'),'LineWidth',0.5);
+s2 = semilogx(data.Coherr.meanPupilf,data.Coherr.meanPupilC,'color',colors('sapphire'),'LineWidth',2);
+semilogx(data.Coherr.meanPupilf,data.Coherr.meanPupilC + data.Coherr.stdPupilC,'color',colors('sapphire'),'LineWidth',0.5);
+semilogx(data.Coherr.meanPupilf,data.Coherr.meanPupilC - data.Coherr.stdPupilC,'color',colors('sapphire'),'LineWidth',0.5);
+x1 = xline(1/30,'color',[0,0.4,0]);
+x2 = xline(1/60,'color','m');
+title('Model accuracy coherence')
+ylabel('Coherence')
 xlabel('Freq (Hz)')
-title('Gamma lead/lag power')
+legend([s1,s2,x1,x2],'Physio mdl','Pupil mdl','NREM req','REM req')
 axis square
-axis tight
-xlim([0.03,1])
+% xlim([0.003,0])
+ylim([0,1])
 set(gca,'box','off')
 %% save figure(s)
 if saveFigs == true
@@ -252,170 +415,150 @@ if saveFigs == true
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
-    savefig(Fig5A,[dirpath 'Fig5A_JNeurosci2022']);
-    % remove surface subplots because they take forever to render
-    cla(ax1);
-    set(ax1,'YLim',[0,3]);
-    cla(ax2);
-    set(ax2,'YLim',[0,3]);
-    set(Fig5A,'PaperPositionMode','auto');
-    print('-vector','-dpdf','-bestfit',[dirpath 'Fig5A_JNeurosci2022'])
-    close(Fig5A)
-    % subplot figure
-    subplotImgs = figure;
-    % example 1 LH cortical LFP
-    subplot(1,2,1)
-    Semilog_ImageSC(data.HbT.Awake.meanT,data.HbT.Awake.meanF,data.HbT.Awake.meanC,'y')
-    caxis([-0.15,0.05])
-    axis square
-    axis xy
-    axis off
-    set(gca,'box','off')
-    subplot(1,2,2)
-    Semilog_ImageSC(data.gamma.Awake.meanT,data.gamma.Awake.meanF,data.gamma.Awake.meanC,'y')
-    caxis([-0.15,0.05])
-    axis square
-    axis xy
-    axis off
-    set(gca,'box','off')
-    print('-vector','-dtiffn',[dirpath 'Fig5_CohImages'])
-    close(subplotImgs)
-    figure('Name','Figure Panel 5 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
-    subplot(2,4,1);
-    Semilog_ImageSC(data.HbT.Awake.meanT,data.HbT.Awake.meanF,data.HbT.Awake.meanC,'y')
-    c1 = colorbar;
-    ylabel(c1,'\DeltaCoherence (%)','rotation',-90,'VerticalAlignment','bottom')
-    caxis([-0.15,0.05])
-    ylabel('Freq (Hz)')
-    xlabel('Time (sec)')
-    title('HbT coherogram')
-    xticks([10,20,30,40,50])
-    xticklabels({'-20','-10','0','10','20'})
-    axis square
-    axis xy
-    set(gca,'box','off')
-    %%
-    subplot(2,4,2)
-    s1 = semilogx(data.HbT.Awake.meanLeadF,data.HbT.Awake.meanLeadC,'r','LineWidth',2);
+    savefig(Fig6B,[dirpath 'Fig6B_JNeurosci2022']);
+    set(Fig6B,'PaperPositionMode','auto');
+    print('-vector','-dpdf','-fillpage',[dirpath 'Fig6B_JNeurosci2022'])
+end
+%% hypnogram for model comparison
+Fig6C = figure('Name','Figure Panel 6 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
+subplot(5,1,1)
+b1 = bar((1:length(trueAwake))*binTime,trueAwake,'FaceColor',colors('black'),'BarWidth',1);
+hold on
+b2 = bar((1:length(trueNREM))*binTime,trueNREM,'FaceColor',[0,0.4,0],'BarWidth',1);
+b3 = bar((1:length(trueREM))*binTime,trueREM,'FaceColor','m','BarWidth',1);
+title('True predictions');
+legend([b1,b2,b3],'Awake','NREM','REM')
+xlim([0,450])
+set(gca,'box','off')
+axis off
+subplot(5,1,2)
+b1 = bar((1:length(trueAwake))*binTime,trueAwake,'FaceColor',colors('black'),'BarWidth',1);
+hold on
+b2 = bar((1:length(trueAsleep))*binTime,trueAsleep,'FaceColor',colors('royal purple'),'BarWidth',1);
+title('True predictions');
+legend([b1,b2],'Awake','Asleep')
+xlim([0,450])
+set(gca,'box','off')
+axis off
+subplot(5,1,3)
+bar((1:length(physioPredAwake))*binTime,physioPredAwake,'FaceColor',colors('black'),'BarWidth',1);
+hold on
+bar((1:length(physioPredAsleep))*binTime,physioPredAsleep,'FaceColor',colors('royal purple'),'BarWidth',1);
+title('Physio predictions');
+xlim([0,450])
+set(gca,'box','off')
+axis off
+subplot(5,1,4)
+bar((1:length(pupilPredAwake))*binTime,pupilPredAwake,'FaceColor',colors('black'),'BarWidth',1);
+hold on
+bar((1:length(pupilPredAsleep))*binTime,pupilPredAsleep,'FaceColor',colors('royal purple'),'BarWidth',1);
+title('Pupil predictions');
+xlim([0,450])
+set(gca,'box','off')
+axis off
+subplot(5,1,5)
+plot((1:length(Results_Example.filtPupilZDiameter))/Results_Example.dsFs,Results_Example.filtPupilZDiameter,'color',colors('black'));
+hold on;
+yline(exampleBoundary,'color','r')
+ylabel('Diameter (z-units)');
+xlabel('Time (sec)')
+xlim([0,450])
+set(gca,'box','off')
+%% save figure(s)
+if saveFigs == true
+    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'Figure Panels' delim];
+    if ~exist(dirpath,'dir')
+        mkdir(dirpath);
+    end
+    savefig(Fig6C,[dirpath 'Fig6C_JNeurosci2022']);
+    set(Fig6C,'PaperPositionMode','auto');
+    print('-vector','-dpdf','-fillpage',[dirpath 'Fig6C_JNeurosci2022'])
+end
+%%
+Fig6D = figure('Name','Figure Panel 6 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
+subplot(2,3,1);
+gscatter(Xodd.zDiameter,randn(length(Xodd.zDiameter),1),Yodd.behavState);
+hold on;
+xline(exampleBoundary)
+title('Single predictor, binary class SVM')
+xlabel('Diameter (z-units)')
+axis square
+set(gca,'YTickLabel',[]);
+set(gca,'box','off')
+%% 
+subplot(2,3,2)
+s1 = scatter(ones(1,length(data.pupil.zBoundary))*1,data.pupil.zBoundary,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('black'),'jitter','on','jitterAmount',0.25);
+hold on
+e1 = errorbar(1,data.pupil.meanZBoundary,data.pupil.stdZBoundary,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e1.Color = 'black';
+e1.MarkerSize = 10;
+e1.CapSize = 10;
+title('SVM pupil hyperplane (z-units)')
+ylabel('Asleep diameter (z-units)')
+legend(s1,'Hyperplane decision','Location','NorthWest')
+set(gca,'xtick',[])
+set(gca,'xticklabel',[])
+axis square
+xlim([0,2])
+% ylim([0,0.2])
+set(gca,'box','off')
+ax6.TickLength = [0.03,0.03];
+%%
+subplot(2,3,3)
+s1 = scatter(ones(1,length(data.pupil.mBoundary))*1,data.pupil.mBoundary,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('black'),'jitter','on','jitterAmount',0.25);
+hold on
+e1 = errorbar(1,data.pupil.meanMBoundary,data.pupil.stdMBoundary,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e1.Color = 'black';
+e1.MarkerSize = 10;
+e1.CapSize = 10;
+title('SVM pupil hyperplane (mm)')
+ylabel('Asleep diameter (mm)')
+legend(s1,'Hyperplane decision','Location','NorthWest')
+set(gca,'xtick',[])
+set(gca,'xticklabel',[])
+axis square
+xlim([0,2])
+% ylim([0,0.2])
+set(gca,'box','off')
+ax6.TickLength = [0.03,0.03];
+%% ROC
+subplot(2,2,3)
+for aa = 1:length(data.pupil.rocX)
     hold on
-    semilogx(data.HbT.Awake.meanLeadF,data.HbT.Awake.meanLeadC + data.HbT.Awake.stdLeadC,'r','LineWidth',0.5)
-    semilogx(data.HbT.Awake.meanLeadF,data.HbT.Awake.meanLeadC - data.HbT.Awake.stdLeadC,'r','LineWidth',0.5)
-    s2 = semilogx(data.HbT.Awake.meanLagF,data.HbT.Awake.meanLagC,'b','LineWidth',2);
-    semilogx(data.HbT.Awake.meanLagF,data.HbT.Awake.meanLagC + data.HbT.Awake.stdLagC,'b','LineWidth',0.5)
-    semilogx(data.HbT.Awake.meanLagF,data.HbT.Awake.meanLagC - data.HbT.Awake.stdLagC,'b','LineWidth',0.5)
-    xline(0.23)
-    axis tight
-    ylabel('Coherence')
-    xlabel('Freq (Hz)')
-    title('HbT lead/lag coherence')
-    legend([s1,s2],'leading blink +/- SEM','lagging blink +/- SEM')
-    axis square
-    %%
-    subplot(2,4,3)
-    scatter(ones(1,length(data.HbT.Awake.leadC035))*1,data.HbT.Awake.leadC035,75,'MarkerEdgeColor','k','MarkerFaceColor','r','jitter','on','jitterAmount',0.25);
-    hold on
-    e1 = errorbar(1,data.HbT.Awake.meanLeadC035,data.HbT.Awake.stdLeadC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-    e1.Color = 'black';
-    e1.MarkerSize = 10;
-    e1.CapSize = 10;
-    scatter(ones(1,length(data.HbT.Awake.lagC035))*2,data.HbT.Awake.lagC035,75,'MarkerEdgeColor','k','MarkerFaceColor','b','jitter','on','jitterAmount',0.25);
-    hold on
-    e2 = errorbar(2,data.HbT.Awake.meanLagC035,data.HbT.Awake.stdLagC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-    e2.Color = 'black';
-    e2.MarkerSize = 10;
-    e2.CapSize = 10;
-    ylabel('Coherence')
-    title('HbT coherence from 0-0.23 Hz')
-    set(gca,'xtick',[])
-    set(gca,'xticklabel',[])
-    axis square
-    xlim([0,3])
-    ylim([0,1])
-    set(gca,'box','off')
-    %%
-    subplot(2,4,4)
-    loglog(data.HbT.Awake.meanLeadF,data.HbT.Awake.meanLeadS,'r','LineWidth',2);
-    hold on;
-    % loglog(data.HbT.Awake.meanLeadF,data.HbT.Awake.meanLeadS + data.HbT.Awake.stdLeadS,'r','LineWidth',0.5);
-    % loglog(data.HbT.Awake.meanLeadF,data.HbT.Awake.meanLeadS - data.HbT.Awake.stdLeadS,'r','LineWidth',0.5);
-    loglog(data.HbT.Awake.meanLagF,data.HbT.Awake.meanLagS,'b','LineWidth',2);
-    % loglog(data.HbT.Awake.meanLeadF,data.HbT.Awake.meanLagS + data.HbT.Awake.stdLagS,'b','LineWidth',0.5);
-    % loglog(data.HbT.Awake.meanLeadF,data.HbT.Awake.meanLagS - data.HbT.Awake.stdLagS,'b','LineWidth',0.5);
-    ylabel('Power (a.u.)')
-    xlabel('Freq (Hz)')
-    title('HbT lead/lag power')
-    axis square
-    axis tight
-    xlim([0.03,1])
-    set(gca,'box','off')
-    %%
-    subplot(2,4,5);
-    Semilog_ImageSC(data.gamma.Awake.meanT,data.gamma.Awake.meanF,data.gamma.Awake.meanC,'y')
-    c1 = colorbar;
-    ylabel(c1,'\DeltaCoherence (%)','rotation',-90,'VerticalAlignment','bottom')
-    caxis([-0.15,0.05])
-    ylabel('Freq (Hz)')
-    xlabel('Time (sec)')
-    title('Gamma coherogram')
-    xticks([10,20,30,40,50])
-    xticklabels({'-20','-10','0','10','20'})
-    axis square
-    axis xy
-    set(gca,'box','off')
-    %%
-    subplot(2,4,6)
-    s1 = semilogx(data.gamma.Awake.meanLeadF,data.gamma.Awake.meanLeadC,'r','LineWidth',2);
-    hold on
-    semilogx(data.gamma.Awake.meanLeadF,data.gamma.Awake.meanLeadC + data.gamma.Awake.stdLeadC,'r','LineWidth',0.5)
-    semilogx(data.gamma.Awake.meanLeadF,data.gamma.Awake.meanLeadC - data.gamma.Awake.stdLeadC,'r','LineWidth',0.5)
-    s2 = semilogx(data.gamma.Awake.meanLagF,data.gamma.Awake.meanLagC,'b','LineWidth',2);
-    semilogx(data.gamma.Awake.meanLagF,data.gamma.Awake.meanLagC + data.gamma.Awake.stdLagC,'b','LineWidth',0.5)
-    semilogx(data.gamma.Awake.meanLagF,data.gamma.Awake.meanLagC - data.gamma.Awake.stdLagC,'b','LineWidth',0.5)
-    xline(0.23)
-    axis tight
-    ylabel('Coherence')
-    xlabel('Freq (Hz)')
-    title('Gamma lead/lag coherence')
-    legend([s1,s2],'leading blink +/- SEM','lagging blink +/- SEM')
-    axis square
-    %%
-    subplot(2,4,7)
-    scatter(ones(1,length(data.gamma.Awake.leadC035))*1,data.gamma.Awake.leadC035,75,'MarkerEdgeColor','k','MarkerFaceColor','r','jitter','on','jitterAmount',0.25);
-    hold on
-    e1 = errorbar(1,data.gamma.Awake.meanLeadC035,data.gamma.Awake.stdLeadC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-    e1.Color = 'black';
-    e1.MarkerSize = 10;
-    e1.CapSize = 10;
-    scatter(ones(1,length(data.gamma.Awake.lagC035))*2,data.gamma.Awake.lagC035,75,'MarkerEdgeColor','k','MarkerFaceColor','b','jitter','on','jitterAmount',0.25);
-    hold on
-    e2 = errorbar(2,data.gamma.Awake.meanLagC035,data.gamma.Awake.stdLagC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-    e2.Color = 'black';
-    e2.MarkerSize = 10;
-    e2.CapSize = 10;
-    ylabel('Coherence')
-    title('Gamma coherence from 0-0.23 Hz')
-    set(gca,'xtick',[])
-    set(gca,'xticklabel',[])
-    axis square
-    xlim([0,3])
-    ylim([0,1])
-    set(gca,'box','off')
-    %%
-    subplot(2,4,8)
-    loglog(data.gamma.Awake.meanLeadF,data.gamma.Awake.meanLeadS,'r','LineWidth',2);
-    hold on;
-    % loglog(data.gamma.Awake.meanLeadF,data.gamma.Awake.meanLeadS + data.gamma.Awake.stdLeadS,'r','LineWidth',0.5);
-    % loglog(data.gamma.Awake.meanLeadF,data.gamma.Awake.meanLeadS - data.gamma.Awake.stdLeadS,'r','LineWidth',0.5);
-    loglog(data.gamma.Awake.meanLagF,data.gamma.Awake.meanLagS,'b','LineWidth',2);
-    % loglog(data.gamma.Awake.meanLeadF,data.gamma.Awake.meanLagS + data.gamma.Awake.stdLagS,'b','LineWidth',0.5);
-    % loglog(data.gamma.Awake.meanLeadF,data.gamma.Awake.meanLagS - data.gamma.Awake.stdLagS,'b','LineWidth',0.5);
-    ylabel('Power (a.u.)')
-    xlabel('Freq (Hz)')
-    title('Gamma lead/lag power')
-    axis square
-    axis tight
-    xlim([0.03,1])
-    set(gca,'box','off')
+    plot(data.pupil.rocX{aa,1},data.pupil.rocY{aa,1},'k')
+    plot(data.pupil.rocOPTROCPT{aa,1}(1),data.pupil.rocOPTROCPT{aa,1}(2),'mo')
+end
+xlabel('False positive rate')
+ylabel('True positive rate')
+title('ROC Curve')
+xlim([-0.05,1])
+ylim([0,1.05])
+axis square
+%% ROC AUC
+subplot(2,2,4)
+scatter(ones(1,length(data.pupil.rocAUC))*1,data.pupil.rocAUC,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('black'),'jitter','on','jitterAmount',0.25);
+hold on
+e1 = errorbar(1,data.pupil.rocMeanAUC,data.pupil.rocStdAUC,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e1.Color = 'black';
+e1.MarkerSize = 10;
+e1.CapSize = 10;
+title('ROC area under curve')
+ylabel('AUC (1 = perfect model)')
+set(gca,'xtick',[])
+set(gca,'xticklabel',[])
+axis square
+xlim([0,2])
+set(gca,'box','off')
+ax6.TickLength = [0.03,0.03];
+%% save figure(s)
+if saveFigs == true
+    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'Figure Panels' delim];
+    if ~exist(dirpath,'dir')
+        mkdir(dirpath);
+    end
+    savefig(Fig6D,[dirpath 'Fig6D_JNeurosci2022']);
+    set(Fig6D,'PaperPositionMode','auto');
+    print('-vector','-dpdf','-fillpage',[dirpath 'Fig6D_JNeurosci2022'])
 end
 
 end

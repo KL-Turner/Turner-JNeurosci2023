@@ -10,7 +10,7 @@ function [] = MainScript_JNeurosci2022()
 % Functions that are used in both the analysis and pre-processing are located in the analysis folder.
 %________________________________________________________________________________________________________________________
 
-zap;
+% zap;
 multiWaitbar('CloseAll');
 %% verify code repository and data are in the current directory/added path
 currentFolder = pwd;
@@ -37,7 +37,7 @@ if runAnalysis == true
     AnalyzePowerSpectrum_Handler_JNeurosci2022(rootFolder,delim,false)
     AnalyzeCoherence_Handler_JNeurosci2022(rootFolder,delim,false)
     AnalyzeCrossCorrelation_Handler_JNeurosci2022(rootFolder,delim,false)
-    AnalyzeStimulusBlinks_Handler_JNeurosci2022(rootFolder,delim,false)
+    AnalyzeStimulusBlinks_Handler_JNeurosci2022(rootFolder,delim,true)
     AnalyzeBlinkPeriodogram_Handler_JNeurosci2022(rootFolder,delim,false)
     AnalyzePupilHbTRelationship_Handler_JNeurosci2022(rootFolder,delim,false)
     AnalyzePupilGammaRelationship_Handler_JNeurosci2022(rootFolder,delim,false)
@@ -51,12 +51,10 @@ if runAnalysis == true
 end
 %% main figures
 disp('Loading analysis results and generating figures...'); disp(' ')
-saveFigs = true;
+saveFigs = false;
 Fig1_JNeurosci2022(rootFolder,saveFigs,delim)
 Fig2_JNeurosci2022(rootFolder,saveFigs,delim)
 Fig3_JNeurosci2022(rootFolder,saveFigs,delim)
 Fig4_JNeurosci2022(rootFolder,saveFigs,delim)
 Fig5_JNeurosci2022(rootFolder,saveFigs,delim)
-Fig6_JNeurosci2022(rootFolder,saveFigs,delim)
-TextReadOuts_JNeurosci2022()
 end
