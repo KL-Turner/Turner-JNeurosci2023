@@ -1,4 +1,4 @@
-function [] = AnalyzeCoherence_Pupil_Handler(rootFolder,delim,runFromStart)
+function [] = AnalyzeCoherence_Handler_JNeurosci2022(rootFolder,delim,runFromStart)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -29,7 +29,7 @@ aa = 1;
 multiWaitbar('Analyzing coherence during each behavior',0,'Color','P'); pause(0.25);
 for bb = 1:length(animalIDs)
     if isfield(Results_Coherence,(animalIDs{1,bb})) == false
-        [Results_Coherence] = AnalyzeCoherence_Pupil(animalIDs{1,bb},rootFolder,delim,Results_Coherence);
+        [Results_Coherence] = AnalyzeCoherence_JNeurosci2022(animalIDs{1,bb},rootFolder,delim,Results_Coherence);
     end
     multiWaitbar('Analyzing coherence during each behavior','Value',aa/waitBarLength);
     aa = aa + 1;

@@ -1,4 +1,4 @@
-function [Results_PupilThreshold] = AnalyzePupilThreshold_Pupil(animalID,rootFolder,delim,Results_PupilThreshold)
+function [Results_PupilThreshold] = AnalyzePupilThreshold_JNeurosci2022(animalID,rootFolder,delim,Results_PupilThreshold)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

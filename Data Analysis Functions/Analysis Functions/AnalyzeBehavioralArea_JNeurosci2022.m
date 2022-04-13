@@ -1,11 +1,11 @@
-function [Results_BehavData] = AnalyzeBehavioralArea_Pupil(animalID,rootFolder,delim,Results_BehavData)
+function [Results_BehavData] = AnalyzeBehavioralArea_JNeurosci2022(animalID,rootFolder,delim,Results_BehavData)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %________________________________________________________________________________________________________________________
 %
-%   Purpose: Analyze the hemodynamic signal [] during different behavioral states (IOS)
+%   Purpose: Analyze pupil diameter/area during different arousal states
 %________________________________________________________________________________________________________________________
 
 %% function parameters

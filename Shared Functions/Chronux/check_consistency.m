@@ -5,8 +5,6 @@ function [N,C] = check_consistency(data1,data2,sp)
 % https://github.com/KL-Turner
 %
 % Code unchanged with the exception of this title block for record keeping
-%
-%   Last Opened: February 23rd, 2019
 %________________________________________________________________________________________________________________________
 %
 % Helper routine to check consistency of data dimensions

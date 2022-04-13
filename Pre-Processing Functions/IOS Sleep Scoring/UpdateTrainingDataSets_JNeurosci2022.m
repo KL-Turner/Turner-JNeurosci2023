@@ -3,9 +3,8 @@ function [] = UpdateTrainingDataSets_JNeurosci2022(procDataFileIDs)
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Add existing labels to (potentially) re-processed model tables
+% Purpose: Update training data file with most recent predictors
 %________________________________________________________________________________________________________________________
 
 for a = 1:size(procDataFileIDs,1)
@@ -15,6 +14,7 @@ for a = 1:size(procDataFileIDs,1)
     load(modelDataSetID)
     load(trainingDataSetID)
     disp(['Updating training data set for ' trainingDataSetID '...' ]); disp(' ')
+    % update training data decisions with most recent predictor table
     paramsTable.behavState = trainingTable.behavState;
     trainingTable = paramsTable;
     save(trainingDataSetID,'trainingTable')

@@ -1,4 +1,4 @@
-function [Results_BlinkCoherogram] = AnalyzeBlinkCoherogram_Pupil(animalID,rootFolder,delim,Results_BlinkCoherogram)
+function [Results_BlinkCoherogram] = AnalyzeBlinkCoherogram_JNeurosci2022(animalID,rootFolder,delim,Results_BlinkCoherogram)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -26,8 +26,8 @@ scoringResultsFile = {scoringResultsFileStruct.name}';
 scoringResultsFileID = char(scoringResultsFile);
 load(scoringResultsFileID,'-mat')
 samplingRate = 30; % lowpass filter
-blinkStates = {'All','Awake','Asleep'};
-edgeTime = 30; % sec
+blinkStates = {'Awake','Asleep','All'};
+edgeTime = 35; % sec
 for aa = 1:length(blinkStates)
     blinkState = blinkStates{1,aa};
     data.(blinkState).LH_HbT = [];
@@ -37,9 +37,9 @@ for aa = 1:length(blinkStates)
 end
 for aa = 1:size(procDataFileIDs,1)
     procDataFileID = procDataFileIDs(aa,:);
-    [animalID,~,fileID] = GetFileInfo_IOS(procDataFileID);
+    [animalID,~,fileID] = GetFileInfo_JNeurosci2022(procDataFileID);
     load(procDataFileID)
-    if strcmp(ProcData.data.Pupil.frameCheck,'y') == true
+    if strcmp(ProcData.data.Pupil.diameterCheck,'y') == true
         if isfield(ProcData.data.Pupil,'shiftedBlinks') == true
             blinks = ProcData.data.Pupil.shiftedBlinks;
         elseif isempty(ProcData.data.Pupil.blinkInds) == false
@@ -89,7 +89,7 @@ for aa = 1:size(procDataFileIDs,1)
                     cc = cc + 1;
                 else
                     timeDifference = blinkEvents(1,bb) - blinkEvents(1,bb - 1);
-                    if timeDifference > 30
+                    if timeDifference > samplingRate
                         condensedBlinkTimes(1,cc) = blinkEvents(1,bb);
                         cc = cc + 1;
                     end
@@ -98,42 +98,38 @@ for aa = 1:size(procDataFileIDs,1)
             % extract blink triggered data
             for dd = 1:length(condensedBlinkTimes)
                 blink = condensedBlinkTimes(1,dd);
-                if (blink/samplingRate) >= 61 && (blink/samplingRate) <= 839
+                if (blink/samplingRate) >= edgeTime && (blink/samplingRate) <= (900 - edgeTime)
                     for zz = 1:length(ScoringResults.fileIDs)
                         if strcmp(ScoringResults.fileIDs{zz,1},fileID) == true
                             labels = ScoringResults.labels{zz,1};
                         end
                     end
                     blinkArousalBin = ceil((blink/samplingRate)/5);
-                    try
-                        blinkScore = labels(blinkArousalBin - 1,1);
-                    catch
-                        blinkScore = labels(blinkArousalBin,1);
-                    end
+                    blinkScore = labels(blinkArousalBin - 1,1);
                     if strcmp(blinkScore,'Not Sleep') == true
                         blinkState = 'Awake';
                     elseif strcmp(blinkScore,'NREM Sleep') == true || strcmp(blinkScore,'REM Sleep') == true
                         blinkState = 'Asleep';
                     end
                     % LH HbT
-                    data.(blinkState).LH_HbT = cat(1,data.(blinkState).LH_HbT,detrend(ProcData.data.CBV_HbT.adjLH((blink - (edgeTime*samplingRate)):(blink + (edgeTime*samplingRate))),'constant'));
-                    data.All.LH_HbT = cat(1,data.All.LH_HbT,detrend(ProcData.data.CBV_HbT.adjLH((blink - (edgeTime*samplingRate)):(blink + (edgeTime*samplingRate))),'constant'));
+                    data.(blinkState).LH_HbT = cat(2,data.(blinkState).LH_HbT,ProcData.data.CBV_HbT.adjLH((blink - (edgeTime*samplingRate)):(blink + (edgeTime*samplingRate)))');
+                    data.All.LH_HbT = cat(2,data.All.LH_HbT,ProcData.data.CBV_HbT.adjLH((blink - (edgeTime*samplingRate)):(blink + (edgeTime*samplingRate)))');
                     % RH HbT
-                    data.(blinkState).RH_HbT = cat(1,data.(blinkState).RH_HbT,detrend(ProcData.data.CBV_HbT.adjRH((blink - (edgeTime*samplingRate)):(blink + (edgeTime*samplingRate))),'constant'));
-                    data.All.RH_HbT = cat(1,data.All.RH_HbT,detrend(ProcData.data.CBV_HbT.adjRH((blink - (edgeTime*samplingRate)):(blink + (edgeTime*samplingRate))),'constant'));
+                    data.(blinkState).RH_HbT = cat(2,data.(blinkState).RH_HbT,ProcData.data.CBV_HbT.adjRH((blink - (edgeTime*samplingRate)):(blink + (edgeTime*samplingRate)))');
+                    data.All.RH_HbT = cat(2,data.All.RH_HbT,ProcData.data.CBV_HbT.adjRH((blink - (edgeTime*samplingRate)):(blink + (edgeTime*samplingRate)))');
                     % LH gamma
-                    data.(blinkState).LH_gamma = cat(1,data.(blinkState).LH_gamma,detrend(ProcData.data.cortical_LH.gammaBandPower((blink - (edgeTime*samplingRate)):(blink + (edgeTime*samplingRate))),'constant'));
-                    data.All.LH_gamma = cat(1,data.All.LH_gamma,detrend(ProcData.data.cortical_LH.gammaBandPower((blink - (edgeTime*samplingRate)):(blink + (edgeTime*samplingRate))),'constant'));
+                    data.(blinkState).LH_gamma = cat(2,data.(blinkState).LH_gamma,ProcData.data.cortical_LH.gammaBandPower((blink - (edgeTime*samplingRate)):(blink + (edgeTime*samplingRate)))');
+                    data.All.LH_gamma = cat(2,data.All.LH_gamma,ProcData.data.cortical_LH.gammaBandPower((blink - (edgeTime*samplingRate)):(blink + (edgeTime*samplingRate)))');
                     % RH gamma
-                    data.(blinkState).RH_gamma = cat(1,data.(blinkState).RH_gamma,detrend(ProcData.data.cortical_RH.gammaBandPower((blink - (edgeTime*samplingRate)):(blink + (edgeTime*samplingRate))),'constant'));
-                    data.All.RH_gamma = cat(1,data.All.RH_gamma,detrend(ProcData.data.cortical_RH.gammaBandPower((blink - (edgeTime*samplingRate)):(blink + (edgeTime*samplingRate))),'constant'));
+                    data.(blinkState).RH_gamma = cat(2,data.(blinkState).RH_gamma,ProcData.data.cortical_RH.gammaBandPower((blink - (edgeTime*samplingRate)):(blink + (edgeTime*samplingRate)))');
+                    data.All.RH_gamma = cat(2,data.All.RH_gamma,ProcData.data.cortical_RH.gammaBandPower((blink - (edgeTime*samplingRate)):(blink + (edgeTime*samplingRate)))');
                 end
             end
         end
     end
 end
 %% analyze coherogram
-dataTypes = {'HbT','gamma','left','right'};
+dataTypes = {'HbT','gamma'};
 % parameters
 params.tapers = [1,1]; % Tapers [n, 2n - 1]
 params.pad = 1;
@@ -141,40 +137,29 @@ params.Fs = samplingRate;
 params.fpass = [0,3]; % Pass band [0, nyquist]
 params.trialave = 1;
 params.err = [2,0.05];
-movingWin = [10,1/30];
+movingWin = [10,1/samplingRate];
 for bb = 1:length(dataTypes)
     dataType = dataTypes{1,bb};
     for aa = 1:length(blinkStates)
         blinkState = blinkStates{1,aa};
-        switch dataType
-            case 'HbT'
-                data1 = data.(blinkState).LH_HbT';
-                data2 = data.(blinkState).RH_HbT';
-            case 'gamma'
-                data1 = data.(blinkState).LH_gamma';
-                data2 = data.(blinkState).RH_gamma';
-            case 'left'
-                data1 = data.(blinkState).LH_HbT';
-                data2 = data.(blinkState).LH_gamma';
-            case 'right'
-                data1 = data.(blinkState).RH_HbT';
-                data2 = data.(blinkState).RH_gamma';
+        if strcmp(dataType,'HbT') == true
+            LH_data = detrend(data.(blinkState).LH_HbT,'constant');
+            RH_data = detrend(data.(blinkState).RH_HbT,'constant');
+        elseif strcmp(dataType,'gamma') == true
+            LH_data = detrend(data.(blinkState).LH_gamma,'constant');
+            RH_data = detrend(data.(blinkState).RH_gamma,'constant');
         end
-        data3 = data1(540:840,:);
-        data4 = data2(540:840,:);
-        data5 = data1(960:1260,:);
-        data6 = data2(960:1260,:);
+        midpoint = round(size(LH_data,1)/2);
+        LH_leadData = detrend(LH_data(midpoint - 15*samplingRate:midpoint - 5*samplingRate,:),'constant');
+        RH_leadData = detrend(RH_data(midpoint - 15*samplingRate:midpoint - 5*samplingRate,:),'constant');
+        LH_lagData = detrend(LH_data(midpoint + 5*samplingRate:midpoint + 15*samplingRate,:),'constant');
+        RH_lagData = detrend(RH_data(midpoint + 5*samplingRate:midpoint + 15*samplingRate,:),'constant');
         % coherogram
-        [C,phi,~,~,~,t,f] = cohgramc(data1,data2,movingWin,params);
+        [C,phi,~,~,~,t,f] = cohgramc(LH_data,RH_data,movingWin,params);
         % leading/lagging coherence
-        [leadC,~,~,~,~,leadf] = coherencyc(data3,data4,params);
-        [lagC,~,~,~,~,lagf] = coherencyc(data5,data6,params);
-        % leading/lagging power spectrum
-        [LH_leadS,pwrf,~] = mtspectrumc(data3,params);
-        [RH_leadS,~,~] = mtspectrumc(data4,params);
-        [LH_lagS,~,~] = mtspectrumc(data5,params);
-        [RH_lagS,~,~] = mtspectrumc(data6,params);
-        %% Save results
+        [leadC,~,~,~,~,leadf] = coherencyc(LH_leadData,RH_leadData,params);
+        [lagC,~,~,~,~,lagf] = coherencyc(LH_lagData,RH_lagData,params);
+        % save results
         Results_BlinkCoherogram.(animalID).(dataType).(blinkState).C = C';
         Results_BlinkCoherogram.(animalID).(dataType).(blinkState).phi = phi;
         Results_BlinkCoherogram.(animalID).(dataType).(blinkState).t = t;
@@ -183,11 +168,6 @@ for bb = 1:length(dataTypes)
         Results_BlinkCoherogram.(animalID).(dataType).(blinkState).lagC = lagC;
         Results_BlinkCoherogram.(animalID).(dataType).(blinkState).leadf = leadf;
         Results_BlinkCoherogram.(animalID).(dataType).(blinkState).lagf = lagf;
-        Results_BlinkCoherogram.(animalID).(dataType).(blinkState).LH_leadS = LH_leadS;
-        Results_BlinkCoherogram.(animalID).(dataType).(blinkState).RH_leadS = RH_leadS;
-        Results_BlinkCoherogram.(animalID).(dataType).(blinkState).LH_lagS = LH_lagS;
-        Results_BlinkCoherogram.(animalID).(dataType).(blinkState).RH_lagS = RH_lagS;
-        Results_BlinkCoherogram.(animalID).(dataType).(blinkState).pwrf = pwrf;
     end
 end
 % save data

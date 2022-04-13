@@ -5,8 +5,6 @@ function Serr = specerr(S,J,err,trialave,numsp)
 % https://github.com/KL-Turner
 %
 % Code unchanged with the exception of this title block for record keeping
-%
-%   Last Opened: February 23rd, 2019
 %________________________________________________________________________________________________________________________
 %
 % Function to compute lower and upper confidence intervals on the spectrum 

@@ -3,7 +3,6 @@ function [animalID] = TrainSleepModels_JNeurosci2022()
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
 % Purpose: Train several machine learning techniques on manually scored sleep data, and evaluate each model's accuracy
 %________________________________________________________________________________________________________________________
@@ -47,7 +46,6 @@ dirpath = [startingDirectory '\Figures\Sleep Models\'];
 if ~exist(dirpath,'dir')
     mkdir(dirpath);
 end
-
 %% Train Support Vector Machine (SVM) classifier
 t = templateSVM('Standardize',true,'KernelFunction','gaussian');
 disp('Training Support Vector Machine...'); disp(' ')
@@ -126,7 +124,6 @@ disp(['Support Vector Machine model prediction accuracy (testing): ' num2str(eve
 % save model and figure
 savefig(SVM_confMat,[dirpath animalID '_IOS_SVM_ConfusionMatrix']);
 close(SVM_confMat)
-
 %% Ensemble classification - AdaBoostM2, Subspace, Bag, LPBoost,RUSBoost, TotalBoost
 disp('Training Ensemble Classifier...'); disp(' ')
 t = templateTree('Reproducible',true);
@@ -206,7 +203,6 @@ disp(['Ensemble model prediction accuracy (testing): ' num2str(evenEC_accuracy) 
 % save model and figure
 savefig(EC_confMat,[dirpath animalID '_IOS_EC_ConfusionMatrix']);
 close(EC_confMat)
-
 %% Decision Tree classification
 disp('Training Decision Tree Classifier...'); disp(' ')
 DT_MDL = fitctree(Xodd,Yodd,'ClassNames',{'Not Sleep','NREM Sleep','REM Sleep'});
@@ -279,7 +275,6 @@ disp(['Decision Tree model prediction accuracy (testing): ' num2str(evenDT_accur
 % save model and figure
 savefig(DT_confMat,[dirpath animalID '_IOS_DT_ConfusionMatrix']);
 close(DT_confMat)
-
 %% Random forest
 disp('Training Random Forest Classifier...'); disp(' ')
 numTrees = 128;
@@ -356,7 +351,6 @@ disp(['Random Forest model prediction accuracy (testing): ' num2str(evenRF_accur
 % save model and figure
 savefig(RF_confMat,[dirpath animalID '_IOS_RF_ConfusionMatrix']);
 close(RF_confMat)
-
 %% k-nearest neighbor classifier
 disp('Training k-nearest neighbor Classifier...'); disp(' ')
 t = templateKNN('NumNeighbors',5,'Standardize',1);
@@ -430,7 +424,6 @@ disp(['k-Nearest Neightbor model prediction accuracy (testing): ' num2str(evenKN
 % save model and figure
 savefig(KNN_confMat,[dirpath animalID '_IOS_KNN_ConfusionMatrix']);
 close(KNN_confMat)
-
 %% Naive Bayes classifier
 disp('Training naive Bayes Classifier...'); disp(' ')
 NB_MDL = fitcnb(Xodd,Yodd,'ClassNames',{'Not Sleep','NREM Sleep','REM Sleep'});

@@ -1,4 +1,11 @@
 function varargout = SelectBehavioralStateGUI_JNeurosci2022(varargin)
+%________________________________________________________________________________________________________________________
+% Written by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
+%
+% Purpose: sleep scoring GUI button
+%________________________________________________________________________________________________________________________
 % SELECTBEHAVIORALSTATEGUI_IOS MATLAB code for SelectBehavioralStateGUI_IOS.fig
 %      SELECTBEHAVIORALSTATEGUI_IOS, by itself, creates a new SELECTBEHAVIORALSTATEGUI_IOS or raises the existing
 %      singleton*.
@@ -27,11 +34,11 @@ function varargout = SelectBehavioralStateGUI_JNeurosci2022(varargin)
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
-                   'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @SelectBehavioralStateGUI_OpeningFcn, ...
-                   'gui_OutputFcn',  @SelectBehavioralStateGUI_OutputFcn, ...
-                   'gui_LayoutFcn',  [] , ...
-                   'gui_Callback',   []);
+    'gui_Singleton',  gui_Singleton, ...
+    'gui_OpeningFcn', @SelectBehavioralStateGUI_OpeningFcn, ...
+    'gui_OutputFcn',  @SelectBehavioralStateGUI_OutputFcn, ...
+    'gui_LayoutFcn',  [] , ...
+    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
     gui_State.gui_Callback = str2func(varargin{1});
 end
@@ -63,7 +70,7 @@ guidata(hObject, handles);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = SelectBehavioralStateGUI_OutputFcn(hObject, eventdata, handles) 
+function varargout = SelectBehavioralStateGUI_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB

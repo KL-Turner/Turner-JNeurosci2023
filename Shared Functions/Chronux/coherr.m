@@ -5,8 +5,6 @@ function [confC,phistd,Cerr] = coherr(C,J1,J2,err,trialave,numsp1,numsp2)
 % https://github.com/KL-Turner
 %
 % Code unchanged with the exception of this title block for record keeping
-%
-%   Last Opened: February 23rd, 2019
 %________________________________________________________________________________________________________________________
 %
 % Function to compute lower and upper confidence intervals on the coherency 

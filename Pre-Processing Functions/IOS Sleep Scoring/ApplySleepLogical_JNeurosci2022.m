@@ -3,9 +3,8 @@ function [] = ApplySleepLogical_JNeurosci2022(startingDirectory,trainingDirector
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose:
+% Purpose: Apply logicals for each arousal state to files for arousal state separation
 %________________________________________________________________________________________________________________________
 
 cd(baselineDirectory)

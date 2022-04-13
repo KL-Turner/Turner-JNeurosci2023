@@ -1,4 +1,4 @@
-function [Results_CrossCorrelation] = AnalyzeCrossCorrelation_Pupil(animalID,rootFolder,delim,Results_CrossCorrelation)
+function [Results_CrossCorrelation] = AnalyzeCrossCorrelation_JNeurosci2022(animalID,rootFolder,delim,Results_CrossCorrelation)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

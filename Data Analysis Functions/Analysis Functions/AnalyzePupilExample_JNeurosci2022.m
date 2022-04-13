@@ -1,4 +1,4 @@
-function [Results_Example] = AnalyzePupilExample_Pupil(rootFolder,delim,Results_Example)
+function [Results_Example] = AnalyzePupilExample_JNeurosci2022(rootFolder,delim,Results_Example)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -22,9 +22,9 @@ exampleBaselineFileID = 'T141_RestingBaselines.mat';
 load(exampleBaselineFileID,'-mat')
 examplePupilData = 'T141_PupilData.mat';
 load(examplePupilData)
-[~,fileDate,fileID] = GetFileInfo_IOS(exampleProcDataFileID);
+[~,fileDate,fileID] = GetFileInfo_JNeurosci2022(exampleProcDataFileID);
 pupilCamFileID = [fileID '_PupilCam.bin'];
-strDay = ConvertDate_IOS(fileDate);
+strDay = ConvertDate_JNeurosci2022(fileDate);
 Results_Example.dsFs = ProcData.notes.dsFs;
 % setup butterworth filter coefficients for a 1 Hz and 10 Hz lowpass based on the sampling rate
 [z1,p1,k1] = butter(4,10/(ProcData.notes.dsFs/2),'low');
@@ -70,7 +70,7 @@ fclose('all');
 Results_Example.images = cat(3,imageStack(:,:,1200),imageStack(:,:,4200),imageStack(:,:,7866),...
     imageStack(:,:,13200),imageStack(:,:,18510),imageStack(:,:,23458),imageStack(:,:,26332));
 % pupil tracking
-[data] = FuncRunPupilTracker(exampleProcDataFileID);
+[data] = FuncRunPupilTracker_JNeurosci2022(exampleProcDataFileID);
 % create pupil model data set for the example file
 avgPupilArea_column = zeros(180,1);
 % extract relevant parameters from each epoch

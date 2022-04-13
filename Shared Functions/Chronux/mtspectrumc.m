@@ -5,8 +5,6 @@ function [S,f,Serr] = mtspectrumc(data,params)
 % https://github.com/KL-Turner
 %
 % Code unchanged with the exception of this title block for record keeping
-%
-%   Last Opened: February 23rd, 2019
 %________________________________________________________________________________________________________________________
 %
 % Multi-taper spectrum - continuous process

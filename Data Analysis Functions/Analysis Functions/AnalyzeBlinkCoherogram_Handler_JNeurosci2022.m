@@ -1,4 +1,4 @@
-function [] = AnalyzeBlinkCoherogram_Pupil_Handler(rootFolder,delim,runFromStart)
+function [] = AnalyzeBlinkCoherogram_Handler_JNeurosci2022(rootFolder,delim,runFromStart)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -29,7 +29,7 @@ aa = 1;
 multiWaitbar('Analyzing blinking coherogram',0,'Color','P'); pause(0.25);
 for bb = 1:length(animalIDs)
     if isfield(Results_BlinkCoherogram,(animalIDs{1,bb})) == false
-        [Results_BlinkCoherogram] = AnalyzeBlinkCoherogram_Pupil(animalIDs{1,bb},rootFolder,delim,Results_BlinkCoherogram);
+        [Results_BlinkCoherogram] = AnalyzeBlinkCoherogram_JNeurosci2022(animalIDs{1,bb},rootFolder,delim,Results_BlinkCoherogram);
     end
     multiWaitbar('Analyzing blinking coherogram','Value',aa/waitBarLength);
     aa = aa + 1;

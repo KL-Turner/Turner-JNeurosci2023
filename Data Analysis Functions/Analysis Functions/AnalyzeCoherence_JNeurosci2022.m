@@ -1,4 +1,4 @@
-function [Results_Coherence] = AnalyzeCoherence_Pupil(animalID,rootFolder,delim,Results_Coherence)
+function [Results_Coherence] = AnalyzeCoherence_JNeurosci2022(animalID,rootFolder,delim,Results_Coherence)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

@@ -5,8 +5,6 @@ function data = change_row_to_column(data)
 % https://github.com/KL-Turner
 %
 % Code unchanged with the exception of this title block for record keeping
-%
-%   Last Opened: February 23rd, 2019
 %________________________________________________________________________________________________________________________
 %
 % Helper routine to transform 1d arrays into column vectors that are needed

@@ -1,4 +1,4 @@
-function [Results_InterBlinkInterval] = AnalyzeInterBlinkInterval_Pupil(animalID,rootFolder,delim,Results_InterBlinkInterval)
+function [Results_InterBlinkInterval] = AnalyzeInterBlinkInterval_JNeurosci2022(animalID,rootFolder,delim,Results_InterBlinkInterval)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

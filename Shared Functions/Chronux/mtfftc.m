@@ -5,8 +5,6 @@ function J = mtfftc(data,tapers,nfft,Fs)
 % https://github.com/KL-Turner
 %
 % Code unchanged with the exception of this title block for record keeping
-%
-%   Last Opened: February 23rd, 2019
 %________________________________________________________________________________________________________________________
 %
 % Multi-taper fourier transform - continuous data

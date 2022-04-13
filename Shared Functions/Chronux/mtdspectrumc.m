@@ -1,4 +1,11 @@
-function [dS,f]=mtdspectrumc(data,phi,params)
+function [dS,f] = mtdspectrumc(data,phi,params)
+%________________________________________________________________________________________________________________________
+% Utilized in analysis by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
+%
+% Code unchanged with the exception of this title block for record keeping
+%________________________________________________________________________________________________________________________
 % Multi-taper frequency derivative of the spectrum - continuous process
 %
 % Usage:

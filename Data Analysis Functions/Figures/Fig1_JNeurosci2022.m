@@ -10,6 +10,36 @@ function [] = Fig1_JNeurosci2022(rootFolder,saveFigs,delim)
 %% respresentative animal data structure
 dataStructure = 'Results_Example.mat';
 load(dataStructure)
+%% time per animal and arousal percentages
+dataStructure = 'Results_StateTime.mat';
+load(dataStructure)
+animalIDs = fieldnames(Results_StateTime);
+for aa = 1:length(animalIDs)
+    animalID = animalIDs{aa,1};
+    totalHours(aa,1) = Results_StateTime.(animalID).totalHours;
+    goodHours(aa,1) = Results_StateTime.(animalID).goodHours;
+    usablePerc(aa,1) = Results_StateTime.(animalID).usablePerc;
+    % awakeHours(aa,1) = Results_StateTime.(animalID).awakeHours;
+    awakePerc(aa,1) = Results_StateTime.(animalID).awakePerc;
+    % nremHours(aa,1) = Results_StateTime.(animalID).nremHours;
+    nremPerc(aa,1) = Results_StateTime.(animalID).nremPerc;
+    % remHours(aa,1) = Results_StateTime.(animalID).remHours;
+    remPerc(aa,1) = Results_StateTime.(animalID).remPerc;
+end
+totalTime = sum(totalHours);
+meanHoursPerMouse = round(mean(totalHours,1),1);
+stdHoursPerMouse = round(std(totalHours,0,1),1);
+totalGoodTime = sum(goodHours);
+meanGoodHoursPerMouse = round(mean(goodHours,1),1);
+stdGoodHoursPerMouse = round(std(goodHours,0,1),1);
+meanUsablePerc = round(mean(usablePerc,1),1);
+stdUsablePerc = round(std(usablePerc,0,1),1);
+meanAwakePercPerMouse = round(mean(awakePerc,1),1);
+stdAwakePercPerMouse = round(std(awakePerc,0,1),1);
+meanNremPercPerMouse = round(mean(nremPerc,1),1);
+stdNremPercPerMouse = round(std(nremPerc,0,1),1);
+meanRemPercPerMouse = round(mean(remPerc,1),1);
+stdRemPercPerMouse = round(std(remPerc,0,1),1);
 %% threshold for pupil tracking
 dataStructure = 'Results_PupilThreshold.mat';
 load(dataStructure)
@@ -22,14 +52,13 @@ for aa = 1:length(animalIDs)
 end
 meanThreshold = mean(indStDev,1);
 stdThreshold = std(indStDev,0,1);
-% disp(['Pupil threshold: ' num2str(meanThreshold) ' +/- ' num2str(stdThreshold) ' StDev from mean (n = 22 mice)']); disp(' ')
 %% tracking algorithm images
 % subplot for eye ROI
 Fig1A = figure('Name','Figure Panel 1 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
 subplot(2,2,1)
 imagesc(Results_Example.workingImg)
 hold on;
-x1 = plot(Results_Example.x12,Results_Example.y12,'color','r','LineWidth',1');
+x1 = plot(Results_Example.x12,Results_Example.y12,'color',colors('vegas gold'),'LineWidth',2');
 title('ROI to measure changes in pupil area')
 legend(x1,'eye ROI')
 colormap gray
@@ -37,13 +66,13 @@ axis image
 axis off
 % subplot for ROI histrogram and threshold
 subplot(2,2,2)
-Results_Example.pupilHist = histogram(Results_Example.threshImg((Results_Example.threshImg ~= 0)),'BinEdges',Results_Example.pupilHistEdges,'Normalization','Probability');
+Results_Example.pupilHist = histogram(Results_Example.threshImg((Results_Example.threshImg ~= 0)),'BinEdges',Results_Example.pupilHistEdges,'Normalization','Probability','FaceColor',colors('black'),'EdgeColor',colors('black'));
 hold on;
-plot(Results_Example.pupilHist.BinEdges,Results_Example.normFit,'r','LineWidth',2);
-xline(Results_Example.intensityThresh,'--m','LineWidth',1);
+plot(Results_Example.pupilHist.BinEdges,Results_Example.normFit,'color',colors('vegas gold'),'LineWidth',2);
+xline(Results_Example.intensityThresh,'color',colors('deep carrot orange'),'LineWidth',2);
 title('Histogram of image pixel intensity')
 xlabel('Pixel intensity');
-ylabel('Bin Count');
+ylabel('Probability');
 legend({'Normalized bin counts','MLE fit of data','Pupil intensity threshold'},'Location','northwest');
 xlim([0,256]);
 axis square
@@ -72,6 +101,27 @@ if saveFigs == true
     savefig(Fig1A,[dirpath 'Fig1A_JNeurosci2022']);
     set(Fig1A,'PaperPositionMode','auto');
     print('-vector','-dpdf','-fillpage',[dirpath 'Fig1A_JNeurosci2022'])
+    % text diary
+    diaryFile = [dirpath 'Fig1_Text.txt'];
+    if exist(diaryFile,'file') == 2
+        delete(diaryFile)
+    end
+    diary(diaryFile)
+    diary on
+    % arousal state times, pupil threshold
+    disp('======================================================================================================================')
+    disp('Arousal state times, percentages, data per animal, pupil threshold for tracking')
+    disp('======================================================================================================================')
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp(['Pupil threshold: ' num2str(meanThreshold) ' +/- ' num2str(stdThreshold) ' StDev from mean (n = ' num2str(length(indStDev)) ') mice']); disp(' ')
+    disp([num2str(totalTime) ' total hours with a mean of ' num2str(meanHoursPerMouse) ' +/-' num2str(stdHoursPerMouse) ' per mouse (n = ' num2str(length(totalHours)) ') mice']); disp(' ')
+    disp([num2str(totalGoodTime) ' hours with good diameter tracking, with a mean of ' num2str(meanGoodHoursPerMouse) ' +/-' num2str(stdGoodHoursPerMouse) ' per mouse (n = ' num2str(length(goodHours)) ') mice']); disp(' ')
+    disp(['This corresponds to ' num2str(meanUsablePerc) ' +/- ' num2str(stdUsablePerc) '% of each animal''s total data set (n = ' num2str(length(usablePerc)) ') mice']); disp(' ')
+    disp(['Awake percentage: ' num2str(meanAwakePercPerMouse) ' +/- ' num2str(stdAwakePercPerMouse) '% (n = ' num2str(length(awakePerc)) ') mice']); disp(' ')
+    disp(['NREM percentage: ' num2str(meanNremPercPerMouse) ' +/- ' num2str(stdNremPercPerMouse) '% (n = ' num2str(length(nremPerc)) ') mice']); disp(' ')
+    disp(['REM percentage: ' num2str(meanRemPercPerMouse) ' +/- ' num2str(stdRemPercPerMouse) '% (n = ' num2str(length(remPerc)) ') mice']); disp(' ')
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    diary off
 end
 %% example pupil/eye images
 Fig1B = figure('Name','Figure Panel 1 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
@@ -130,35 +180,33 @@ if saveFigs == true
 end
 %% example trial
 Fig1C =  figure('Name','Figure Panel 1 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
-sgtitle('Example trial')
+sgtitle('Example Trial')
 % pupil
 ax12 = subplot(6,1,[1,2]);
 p1 = plot((1:length(Results_Example.filtPupilDiameter))/Results_Example.dsFs,Results_Example.filtPupilDiameter,'color',colors('black'));
-blinkInds = find(Results_Example.blinkTimes > 1); 
+blinkInds = find(Results_Example.blinkTimes > 1);
 Results_Example.blinkTimes(blinkInds) = max(Results_Example.filtPupilDiameter);
 hold on;
-s1 = scatter((1:length(Results_Example.blinkTimes))/Results_Example.dsFs,Results_Example.blinkTimes,'r');
-x1 = xline(1200/Results_Example.dsFs,'g');
-xline(4200/Results_Example.dsFs,'g')
-xline(7866/Results_Example.dsFs,'g')
-xline(13200/Results_Example.dsFs,'g')
-xline(18510/Results_Example.dsFs,'g')
-xline(23458/Results_Example.dsFs,'g')
-xline(26332/Results_Example.dsFs,'g')
-xlabel('Time (sec)')
+x1 = xline(1200/Results_Example.dsFs,'color',colors('custom green'),'LineWidth',2);
+xline(4200/Results_Example.dsFs,'color',colors('custom green'),'LineWidth',2)
+x2 = xline(7866/Results_Example.dsFs,'color',colors('magenta'),'LineWidth',2);
+xline(13200/Results_Example.dsFs,'color',colors('custom green'),'LineWidth',2)
+xline(18510/Results_Example.dsFs,'color',colors('custom green'),'LineWidth',2)
+xline(23458/Results_Example.dsFs,'color',colors('custom green'),'LineWidth',2)
+xline(26332/Results_Example.dsFs,'color',colors('magenta'),'LineWidth',2)
 ylabel('Diameter (mm)')
 set(gca,'Xticklabel',[])
 set(gca,'box','off')
 xticks([0,60,120,180,240,300,360,420,480,540,600,660,720,780,840,900])
-legend([p1,s1,x1],'Pupil Area','Blinks','Rep Imgs','Location','Northwest')
+legend([p1,x2,x1],'Pupil Area','Blinks','Rep Imgs','Location','Northwest')
 ax12.TickLength = [0.01,0.01];
 % EMG and force sensor
 ax3 = subplot(6,1,3);
-p3 = plot((1:length(Results_Example.filtWhiskerAngle))/Results_Example.dsFs,-Results_Example.filtWhiskerAngle,'color',colors('black'),'LineWidth',0.5);
+p2 = plot((1:length(Results_Example.filtWhiskerAngle))/Results_Example.dsFs,-Results_Example.filtWhiskerAngle,'color',colors('black'),'LineWidth',0.5);
 ylabel('Angle (deg)')
 ylim([-10,50])
 yyaxis right
-p2 = plot((1:length(Results_Example.filtEMG))/Results_Example.dsFs,Results_Example.filtEMG,'color',colors('blue-violet'),'LineWidth',0.5);
+p3 = plot((1:length(Results_Example.filtEMG))/Results_Example.dsFs,Results_Example.filtEMG,'color',colors('blue-violet'),'LineWidth',0.5);
 ylabel('EMG pwr (a.u.)','rotation',-90,'VerticalAlignment','bottom')
 ylim([-4,2.5])
 legend([p2,p3],'Whisker Angle','EMG','Location','Northwest')
@@ -231,28 +279,26 @@ if saveFigs == true
     ax12 = subplot(6,1,[1,2]);
     p1 = plot((1:length(Results_Example.filtPupilDiameter))/Results_Example.dsFs,Results_Example.filtPupilDiameter,'color',colors('black'));
     hold on;
-    s1 = scatter((1:length(Results_Example.blinkTimes))/Results_Example.dsFs,Results_Example.blinkTimes,'r');
-    x1 = xline(1200/Results_Example.dsFs,'g');
-    xline(4200/Results_Example.dsFs,'g')
-    xline(7866/Results_Example.dsFs,'g')
-    xline(13200/Results_Example.dsFs,'g')
-    xline(18510/Results_Example.dsFs,'g')
-    xline(23458/Results_Example.dsFs,'g')
-    xline(26332/Results_Example.dsFs,'g')
-    xlabel('Time (sec)')
+    x1 = xline(1200/Results_Example.dsFs,'color',colors('custom green'),'LineWidth',2);
+    xline(4200/Results_Example.dsFs,'color',colors('custom green'),'LineWidth',2)
+    x2 = xline(7866/Results_Example.dsFs,'color',colors('magenta'),'LineWidth',2);
+    xline(13200/Results_Example.dsFs,'color',colors('custom green'),'LineWidth',2)
+    xline(18510/Results_Example.dsFs,'color',colors('custom green'),'LineWidth',2)
+    xline(23458/Results_Example.dsFs,'color',colors('custom green'),'LineWidth',2)
+    xline(26332/Results_Example.dsFs,'color',colors('magenta'),'LineWidth',2)
     ylabel('Diameter (mm)')
     set(gca,'Xticklabel',[])
     set(gca,'box','off')
     xticks([0,60,120,180,240,300,360,420,480,540,600,660,720,780,840,900])
-    legend([p1,s1,x1],'Pupil Area','Blinks','Rep Imgs','Location','Northwest')
+    legend([p1,x2,x1],'Pupil Area','Blinks','Rep Imgs','Location','Northwest')
     ax12.TickLength = [0.01,0.01];
     % EMG and force sensor
     ax3 = subplot(6,1,3);
-    p3 = plot((1:length(Results_Example.filtWhiskerAngle))/Results_Example.dsFs,-Results_Example.filtWhiskerAngle,'color',colors('black'),'LineWidth',0.5);
+    p2 = plot((1:length(Results_Example.filtWhiskerAngle))/Results_Example.dsFs,-Results_Example.filtWhiskerAngle,'color',colors('black'),'LineWidth',0.5);
     ylabel('Angle (deg)')
     ylim([-10,50])
     yyaxis right
-    p2 = plot((1:length(Results_Example.filtEMG))/Results_Example.dsFs,Results_Example.filtEMG,'color',colors('blue-violet'),'LineWidth',0.5);
+    p3 = plot((1:length(Results_Example.filtEMG))/Results_Example.dsFs,Results_Example.filtEMG,'color',colors('blue-violet'),'LineWidth',0.5);
     ylabel('EMG pwr (a.u.)','rotation',-90,'VerticalAlignment','bottom')
     ylim([-4,2.5])
     legend([p2,p3],'Whisker Angle','EMG','Location','Northwest')

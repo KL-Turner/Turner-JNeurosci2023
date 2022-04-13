@@ -4,7 +4,7 @@ function [AnalysisResults] = Fig5_JNeurosci2022(rootFolder,saveFigs,delim,Analys
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
-%   Purpose: Generate figure panel 8 for Turner_Gheres_Proctor_Drew_eLife2020
+%   Purpose: Generate figures and supporting information for Figure Panel 5
 %________________________________________________________________________________________________________________________
 
 %% Pupil-HbT relationship
@@ -49,10 +49,10 @@ end
 resultsStruct = 'Results_SleepProbability';
 load(resultsStruct);
 diameterAllCatMeans = Results_SleepProbability.diameterCatMeans;
-awakeProbPerc = Results_SleepProbability.awakeProbPerc;
-nremProbPerc = Results_SleepProbability.nremProbPerc;
-remProbPerc = Results_SleepProbability.remProbPerc;
-asleepProbPerc = Results_SleepProbability.asleepProbPerc;
+awakeProbPerc = Results_SleepProbability.awakeProbPerc./100;
+nremProbPerc = Results_SleepProbability.nremProbPerc./100;
+remProbPerc = Results_SleepProbability.remProbPerc./100;
+asleepProbPerc = Results_SleepProbability.asleepProbPerc./100;
 %% Sleep model accuracy based on pupil zDiameter alone
 resultsStructB = 'Results_PupilSleepModel';
 load(resultsStructB);
@@ -96,6 +96,73 @@ for dd = 1:length(animalIDs)
 end
 data.physio.meanLoss = mean(data.physio.loss,1);
 data.physio.stdLoss = std(data.physio.loss,0,1);
+
+%% Sleep model accuracy based on physiology
+resultsStructB = 'Results_PupilSleepModel';
+load(resultsStructB);
+animalIDs = fieldnames(Results_PupilSleepModel);
+lags = {'negFifteen','negTen','negFive','zero','five','ten','fifteen'};
+for dd = 1:length(animalIDs)
+    animalID = animalIDs{dd,1};
+    for bb = 1:length(lags)
+        lag = lags{1,bb};
+        data.(lag).loss(dd,1) = Results_PupilSleepModel.(animalID).(lag).SVM.loss;
+    end
+end
+for aa = 1:length(lags)
+    lag = lags{1,aa};
+    data.(lag).meanLoss = mean(data.(lag).loss,1);
+    data.(lag).stdLoss = std(data.(lag).loss,0,1);
+end
+% figure
+% scatter(ones(1,length(data.negFifteen.loss))*-15,data.negFifteen.loss,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('magenta'),'jitter','on','jitterAmount',0.25);
+% hold on
+% e1 = errorbar(-15,data.negFifteen.meanLoss,data.negFifteen.stdLoss,'d','MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'));
+% e1.Color = 'black';
+% e1.MarkerSize = 10;
+% e1.CapSize = 10;
+% scatter(ones(1,length(data.negTen.loss))*-10,data.negTen.loss,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('magenta'),'jitter','on','jitterAmount',0.25);
+% hold on
+% e1 = errorbar(-10,data.negTen.meanLoss,data.negTen.stdLoss,'d','MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'));
+% e1.Color = 'black';
+% e1.MarkerSize = 10;
+% e1.CapSize = 10;
+% scatter(ones(1,length(data.negFive.loss))*-5,data.negFive.loss,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('magenta'),'jitter','on','jitterAmount',0.25);
+% hold on
+% e1 = errorbar(-5,data.negFive.meanLoss,data.negFive.stdLoss,'d','MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'));
+% e1.Color = 'black';
+% e1.MarkerSize = 10;
+% e1.CapSize = 10;
+% scatter(ones(1,length(data.zero.loss))*0,data.zero.loss,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('magenta'),'jitter','on','jitterAmount',0.25);
+% hold on
+% e1 = errorbar(0,data.zero.meanLoss,data.zero.stdLoss,'d','MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'));
+% e1.Color = 'black';
+% e1.MarkerSize = 10;
+% e1.CapSize = 10;
+% scatter(ones(1,length(data.five.loss))*5,data.five.loss,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('magenta'),'jitter','on','jitterAmount',0.25);
+% hold on
+% e1 = errorbar(5,data.five.meanLoss,data.five.stdLoss,'d','MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'));
+% e1.Color = 'black';
+% e1.MarkerSize = 10;
+% e1.CapSize = 10;
+% scatter(ones(1,length(data.ten.loss))*10,data.ten.loss,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('magenta'),'jitter','on','jitterAmount',0.25);
+% hold on
+% e1 = errorbar(10,data.ten.meanLoss,data.ten.stdLoss,'d','MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'));
+% e1.Color = 'black';
+% e1.MarkerSize = 10;
+% e1.CapSize = 10;
+% scatter(ones(1,length(data.fifteen.loss))*15,data.fifteen.loss,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('magenta'),'jitter','on','jitterAmount',0.25);
+% hold on
+% e1 = errorbar(15,data.fifteen.meanLoss,data.fifteen.stdLoss,'d','MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'));
+% e1.Color = 'black';
+% e1.MarkerSize = 10;
+% e1.CapSize = 10;
+% ylabel('Loss (mean squared error)')
+% xlabel('Time (s)')
+% axis square
+% xlim([-20,20])
+% % ylim([0,0.2])
+% set(gca,'box','off')
 %% pupil model coherence
 resultsStruct = 'Results_PupilModelCoherence.mat';
 load(resultsStruct);
@@ -154,9 +221,9 @@ s = pcolor(-4.975:0.025:3,-22.5:2.5:125,h1Vals');
 s.FaceColor = 'interp';
 set(s,'EdgeColor','none');
 n = 50;
-R = linspace(0,1,n);
-G = linspace(0,1,n);
-B = linspace(0,1,n);
+R = linspace(1,0,n);
+G = linspace(1,0,n);
+B = linspace(1,0,n);
 colormap(flipud([R(:),G(:),B(:)]));
 cax = caxis;
 caxis([cax(1),cax(2)/1.5])
@@ -175,9 +242,9 @@ s = pcolor(-4.975:0.025:3,-22.5:2.5:125,h2Vals');
 s.FaceColor = 'interp';
 set(s,'EdgeColor','none');
 n = 50;
-R = linspace(0,1,n);
-G = linspace(0.4,1,n);
-B = linspace(0,1,n);
+R = linspace(0,0,n);
+G = linspace(1,0,n);
+B = linspace(1,0,n);
 colormap(flipud([R(:),G(:),B(:)]));
 cax = caxis;
 caxis([cax(1),cax(2)/1.5])
@@ -196,9 +263,9 @@ s = pcolor(-4.975:0.025:3,-22.5:2.5:125,h3Vals');
 s.FaceColor = 'interp';
 set(s,'EdgeColor','none');
 n = 50;
-R = linspace(1,1,n);
-G = linspace(0,1,n);
-B = linspace(1,1,n);
+R = linspace(1,0,n);
+G = linspace(0,0,n);
+B = linspace(0,0,n);
 colormap(flipud([R(:),G(:),B(:)]));
 cax = caxis;
 caxis([cax(1),cax(2)/1.5])
@@ -216,9 +283,9 @@ s = pcolor(-4.975:0.025:3,-22.5:2.5:100,h4Vals');
 s.FaceColor = 'interp';
 set(s,'EdgeColor','none');
 n = 50;
-R = linspace(0,1,n);
-G = linspace(0,1,n);
-B = linspace(0,1,n);
+R = linspace(1,0,n);
+G = linspace(1,0,n);
+B = linspace(1,0,n);
 colormap(flipud([R(:),G(:),B(:)]));
 cax = caxis;
 caxis([cax(1),cax(2)/1.5])
@@ -237,9 +304,9 @@ s = pcolor(-4.975:0.025:3,-22.5:2.5:100,h5Vals');
 s.FaceColor = 'interp';
 set(s,'EdgeColor','none');
 n = 50;
-R = linspace(0,1,n);
-G = linspace(0.4,1,n);
-B = linspace(0,1,n);
+R = linspace(0,0,n);
+G = linspace(1,0,n);
+B = linspace(1,0,n);
 colormap(flipud([R(:),G(:),B(:)]));
 cax = caxis;
 caxis([cax(1),cax(2)/1.5])
@@ -258,9 +325,9 @@ s = pcolor(-4.975:0.025:3,-22.5:2.5:100,h6Vals');
 s.FaceColor = 'interp';
 set(s,'EdgeColor','none');
 n = 50;
-R = linspace(1,1,n);
-G = linspace(0,1,n);
-B = linspace(1,1,n);
+R = linspace(1,0,n);
+G = linspace(0,0,n);
+B = linspace(0,0,n);
 colormap(flipud([R(:),G(:),B(:)]));
 cax = caxis;
 caxis([cax(1),cax(2)/1.5])
@@ -269,59 +336,59 @@ h6Frame = getframe(gcf);
 h6Img = frame2im(h6Frame);
 close(GammaRemHist)
 close(GammaRemRGB)
-%% axis for composite images
-Fig6A = figure('Name','Figure Panel 6 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
-subplot(1,2,1)
-img = imagesc(-4.975:0.025:3,-22.5:2.5:100,h4Vals');
-xlabel('Diameter (z-units)')
-ylabel('\DeltaP/P (%)')
-title('Pupil-Gamma axis template')
-set(gca,'box','off')
-axis square
-axis xy
-delete(img)
-subplot(1,2,2)
-img = imagesc(-4.975:0.025:3,-22.5:2.5:125,h1Vals');
-xlabel('Diameter (z-units)')
-ylabel('\Delta[HbT] (\muM)')
-title('Pupil-HbT axis template')
-set(gca,'box','off')
-axis square
-axis xy
-delete(img)
 %% save figure(s)
 if saveFigs == true
     dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'Figure Panels' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
-    set(Fig6A,'PaperPositionMode','auto');
-    savefig(Fig6A,[dirpath 'Fig6A_JNeurosci2022']);
-    print('-vector','-dpdf','-fillpage',[dirpath 'Fig6A_JNeurosci2022'])
-    close(Fig6A)
-    imwrite(h1Img,[dirpath 'Fig6_HbTAwake_JNeurosci2022.png'])
-    imwrite(h2Img,[dirpath 'Fig6_HbTNREM_JNeurosci2022.png'])
-    imwrite(h3Img,[dirpath 'Fig6_HbTREM_JNeurosci2022.png'])
-    imwrite(h4Img,[dirpath 'Fig6_GammaAwake_JNeurosci2022.png'])
-    imwrite(h5Img,[dirpath 'Fig6_GammaNREM_JNeurosci2022.png'])
-    imwrite(h6Img,[dirpath 'Fig6_GammaREM_JNeurosci2022.png'])
+    %% axis for composite images
+    Fig5A = figure('Name','Figure Panel 5 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
+    subplot(1,2,1)
+    img = imagesc(-4.975:0.025:3,-22.5:2.5:100,h4Vals');
+    xlabel('Diameter (z-units)')
+    ylabel('\DeltaP/P (%)')
+    title('Pupil-Gamma axis template')
+    set(gca,'box','off')
+    axis square
+    axis xy
+    delete(img)
+    subplot(1,2,2)
+    img = imagesc(-4.975:0.025:3,-22.5:2.5:125,h1Vals');
+    xlabel('Diameter (z-units)')
+    ylabel('\Delta[HbT] (\muM)')
+    title('Pupil-HbT axis template')
+    set(gca,'box','off')
+    axis square
+    axis xy
+    delete(img)
+    set(Fig5A,'PaperPositionMode','auto');
+    savefig(Fig5A,[dirpath 'Fig5A_JNeurosci2022']);
+    print('-vector','-dpdf','-fillpage',[dirpath 'Fig5A_JNeurosci2022'])
+    close(Fig5A)
+    imwrite(h1Img,[dirpath 'Fig5_HbTAwake_JNeurosci2022.png'])
+    imwrite(h2Img,[dirpath 'Fig5_HbTNREM_JNeurosci2022.png'])
+    imwrite(h3Img,[dirpath 'Fig5_HbTREM_JNeurosci2022.png'])
+    imwrite(h4Img,[dirpath 'Fig5_GammaAwake_JNeurosci2022.png'])
+    imwrite(h5Img,[dirpath 'Fig5_GammaNREM_JNeurosci2022.png'])
+    imwrite(h6Img,[dirpath 'Fig5_GammaREM_JNeurosci2022.png'])
 end
 %% Figure
-Fig6B = figure('Name','Figure Panel 6 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
+Fig5B = figure('Name','Figure Panel 5 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
 ax1 = subplot(2,3,1);
 edges = -8:0.1:6.5;
 yyaxis right
-h1 = histogram(diameterAllCatMeans,edges,'Normalization','probability','EdgeColor','k','FaceColor',colors('dark candy apple red'));
+h1 = histogram(diameterAllCatMeans,edges,'Normalization','probability','EdgeColor',colors('black'),'FaceColor',colors('black'));
 ylabel('Probability','rotation',-90,'VerticalAlignment','bottom')
 yyaxis left
-p1 = plot(edges,sgolayfilt(medfilt1(awakeProbPerc,10,'truncate'),3,17),'-','color',colors('black'),'LineWidth',2);
+p1 = plot(edges,sgolayfilt(medfilt1(awakeProbPerc,10,'truncate'),3,17),'-','color',colors('battleship grey'),'LineWidth',2);
 hold on
-p2 = plot(edges,sgolayfilt(medfilt1(nremProbPerc,10,'truncate'),3,17),'-','color',[0,0.4,0],'LineWidth',2);
-p3 = plot(edges,sgolayfilt(medfilt1(remProbPerc,10,'truncate'),3,17),'-','color','m','LineWidth',2);
+p2 = plot(edges,sgolayfilt(medfilt1(nremProbPerc,10,'truncate'),3,17),'-','color',colors('cyan'),'LineWidth',2);
+p3 = plot(edges,sgolayfilt(medfilt1(remProbPerc,10,'truncate'),3,17),'-','color',colors('candy apple red'),'LineWidth',2);
 p4 = plot(edges,sgolayfilt(medfilt1(asleepProbPerc,10,'truncate'),3,17),'-','color',colors('royal purple'),'LineWidth',2);
 ylabel({'Arousal-state probability (%)'})
 xlim([-8,6.5])
-ylim([0,100])
+ylim([0,1])
 legend([p1,p2,p3,p4,h1],'Awake','NREM','REM','Asleep','\DeltaArea','Location','NorthEast')
 title('Diameter vs. arousal state')
 xlabel('Diameter (z-units)')
@@ -330,7 +397,7 @@ set(gca,'box','off')
 set(gca,'TickLength',[0.03,0.03]);
 set(h1,'facealpha',0.2);
 ax1.TickLength = [0.03,0.03];
-ax1.YAxis(1).Color = 'k';
+ax1.YAxis(1).Color = colors('black');
 ax1.YAxis(2).Color = colors('dark candy apple red');
 %% Gamma
 subplot(2,3,2)
@@ -368,15 +435,15 @@ modelAccuracy = round((sum(confVals([1,4])/totalScores))*100,1);
 cm.Title = {'Pupil SVM',['total accuracy: ' num2str(modelAccuracy) ' (%)']};
 %% sleep model 10-fold loss
 ax6 = subplot(2,4,7);
-s1 = scatter(ones(1,length(data.physio.loss))*1,data.physio.loss,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('black'),'jitter','on','jitterAmount',0.25);
+s1 = scatter(ones(1,length(data.physio.loss))*1,data.physio.loss,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'),'jitter','on','jitterAmount',0.25);
 hold on
-e1 = errorbar(1,data.physio.meanLoss,data.physio.stdLoss,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e1 = errorbar(1,data.physio.meanLoss,data.physio.stdLoss,'d','MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'));
 e1.Color = 'black';
 e1.MarkerSize = 10;
 e1.CapSize = 10;
-s2 = scatter(ones(1,length(data.pupil.loss))*2,data.pupil.loss,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('sapphire'),'jitter','on','jitterAmount',0.25);
+s2 = scatter(ones(1,length(data.pupil.loss))*2,data.pupil.loss,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('sapphire'),'jitter','on','jitterAmount',0.25);
 hold on
-e2 = errorbar(2,data.pupil.meanLoss,data.pupil.stdLoss,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e2 = errorbar(2,data.pupil.meanLoss,data.pupil.stdLoss,'d','MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'));
 e2.Color = 'black';
 e2.MarkerSize = 10;
 e2.CapSize = 10;
@@ -415,17 +482,17 @@ if saveFigs == true
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
-    savefig(Fig6B,[dirpath 'Fig6B_JNeurosci2022']);
-    set(Fig6B,'PaperPositionMode','auto');
-    print('-vector','-dpdf','-fillpage',[dirpath 'Fig6B_JNeurosci2022'])
+    savefig(Fig5B,[dirpath 'Fig5B_JNeurosci2022']);
+    set(Fig5B,'PaperPositionMode','auto');
+    print('-vector','-dpdf','-fillpage',[dirpath 'Fig5B_JNeurosci2022'])
 end
 %% hypnogram for model comparison
-Fig6C = figure('Name','Figure Panel 6 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
+Fig5C = figure('Name','Figure Panel 5 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
 subplot(5,1,1)
 b1 = bar((1:length(trueAwake))*binTime,trueAwake,'FaceColor',colors('black'),'BarWidth',1);
 hold on
-b2 = bar((1:length(trueNREM))*binTime,trueNREM,'FaceColor',[0,0.4,0],'BarWidth',1);
-b3 = bar((1:length(trueREM))*binTime,trueREM,'FaceColor','m','BarWidth',1);
+b2 = bar((1:length(trueNREM))*binTime,trueNREM,'FaceColor',colors('cyan'),'BarWidth',1);
+b3 = bar((1:length(trueREM))*binTime,trueREM,'FaceColor',colors('candy apple red'),'BarWidth',1);
 title('True predictions');
 legend([b1,b2,b3],'Awake','NREM','REM')
 xlim([0,450])
@@ -459,7 +526,7 @@ axis off
 subplot(5,1,5)
 plot((1:length(Results_Example.filtPupilZDiameter))/Results_Example.dsFs,Results_Example.filtPupilZDiameter,'color',colors('black'));
 hold on;
-yline(exampleBoundary,'color','r')
+yline(exampleBoundary,'color',colors('custom green'),'LineWidth',2)
 ylabel('Diameter (z-units)');
 xlabel('Time (sec)')
 xlim([0,450])
@@ -470,32 +537,32 @@ if saveFigs == true
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
-    savefig(Fig6C,[dirpath 'Fig6C_JNeurosci2022']);
-    set(Fig6C,'PaperPositionMode','auto');
-    print('-vector','-dpdf','-fillpage',[dirpath 'Fig6C_JNeurosci2022'])
+    savefig(Fig5C,[dirpath 'Fig5C_JNeurosci2022']);
+    set(Fig5C,'PaperPositionMode','auto');
+    print('-vector','-dpdf','-fillpage',[dirpath 'Fig5C_JNeurosci2022'])
 end
 %%
-Fig6D = figure('Name','Figure Panel 6 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
+Fig5D = figure('Name','Figure Panel 5 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
 subplot(2,3,1);
-gscatter(Xodd.zDiameter,randn(length(Xodd.zDiameter),1),Yodd.behavState);
+gscatter(Xodd.zDiameter,randn(length(Xodd.zDiameter),1),Yodd.behavState,[colors('black');colors('royal purple')]);
 hold on;
-xline(exampleBoundary)
+xline(exampleBoundary,'color',colors('custom green'),'LineWidth',2)
 title('Single predictor, binary class SVM')
 xlabel('Diameter (z-units)')
+legend('Awake','Asleep','Decision boundary','Location','NorthEast')
 axis square
 set(gca,'YTickLabel',[]);
 set(gca,'box','off')
-%% 
+%%
 subplot(2,3,2)
-s1 = scatter(ones(1,length(data.pupil.zBoundary))*1,data.pupil.zBoundary,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('black'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.pupil.zBoundary))*1,data.pupil.zBoundary,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('custom green'),'jitter','on','jitterAmount',0.25);
 hold on
-e1 = errorbar(1,data.pupil.meanZBoundary,data.pupil.stdZBoundary,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e1 = errorbar(1,data.pupil.meanZBoundary,data.pupil.stdZBoundary,'d','MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'));
 e1.Color = 'black';
 e1.MarkerSize = 10;
 e1.CapSize = 10;
 title('SVM pupil hyperplane (z-units)')
 ylabel('Asleep diameter (z-units)')
-legend(s1,'Hyperplane decision','Location','NorthWest')
 set(gca,'xtick',[])
 set(gca,'xticklabel',[])
 axis square
@@ -505,28 +572,26 @@ set(gca,'box','off')
 ax6.TickLength = [0.03,0.03];
 %%
 subplot(2,3,3)
-s1 = scatter(ones(1,length(data.pupil.mBoundary))*1,data.pupil.mBoundary,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('black'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.pupil.mBoundary))*1,data.pupil.mBoundary,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('custom green'),'jitter','on','jitterAmount',0.25);
 hold on
-e1 = errorbar(1,data.pupil.meanMBoundary,data.pupil.stdMBoundary,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e1.Color = 'black';
+e1 = errorbar(1,data.pupil.meanMBoundary,data.pupil.stdMBoundary,'d','MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'));
+e1.Color = colors('black');
 e1.MarkerSize = 10;
 e1.CapSize = 10;
 title('SVM pupil hyperplane (mm)')
 ylabel('Asleep diameter (mm)')
-legend(s1,'Hyperplane decision','Location','NorthWest')
 set(gca,'xtick',[])
 set(gca,'xticklabel',[])
 axis square
 xlim([0,2])
-% ylim([0,0.2])
 set(gca,'box','off')
 ax6.TickLength = [0.03,0.03];
 %% ROC
 subplot(2,2,3)
 for aa = 1:length(data.pupil.rocX)
     hold on
-    plot(data.pupil.rocX{aa,1},data.pupil.rocY{aa,1},'k')
-    plot(data.pupil.rocOPTROCPT{aa,1}(1),data.pupil.rocOPTROCPT{aa,1}(2),'mo')
+    plot(data.pupil.rocX{aa,1},data.pupil.rocY{aa,1},'color',colors('black'))
+    plot(data.pupil.rocOPTROCPT{aa,1}(1),data.pupil.rocOPTROCPT{aa,1}(2),'o','color',colors('turquoise'))
 end
 xlabel('False positive rate')
 ylabel('True positive rate')
@@ -536,10 +601,10 @@ ylim([0,1.05])
 axis square
 %% ROC AUC
 subplot(2,2,4)
-scatter(ones(1,length(data.pupil.rocAUC))*1,data.pupil.rocAUC,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('black'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.pupil.rocAUC))*1,data.pupil.rocAUC,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('battleship grey'),'jitter','on','jitterAmount',0.25);
 hold on
-e1 = errorbar(1,data.pupil.rocMeanAUC,data.pupil.rocStdAUC,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e1.Color = 'black';
+e1 = errorbar(1,data.pupil.rocMeanAUC,data.pupil.rocStdAUC,'d','MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'));
+e1.Color = colors('black');
 e1.MarkerSize = 10;
 e1.CapSize = 10;
 title('ROC area under curve')
@@ -556,9 +621,9 @@ if saveFigs == true
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
-    savefig(Fig6D,[dirpath 'Fig6D_JNeurosci2022']);
-    set(Fig6D,'PaperPositionMode','auto');
-    print('-vector','-dpdf','-fillpage',[dirpath 'Fig6D_JNeurosci2022'])
+    savefig(Fig5D,[dirpath 'Fig5D_JNeurosci2022']);
+    set(Fig5D,'PaperPositionMode','auto');
+    print('-vector','-dpdf','-fillpage',[dirpath 'Fig5D_JNeurosci2022'])
 end
 
 end

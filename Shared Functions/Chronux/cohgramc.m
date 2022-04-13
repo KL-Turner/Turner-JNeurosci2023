@@ -1,4 +1,11 @@
-function [C,phi,S12,S1,S2,t,f,confC,phistd,Cerr]=cohgramc(data1,data2,movingwin,params)
+function [C,phi,S12,S1,S2,t,f,confC,phistd,Cerr] = cohgramc(data1,data2,movingwin,params)
+%________________________________________________________________________________________________________________________
+% Utilized in analysis by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
+%
+% Code unchanged with the exception of this title block for record keeping
+%________________________________________________________________________________________________________________________
 % Multi-taper time-frequency coherence,cross-spectrum and individual spectra - continuous processes
 %
 % Usage:

@@ -1,21 +1,21 @@
-function [] = AnalyzePhysiologicalSleepModelAccuracy_Pupil_Handler(rootFolder,delim,runFromStart)
+function [] = AnalyzePupilSleepModelAccuracy_Handler_JNeurosci2022(rootFolder,delim,runFromStart)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
-% Purpose: 
+% Purpose: Handler function for AnalyzePhysioSleepModelAccuracy_JNeurosci2022.mat
 %________________________________________________________________________________________________________________________
 
 % create or load results structure
 if runFromStart == true
-    Results_PhysioSleepModel = [];
+    Results_PupilSleepModel = [];
 elseif runFromStart == false
     % load existing results structure, if it exists
-    if exist('Results_PhysioSleepModel.mat','file') == 2
-        load('Results_PhysioSleepModel.mat','-mat')
+    if exist('Results_PupilSleepModel.mat','file') == 2
+        load('Results_PupilSleepModel.mat','-mat')
     else
-        Results_PhysioSleepModel = [];
+        Results_PupilSleepModel = [];
     end
 end
 % determine waitbar length
@@ -26,12 +26,12 @@ animalIDs = {folderList.name};
 waitBarLength = waitBarLength + length(animalIDs);
 % run analysis for each animal in the group
 aa = 1;
-multiWaitbar('Analyzing physio sleep model accuracy',0,'Color','P'); pause(0.25);
+multiWaitbar('Training pupil sleep models and validating accuracy',0,'Color','P'); pause(0.25);
 for bb = 1:length(animalIDs)
-    if isfield(Results_PhysioSleepModel,(animalIDs{1,bb})) == false
-        [Results_PhysioSleepModel] = AnalzyePhysiologicalSleepModelAccuracy_Pupil(animalIDs{1,bb},rootFolder,delim,Results_PhysioSleepModel);
+    if isfield(Results_PupilSleepModel,(animalIDs{1,bb})) == false
+        [Results_PupilSleepModel] = AnalyzePupilSleepModelAccuracy_JNeurosci2022(animalIDs{1,bb},rootFolder,delim,Results_PupilSleepModel);
     end
-    multiWaitbar('Analyzing physio sleep model accuracy','Value',aa/waitBarLength);
+    multiWaitbar('Training pupil sleep models and validating accuracy','Value',aa/waitBarLength);
     aa = aa + 1;
 end
 

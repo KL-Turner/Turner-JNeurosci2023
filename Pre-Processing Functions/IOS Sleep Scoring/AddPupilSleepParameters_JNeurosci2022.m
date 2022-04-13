@@ -4,14 +4,15 @@ function [] = AddPupilSleepParameters_JNeurosci2022(procDataFileIDs)
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
-%   Purpose: Organize data into appropriate bins for sleep scoring characterization
+% Purpose: Organize data into appropriate bins for sleep scoring characterization
 %________________________________________________________________________________________________________________________
 
 for a = 1:size(procDataFileIDs,1)
     procDataFileID = procDataFileIDs(a,:);
     load(procDataFileID)
+    % only apply to files with accurate diameter tracking
     if strcmp(ProcData.data.Pupil.diameterCheck,'y') == true
-        %% BLOCK PURPOSE: Create folder for the Neural data of each electrode
+        % create fields for the data
         dataTypes = {'pupilArea','diameter','mmArea','mmDiameter','zArea','zDiameter'};
         for aa = 1:length(dataTypes)
             dataType = dataTypes{1,aa};
@@ -19,7 +20,7 @@ for a = 1:size(procDataFileIDs,1)
             [z,p,k] = butter(4,1/(samplingRate/2),'low');
             [sos,g] = zp2sos(z,p,k);
             data.(dataType).data = filtfilt(sos,g,ProcData.data.Pupil.(dataType));
-            data.(dataType).struct = cell(180,1);           
+            data.(dataType).struct = cell(180,1);
             % loop through all samples across the 15 minutes in 5 second bins (180 total)
             for b = 1:180
                 if b == 1

@@ -1,4 +1,4 @@
-function [] = AnalyzePupilExample_Pupil_Handler(rootFolder,delim,runFromStart)
+function [] = AnalyzePupilExample_Handler_JNeurosci2022(rootFolder,delim,runFromStart)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -20,7 +20,7 @@ elseif runFromStart == false
 end
 % run analysis for each animal in the group
 if isempty(Results_Example) == true
-    AnalyzePupilExample_Pupil(rootFolder,delim,Results_Example);
+    AnalyzePupilExample_JNeurosci2022(rootFolder,delim,Results_Example);
 end
 
 end

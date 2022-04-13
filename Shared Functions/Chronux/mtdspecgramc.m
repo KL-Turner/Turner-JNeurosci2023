@@ -1,4 +1,11 @@
-function [dS,t,f]=mtdspecgramc(data,movingwin,phi,params)
+function [dS,t,f] = mtdspecgramc(data,movingwin,phi,params)
+%________________________________________________________________________________________________________________________
+% Utilized in analysis by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
+%
+% Code unchanged with the exception of this title block for record keeping
+%________________________________________________________________________________________________________________________
 % Multi-taper derivative of the time-frequency spectrum - continuous process
 %
 % Usage:

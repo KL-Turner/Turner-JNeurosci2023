@@ -5,8 +5,6 @@ function [tapers,pad,Fs,fpass,err,trialave,params] = getparams(params)
 % https://github.com/KL-Turner
 %
 % Code unchanged with the exception of this title block for record keeping
-%
-%   Last Opened: February 23rd, 2019
 %________________________________________________________________________________________________________________________
 %
 % Helper function to convert structure params to variables used by the

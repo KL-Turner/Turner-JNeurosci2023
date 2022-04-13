@@ -3,9 +3,8 @@ function [ScoringResults] = PredictBehaviorEvents_JNeurosci2022(animalID,startin
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose:
+% Purpose: Use trained model to predict arousal states on all files
 %________________________________________________________________________________________________________________________
 
 disp(['Predicting behavior events using ' modelName ' model']); disp(' ')

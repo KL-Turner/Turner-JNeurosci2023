@@ -1,4 +1,4 @@
-function [Results_PowerSpectrum] = AnalyzePowerSpectrum_Pupil(animalID,rootFolder,delim,Results_PowerSpectrum)
+function [Results_PowerSpectrum] = AnalyzePowerSpectrum_JNeurosci2022(animalID,rootFolder,delim,Results_PowerSpectrum)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

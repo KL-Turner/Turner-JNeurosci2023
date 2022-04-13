@@ -1,4 +1,4 @@
-function [] = AnalyzePupilAreaSleepProbability_Pupil_Handler(rootFolder,delim,runFromStart)
+function [] = AnalyzePupilAreaSleepProbability_Handler_JNeurosci2022(rootFolder,delim,runFromStart)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -23,7 +23,7 @@ folderList = folderList(~startsWith({folderList.name}, '.'));
 animalIDs = {folderList.name};
 % run analysis for each animal in the group
 if isempty(Results_SleepProbability) == true
-    AnalyzePupilAreaSleepProbability_Pupil(animalIDs,rootFolder,delim);
+    AnalyzePupilAreaSleepProbability_JNeurosci2022(animalIDs,rootFolder,delim);
 end
 
 end

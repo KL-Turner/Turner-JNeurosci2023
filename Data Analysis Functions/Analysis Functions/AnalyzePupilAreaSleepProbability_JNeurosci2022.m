@@ -1,4 +1,4 @@
-function [] = AnalyzePupilAreaSleepProbability_Pupil(animalIDs,rootFolder,delim)
+function [] = AnalyzePupilAreaSleepProbability_JNeurosci2022(animalIDs,rootFolder,delim)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

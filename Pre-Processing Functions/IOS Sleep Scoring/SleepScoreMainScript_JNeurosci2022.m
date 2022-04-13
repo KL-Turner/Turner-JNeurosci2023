@@ -3,18 +3,15 @@ function [] = SleepScoreMainScript_JNeurosci2022()
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
+zap;
 %
-% Purpose:
+% Purpose: Sleep score manual training files, training classification models, and create sleep data structure
 %________________________________________________________________________________________________________________________
 
-% Clear workspace/Load in file names for various analysis
-% zap;
 disp('Loading necessary file names...'); disp(' ')
 baselineType = 'manualSelection';
 startingDirectory = cd;
-%% Create training data set for each animal
-% cd to the animal's bilateral imaging folder to load the baseline structure
+% create training data set for each animal
 baselineDirectory = [startingDirectory '\Bilateral Imaging\'];
 cd(baselineDirectory)
 % load the baseline structure
@@ -41,7 +38,7 @@ UpdateTrainingDataSets_JNeurosci2022(procDataFileIDs)
 cd(startingDirectory)
 % Train Models - cycle through each data set and update any necessary parameters
 [animalID] = TrainSleepModels_JNeurosci2022;
-%% Sleep score an animal's data set and create a SleepData.mat structure for classification
+% sleep score an animal's data set and create a SleepData.mat structure for classification
 modelNames = {'SVM','Ensemble','Forest','Manual'};
 SleepData = [];
 % cd to the animal's bilateral imaging folder
@@ -67,12 +64,11 @@ for c = 1:length(modelNames)
     modelName = modelNames{1,c};
     [ScoringResults] = PredictBehaviorEvents_JNeurosci2022(animalID,startingDirectory,baselineDirectory,modelDataFileIDs,modelName);
     ApplySleepLogical_JNeurosci2022(startingDirectory,trainingDirectory,baselineDirectory,modelName,ScoringResults)
-    NREMsleepTime = 30;   % seconds
-    REMsleepTime = 60;   % seconds
+    NREMsleepTime = 30; % seconds
+    REMsleepTime = 60; % seconds
     [SleepData] = CreateSleepData_JNeurosci2022(startingDirectory,trainingDirectory,baselineDirectory,NREMsleepTime,REMsleepTime,modelName,SleepData);
 end
 cd(baselineDirectory)
 save([animalID '_SleepData.mat'],'SleepData')
 cd(startingDirectory)
-
 disp('Sleep Scoring analysis complete'); disp(' ')

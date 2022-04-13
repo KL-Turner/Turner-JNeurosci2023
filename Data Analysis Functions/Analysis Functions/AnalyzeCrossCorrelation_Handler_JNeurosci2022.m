@@ -1,4 +1,4 @@
-function [] = AnalyzeCrossCorrelation_Pupil_Handler(rootFolder,delim,runFromStart)
+function [] = AnalyzeCrossCorrelation_Handler_JNeurosci2022(rootFolder,delim,runFromStart)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering

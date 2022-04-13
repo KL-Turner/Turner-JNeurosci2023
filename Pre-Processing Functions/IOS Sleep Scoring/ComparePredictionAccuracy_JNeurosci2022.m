@@ -3,7 +3,6 @@ function [] = ComparePredictionAccuracy_JNeurosci2022()
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
 % Purpose: Train several machine learning techniques on manually scored sleep data, and evaluate each model's accuracy
 %________________________________________________________________________________________________________________________
