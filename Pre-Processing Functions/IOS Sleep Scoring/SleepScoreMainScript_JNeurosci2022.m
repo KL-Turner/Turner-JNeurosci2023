@@ -3,11 +3,11 @@ function [] = SleepScoreMainScript_JNeurosci2022()
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-zap;
 %
 % Purpose: Sleep score manual training files, training classification models, and create sleep data structure
 %________________________________________________________________________________________________________________________
 
+zap;
 disp('Loading necessary file names...'); disp(' ')
 baselineType = 'manualSelection';
 startingDirectory = cd;

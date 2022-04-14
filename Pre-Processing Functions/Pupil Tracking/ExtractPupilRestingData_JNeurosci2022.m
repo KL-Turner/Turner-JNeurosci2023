@@ -1,9 +1,10 @@
 function [RestData] = ExtractPupilRestingData_JNeurosci2022(procDataFileIDs,dataTypes)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
-% Ph.D. Candidate, Department of Bioengineering
-% The Pennsylvania State University
-%________________________________________________________________________________________________________________________
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
+%
+% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
 %
 % Purpose: Extracts all resting data periods from the data using behavioral flags
 %________________________________________________________________________________________________________________________
@@ -42,7 +43,7 @@ for aa = 1:length(dataTypes)
                 dur = round(trialDurations(d)*Fs);
                 % get ending index for data chunk. If event occurs at the end of
                 % the trial, assume animal whisks as soon as the trial ends and
-                % give a 200ms buffer.
+                % give a 200 ms buffer.
                 stopInd = min(startInd + dur,expectedLength - round(0.2*Fs));
                 try
                     % extract data from the trial and add to the cell array for the current loaded file
@@ -62,7 +63,7 @@ for aa = 1:length(dataTypes)
                 end
             end
             % add all periods of rest to a cell array for all files
-            restVals{zz,1} = trialRestVals'; %#ok<*AGROW>
+            restVals{zz,1} = trialRestVals';
             % transfer information about resting periods to the new structure
             eventTimes{zz,1} = trialEventTimes';
             durations{zz,1} = trialDurations';

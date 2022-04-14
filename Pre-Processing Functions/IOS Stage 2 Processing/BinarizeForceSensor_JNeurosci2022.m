@@ -5,9 +5,8 @@ function [binForceSensor] = BinarizeForceSensor_JNeurosci2022(forceSensor,thresh
 % https://github.com/KL-Turner
 %
 % Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Binarize the Force sensor with a given threshold.
+% Purpose: Binarize the Force sensor with a given threshold.
 %________________________________________________________________________________________________________________________
 
 y = hilbert(diff(forceSensor));

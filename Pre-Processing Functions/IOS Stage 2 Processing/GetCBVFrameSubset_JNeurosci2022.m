@@ -1,62 +1,34 @@
 function [imageStack] = GetCBVFrameSubset_JNeurosci2022(filename,imageHeight,imageWidth,frameInds)
-%___________________________________________________________________________________________________
+%________________________________________________________________________________________________________________________
 % Edited by Kevin L. Turner
-% Ph.D. Candidate, Department of Bioengineering 
-% The Pennsylvania State University
-%___________________________________________________________________________________________________
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
 %
-%   Author: Aaron Winder
-%   Affiliation: Engineering Science and Mechanics, Penn State University
-%   https://github.com/awinde
+% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
 %
-%   DESCRIPTION: Reads in camera images from a binary file with defined
-%   width and height and at defined positions in time.
-%   
-%_______________________________________________________________
-%   PARAMETERS: 
-%               filename - [string] the name of the binary file to read
-%               from
-%
-%               image_height - [double] the height of the image in pixels
-%
-%               image_width - [double] the width of the image in pixels
-%
-%               FrameInds - [array] the positions of the desired frames in
-%               time, as an index                       
-%_______________________________________________________________
-%   RETURN:                     
-%               ImageStack - [array] a 3D array of images                   
-%_______________________________________________________________
+% Purpse: Reads in camera images from a binary file with defined width and height and at defined positions in time.
+%________________________________________________________________________________________________________________________
 
-pixels_per_frame=imageWidth*imageHeight; % number to give to fread along with 16-bit pixel depth flag
-skipped_pixels = pixels_per_frame*2; % Multiply by two because there are 16 bits (2 bytes) per pixel
-NumFrames = length(frameInds);
-
-%open the file , get file size , back to the begining
-fid=fopen(filename);
-
-% Handle Error
+pixelsPerFrame = imageWidth*imageHeight; % number to give to fread along with 16-bit pixel depth flag
+skippedPixels = pixelsPerFrame*2; % multiply by two because there are 16 bits (2 bytes) per pixel
+numFrames = length(frameInds);
+% open the file, get file size, back to the begining
+fid = fopen(filename);
+% handle Error
 if fid == -1
-    error(wraptext(['Error. ReadDalsaBinary_Matrix: fopen.m cannot open '...
-        filename]))
+    error(wraptext(['Error. ReadDalsaBinary_Matrix: fopen.m cannot open ' filename]))
 end
-
-%preallocate memory
-imageStack = NaN*ones(imageHeight, imageWidth, NumFrames);
-
-% Loop over each frame
-t1 = tic;
-for n=1:NumFrames
-    fseek(fid,frameInds(n)*skipped_pixels,'bof');
-    z=fread(fid, pixels_per_frame,'*int16','b');
-    % Convert linear array into a 256x256x1 frame
-    img=reshape(z,imageHeight,imageWidth);
-    
-    % Orient the frame so that rostral is up
+% pre-allocate memory
+imageStack = NaN*ones(imageHeight,imageWidth,numFrames);
+% loop over each frame
+for n = 1:numFrames
+    fseek(fid,frameInds(n)*skippedPixels,'bof');
+    z = fread(fid,pixelsPerFrame,'*int16','b');
+    % convert linear array into a 256x256x1 frame
+    img = reshape(z,imageHeight,imageWidth);
+    % orient the frame so that rostral is up
     imageStack(:,:,n) = rot90(img',2);
 end
-elapsed = toc(t1);
-% wraptext(['GetCBVFrameSubset: Frames acquired in ' num2str(elapsed) ' seconds.'])
 fclose('all');
 
 end

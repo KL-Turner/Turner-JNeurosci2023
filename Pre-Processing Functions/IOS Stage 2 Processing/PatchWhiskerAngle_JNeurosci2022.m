@@ -3,15 +3,14 @@ function [patchedWhiskerAngle] = PatchWhiskerAngle_JNeurosci2022(whiskerAngle,fs
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: The whisker camera occasionally drops packets of frames. We can calculate the difference in the number
-%            of expected frames as well as the indeces that LabVIEW found the packets lost. This is a rough fix, as
-%            we are not sure the exact number of frames at each index, only the total number.
+% Purpose: The whisker camera occasionally drops packets of frames. We can calculate the difference in the number
+%          of expected frames as well as the indeces that LabVIEW found the packets lost. This is a rough fix, as
+%          we are not sure the exact number of frames at each index, only the total number.
 %________________________________________________________________________________________________________________________
 
 expectedFrames = expectedDuration_Sec*fs;
-droppedFrameIndex = str2num(droppedFrameIndex);
+droppedFrameIndex = str2double(droppedFrameIndex);
 % loop through each dropped frame and fix the missing value
 if ~isempty(droppedFrameIndex)
     for aa = 1:length(droppedFrameIndex)

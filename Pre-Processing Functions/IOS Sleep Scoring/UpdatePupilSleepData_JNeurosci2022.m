@@ -1,13 +1,13 @@
 function [] = UpdatePupilSleepData_JNeurosci2022(procDataFileIDs)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
-% Ph.D. Candidate, Department of Bioengineering
-% The Pennsylvania State University
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
 %
-%   Purpose: This function uses the sleep logicals in each ProcData file to find periods where there are 60 seconds of
-%            consecutive ones within the sleep logical (12 or more). If a ProcData file's sleep logical contains one or
-%            more of these 60 second periods, each of those bins is gathered from the data and put into the SleepEventData.mat
-%            struct along with the file's name.
+% Purpose: This function uses the sleep logicals in each ProcData file to find periods where there are 60 seconds of
+%          consecutive ones within the sleep logical (12 or more). If a ProcData file's sleep logical contains one or
+%          more of these 60 second periods, each of those bins is gathered from the data and put into the SleepEventData.mat
+%          struct along with the file's name.
 %________________________________________________________________________________________________________________________
 
 sleepDataFileStruct = dir('*_SleepData.mat');

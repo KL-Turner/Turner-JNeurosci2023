@@ -3,9 +3,8 @@ function [] = CorrectGCaMPattenuation_JNeurosci2022(procDataFileIDs,RestingBasel
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Converts reflectance values to changes in total hemoglobin using absorbance curves of hardware
+% Purpose: Converts reflectance values to changes in total hemoglobin using absorbance curves of hardware
 %________________________________________________________________________________________________________________________
 
 for aa = 1:size(procDataFileIDs,1)

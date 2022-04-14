@@ -5,15 +5,14 @@ function [] = ExtractGCaMPData_JNeurosci2022(ROIs,ROInames,rawDataFileIDs,procDa
 % https://github.com/KL-Turner
 %
 % Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Determine if each desired ROI is drawn, then go through each frame and extract the mean of valid pixels.
+% Purpose: Determine if each desired ROI is drawn, then go through each frame and extract the mean of valid pixels.
 %________________________________________________________________________________________________________________________
 
 for a = 1:size(rawDataFileIDs,1)
     rawDataFileID = rawDataFileIDs(a,:);
     procDataFileID = procDataFileIDs(a,:);
-    disp(['Analyzing IOS ROIs from ProcData file (' num2str(a) '/' num2str(size(rawDataFileIDs, 1)) ')']); disp(' ')
+    disp(['Analyzing IOS ROIs from ProcData file (' num2str(a) '/' num2str(size(rawDataFileIDs,1)) ')']); disp(' ')
     [animalID,fileDate,fileID] = GetFileInfo_JNeurosci2022(rawDataFileID);
     strDay = ConvertDate_JNeurosci2022(fileDate);
     load(rawDataFileID)

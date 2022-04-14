@@ -3,9 +3,8 @@ function [] = RunPupilTracker_JNeurosci2022(procDataFileIDs)
 % Written by Kyle W. Gheres & Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Track changes in pupil area and detect periods of blinking
+% Purpose: Track changes in pupil area and detect periods of blinking
 %________________________________________________________________________________________________________________________
 
 %% create/load pre-existing ROI file with the coordinates
@@ -367,7 +366,7 @@ for cc = 1:size(procDataFileIDs,1)
                                             inPupil(areaNum) = pupilBoundary(areaCentroid(2),areaCentroid(1),lastFrameOK); % determine if centroid of region was in previous pupil volume
                                         end
                                         theInds = find(inPupil == 1);
-                                        keepRegions = areaCorrect(theInds); % keep only regions within previous pupil measurements
+                                        keepRegions = areaCorrect(theInds); %#ok<FNDSB> % keep only regions within previous pupil measurements
                                         keepMask = zeros(size(fillCorrection,1),size(fillCorrection,2));
                                         for keepNum = 1:size(keepRegions,1)
                                             for pixNum = 1:size(keepRegions(keepNum).PixelList)
@@ -583,7 +582,6 @@ for cc = 1:size(procDataFileIDs,1)
         end
         % fill from start:ending edges of rapid pupil fluctuations that weren't NaN
         testPupilAreaB = ProcData.data.Pupil.patchedPupilAreaA;
-        patchLength = [];
         for aa = 1:length(startEdgeB)
             try
                 testPupilAreaB(startEdgeB(aa,1) - 2:endEdgeB(aa,1) + 2) = NaN;

@@ -5,12 +5,11 @@ function [procNeuro,neuroFs] = ProcessNeuro_JNeurosci2022(RawData,expectedLength
 % https://github.com/KL-Turner
 %
 % Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Bandpass filter the desired neural band.
+% Purpose: Bandpass filter the desired neural band.
 %________________________________________________________________________________________________________________________
 
-% Thresholds and Neurtype switch
+% thresholds and neurtype switch
 trimmedNeuro = RawData.data.(neuralFieldName)(1:min(expectedLength,length(RawData.data.(neuralFieldName))));
 analogFs = RawData.notes.analogSamplingRate;
 switch neurType
@@ -27,8 +26,7 @@ switch neurType
     case 'Delta'
         fpass = [1,4];
 end
-
-% CALCULATE NEURAL POWER
+% calculate neural power
 if ismember(neurType,[{'MUA'},{'Gam'},{'Beta'},{'Alpha'},{'Theta'},{'Delta'}])
     disp(['ProcessNeuro.m: Processing ' neuralFieldName ' ' neurType]); disp(' ')
     neuroFs = 30;

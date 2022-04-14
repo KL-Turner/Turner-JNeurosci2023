@@ -1,20 +1,19 @@
 function [RestingBaselines] = CalculatePixelBaselines_JNeurosci2022(procDataFileIDs,RestingBaselines,baselineType)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
-% Ph.D. Candidate, Department of Bioengineering
-% The Pennsylvania State University
-%________________________________________________________________________________________________________________________
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
 %
-%   Purpose: Uses the resting time indeces to extract the average resting power in each frequency bin during periods of
-%            rest to normalize the spectrogram data.
+% Purpose: Uses the resting time indeces to extract the average resting power in each frequency bin during periods of
+%          rest to normalize the spectrogram data.
 %________________________________________________________________________________________________________________________
 
-restFileList = unique(RestingBaselines.(baselineType).baselineFileInfo.fileIDs);      % Obtain the list of unique fileIDs
+restFileList = unique(RestingBaselines.(baselineType).baselineFileInfo.fileIDs); % obtain the list of unique fileIDs
 restPixels = cell(size(restFileList,1),1);
-% Obtain the spectrogram information from all the resting files
+% obtain the spectrogram information from all the resting files
 for a = 1:length(restFileList)
-    fileID = restFileList{a,1};   % FileID of currently loaded file
-    % Load in frames from current file
+    fileID = restFileList{a,1}; % fileID of currently loaded file
+    % load in frames from current file
     for b = 1:size(procDataFileIDs,1)
         procDataFileID = procDataFileIDs(b,:);
         [animalID,~,procDataFile] = GetFileInfo_JNeurosci2022(procDataFileID);
@@ -51,7 +50,7 @@ for c = 1:length(restFileList)
             catch
                 singleRestData = frameSet(:,:,end - restDuration:end);
             end
-            trialRestData = cat(3,singleRestData,trialRestData); %#ok<*AGROW>
+            trialRestData = cat(3,singleRestData,trialRestData);
         end
     end
     dayAvg = mean(trialRestData,3);

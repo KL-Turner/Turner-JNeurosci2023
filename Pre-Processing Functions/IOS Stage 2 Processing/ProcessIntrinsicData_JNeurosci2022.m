@@ -5,9 +5,8 @@ function [] = ProcessIntrinsicData_JNeurosci2022(animalID,imagingType,lensMag,ra
 % https://github.com/KL-Turner
 %
 % Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Base function to run the functions necessary for IOS data extraction from drawn ROIs over the images
+% Purpose: Base function to run the functions necessary for IOS data extraction from drawn ROIs over the images
 %________________________________________________________________________________________________________________________
 
 if strcmp(imagingType,'bilateral') == true
@@ -28,13 +27,13 @@ else
 end
 % check whether or not each ROI already exists
 [ROIs] = CheckROIDates_JNeurosci2022(animalID,ROIs,ROInames,imagingType,lensMag);
-% Extract CBV data from each ROI for each RawData file in the directory that hasn't been processed yet.
+% extract CBV data from each ROI for each RawData file in the directory that hasn't been processed yet.
 if strcmp(imagingType,'true') == false
     ExtractGCaMPData_JNeurosci2022(ROIs,ROInames,rawDataFileIDs,procDataFileIDs)
 else
     ExtractCBVData_JNeurosci2022(ROIs,ROInames,rawDataFileIDs)
 end
-% Go through each ProcData file and add the pixel data to each
+% go through each ProcData file and add the pixel data to each
 for a = 1:size(procDataFileIDs,1)
     disp(['Adding IOS CBV data to ProcData file (' num2str(a) '/' num2str(size(procDataFileIDs,1)) ')']); disp(' ')
     procDataFileID = procDataFileIDs(a,:);

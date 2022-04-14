@@ -1,10 +1,10 @@
-function [FiltArray] = FilterEvents_IOS(DataStruct, Criteria)
+function [FiltArray] = FilterEvents_JNeurosci2022(DataStruct,Criteria)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-% Adapted from code written by Aaron T. Winder
-%________________________________________________________________________________________________________________________
+%
+% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
 %
 % Purpose: Filters a data structure according to a set of user-defined criteria.
 %________________________________________________________________________________________________________________________
@@ -12,13 +12,11 @@ function [FiltArray] = FilterEvents_IOS(DataStruct, Criteria)
 FName = Criteria.Fieldname;
 Comp = Criteria.Comparison;
 Val = Criteria.Value;
-
 if length(FName)~=length(Comp)
     error(' ')
 elseif length(FName)~=length(Val)
     error(' ')
 end
-
 FiltArray = true(size(DataStruct.data,1),1);
 for FN = 1:length(FName)
     if ~isfield(DataStruct,FName{FN})

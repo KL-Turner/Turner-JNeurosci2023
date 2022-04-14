@@ -3,9 +3,8 @@ function [] = CreateTrialSpectrograms_JNeurosci2022(rawDataFiles,neuralDataTypes
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Analyzes the raw neural data from each RawData.mat file and calculates two different spectrograms.
+% Purpose: Analyzes the raw neural data from each RawData.mat file and calculates two different spectrograms.
 %________________________________________________________________________________________________________________________
 
 for aa = 1:size(rawDataFiles,1)
@@ -18,7 +17,7 @@ for aa = 1:size(rawDataFiles,1)
     % 5 second spectrograms with 1/5 second step size
     if ~exist(specDataFileIDA,'file') == true
         SpecData = [];
-        if exist('RawData') == false
+        if exist('RawData','file') == false
             load(rawDataFile);
             duration = RawData.notes.trialDuration_sec;
             analogFs = RawData.notes.analogSamplingRate;
@@ -31,7 +30,7 @@ for aa = 1:size(rawDataFiles,1)
                 rawNeuro = detrend(RawData.data.(neuralDataType)(1:expectedLength),'constant');
             catch
                 sampleDiff = expectedLength - length(RawData.data.(neuralDataType));
-                rawNeuro = detrend(horzcat(RawData.data.(neuralDataType), RawData.data.(neuralDataType)(end)*ones(1,sampleDiff)),'constant');
+                rawNeuro = detrend(horzcat(RawData.data.(neuralDataType),RawData.data.(neuralDataType)(end)*ones(1,sampleDiff)),'constant');
             end
             % 60 Hz notch filter
             %  w0 = 60/(analogFs/2);
@@ -44,7 +43,7 @@ for aa = 1:size(rawDataFiles,1)
             params.fpass = [1,100];
             movingwin = [5,1/5];
             % analyze each spectrogram based on parameters
-            disp(['Creating ' neuralDataType ' spectrogram for file number ' num2str(aa) ' of ' num2str(size(rawDataFiles, 1)) '...']); disp(' ')
+            disp(['Creating ' neuralDataType ' spectrogram for file number ' num2str(aa) ' of ' num2str(size(rawDataFiles,1)) '...']); disp(' ')
             [S,T,F] = mtspecgramc(rawNeuro,movingwin,params);
             % save data ins tructure
             SpecData.(neuralDataType).S = S';
@@ -61,7 +60,7 @@ for aa = 1:size(rawDataFiles,1)
     % 1 second spectrograms with 1/10 Hz step size
     if ~exist(specDataFileIDB,'file') == true
         SpecData = [];
-        if exist('RawData') == false
+        if exist('RawData','file') == false
             load(rawDataFile);
             duration = RawData.notes.trialDuration_sec;
             analogFs = RawData.notes.analogSamplingRate;
@@ -74,7 +73,7 @@ for aa = 1:size(rawDataFiles,1)
                 rawNeuro = detrend(RawData.data.(neuralDataType)(1:expectedLength),'constant');
             catch
                 sampleDiff = expectedLength - length(RawData.data.(neuralDataType));
-                rawNeuro = detrend(horzcat(RawData.data.(neuralDataType), RawData.data.(neuralDataType)(end)*ones(1,sampleDiff)),'constant');
+                rawNeuro = detrend(horzcat(RawData.data.(neuralDataType),RawData.data.(neuralDataType)(end)*ones(1,sampleDiff)),'constant');
             end
             % 60 Hz notch filter
             %  w0 = 60/(analogFs/2);
@@ -87,7 +86,7 @@ for aa = 1:size(rawDataFiles,1)
             params.fpass = [1,100];
             movingwin = [1,1/10];
             % analyze each spectrogram based on parameters
-            disp(['Creating ' neuralDataType ' spectrogram for file number ' num2str(aa) ' of ' num2str(size(rawDataFiles, 1)) '...']); disp(' ')
+            disp(['Creating ' neuralDataType ' spectrogram for file number ' num2str(aa) ' of ' num2str(size(rawDataFiles,1)) '...']); disp(' ')
             [S,T,F] = mtspecgramc(rawNeuro,movingwin,params);
             % save data ins tructure
             SpecData.(neuralDataType).S = S';
@@ -103,7 +102,7 @@ for aa = 1:size(rawDataFiles,1)
     % 1 second spectrograms with 1/30 Hz step size
     if ~exist(specDataFileIDC,'file') == true
         SpecData = [];
-        if exist('RawData') == false
+        if exist('RawData','file') == false
             load(rawDataFile);
             duration = RawData.notes.trialDuration_sec;
             analogFs = RawData.notes.analogSamplingRate;
@@ -116,7 +115,7 @@ for aa = 1:size(rawDataFiles,1)
                 rawNeuro = detrend(RawData.data.(neuralDataType)(1:expectedLength),'constant');
             catch
                 sampleDiff = expectedLength - length(RawData.data.(neuralDataType));
-                rawNeuro = detrend(horzcat(RawData.data.(neuralDataType), RawData.data.(neuralDataType)(end)*ones(1,sampleDiff)),'constant');
+                rawNeuro = detrend(horzcat(RawData.data.(neuralDataType),RawData.data.(neuralDataType)(end)*ones(1,sampleDiff)),'constant');
             end
             % 60 Hz notch filter
             %  w0 = 60/(analogFs/2);
@@ -129,7 +128,7 @@ for aa = 1:size(rawDataFiles,1)
             params.fpass = [1,100];
             movingwin = [1,1/30];
             % analyze each spectrogram based on parameters
-            disp(['Creating ' neuralDataType ' spectrogram for file number ' num2str(aa) ' of ' num2str(size(rawDataFiles, 1)) '...']); disp(' ')
+            disp(['Creating ' neuralDataType ' spectrogram for file number ' num2str(aa) ' of ' num2str(size(rawDataFiles,1)) '...']); disp(' ')
             [S,T,F] = mtspecgramc(rawNeuro,movingwin,params);
             % save data ins tructure
             SpecData.(neuralDataType).S = S';

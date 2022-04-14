@@ -4,9 +4,7 @@ function [ROIs] = PlaceGCaMP_ROIs_JNeurosci2022(animalID,fileID,ROIs,imagingType
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
-%________________________________________________________________________________________________________________________
-%
-%   Purpose: Analyze the cross-correlation between gamma-band power and each pixel to properly place a circular 1 mm ROI
+% Purpose: Analyze the cross-correlation between gamma-band power and each pixel to properly place a circular 1 mm ROI
 %________________________________________________________________________________________________________________________
 
 strDay = ConvertDate_JNeurosci2022(fileID);
@@ -14,10 +12,11 @@ fileDate = fileID(1:6);
 % determine which ROIs to draw based on imaging type
 hem = {'LH','RH'};
 % extract the pixel values from the window ROIs
-% Character list of all ProcData files
+% character list of all ProcData files
 procDataFileStruct = dir('*_ProcData.mat');
 procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
+% character list of all WindowCam files
 windowDataFileStruct = dir('*_WindowCam.bin');
 windowDataFiles = {windowDataFileStruct.name}';
 windowDataFileIDs = char(windowDataFiles);
@@ -44,7 +43,7 @@ for qq = 1:size(procDataFileList,1)
     fseek(fid,0,'bof');
     % identify the number of frames to read. Each frame has a previously defined width and height (as inputs), along with a grayscale "depth" of 2"
     nFramesToRead = 10;
-    % preallocate memory
+    % pre-allocate memory
     frames = cell(1,nFramesToRead);
     for n = 1:nFramesToRead
         z = fread(fid,pixelsPerFrame,'*int16','b');
@@ -96,7 +95,7 @@ for qq = 1:size(procDataFileList,1)
 end
 % determine the proper size of the ROI based on camera/lens magnification
 if strcmpi(lensMag,'0.75X') == true
-    circRadius = 7.5;   % pixels to be 1 mm in diameter
+    circRadius = 7.5; % pixels to be 1 mm in diameter
 elseif strcmpi(lensMag,'1.0X') == true
     circRadius = 10;
 elseif strcmpi(lensMag,'1.5X') == true
@@ -110,7 +109,7 @@ elseif strcmpi(lensMag,'3.0X') == true
 end
 if imageWidth == 128
     % determine the proper size of the ROI based on camera/lens magnification
-    circRadius = circRadius/2;   % pixels to be 1 mm in diameter
+    circRadius = circRadius/2; % pixels to be 1 mm in diameter
 end
 % place circle along the most correlation region of each hemisphere
 for f = 1:length(hem)

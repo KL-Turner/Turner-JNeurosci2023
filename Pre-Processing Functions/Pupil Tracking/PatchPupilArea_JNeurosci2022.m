@@ -3,15 +3,14 @@ function [] = PatchPupilArea_JNeurosci2022(procDataFileID)
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: The pupil camera occasionally drops packets of frames. We can calculate the difference in the number
-%            of expected frames as well as the indeces that LabVIEW found the packets lost.
+% Purpose: The pupil camera occasionally drops packets of frames. We can calculate the difference in the number
+%          of expected frames as well as the indeces that LabVIEW found the packets lost.
 %________________________________________________________________________________________________________________________
 
 load(procDataFileID)
-if isfield(ProcData.data.Pupil,'pupilPatch') == false %#ok<NODEF>
-    [animalID,~,fileID] = GetFileInfo_IOS(procDataFileID);
+if isfield(ProcData.data.Pupil,'pupilPatch') == false
+    [animalID,~,fileID] = GetFileInfo_JNeurosci2022(procDataFileID);
     % expected number of frames based on trial duration and sampling rate
     expectedSamples = ProcData.notes.trialDuration_sec*ProcData.notes.pupilCamSamplingRate;
     droppedFrameIndex = str2num(ProcData.notes.droppedPupilCamFrameIndex); %#ok<ST2NM>

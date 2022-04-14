@@ -3,15 +3,12 @@ function [] = zScorePupilData_JNeurosci2022(procDataFileID,RestingBaselines)
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Manually check pupil diameter
+% Purpose: Convert pupil diameter to z-units
 %________________________________________________________________________________________________________________________
 
 load(procDataFileID);
-% if isfield(ProcData.data.Pupil,'zDiameter') == false %#ok<NODEF>
 [~,fileDate,~] = GetFileInfo_JNeurosci2022(procDataFileID);
-% if strcmp(ProcData.data.Pupil.diameterCheck,'y') == true
 strDay = ConvertDate_JNeurosci2022(fileDate);
 try
     areaMean = RestingBaselines.manualSelection.Pupil.mmArea.(strDay).mean;
@@ -26,7 +23,5 @@ catch
     ProcData.data.Pupil.diameterCheck = 'n';
 end
 save(procDataFileID,'ProcData')
-% end
-% end
 
 end

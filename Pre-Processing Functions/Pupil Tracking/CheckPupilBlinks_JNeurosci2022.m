@@ -3,9 +3,8 @@ function [] = CheckPupilBlinks_JNeurosci2022(procDataFileID)
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Track pupil diameter and blinking
+% Purpose: Manually verify blinking indeces
 %________________________________________________________________________________________________________________________
 
 ROIFileDir = dir('*_PupilData.mat');
@@ -13,7 +12,7 @@ ROIFileName = {ROIFileDir.name}';
 ROIFileID = char(ROIFileName);
 load(ROIFileID);
 load(procDataFileID)
-if strcmp(ProcData.data.Pupil.frameCheck,'y') == true %#ok<NODEF>
+if strcmp(ProcData.data.Pupil.frameCheck,'y') == true
     if isfield(ProcData.data.Pupil,'blinkCheckComplete') == false || strcmp(ProcData.data.Pupil.blinkCheckComplete,'n') == true
         % load files and extract video information
         [~,fileDate,fileID] = GetFileInfo_JNeurosci2022(procDataFileID);

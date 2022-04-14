@@ -3,9 +3,8 @@ function [data] = FuncRunPupilTracker_JNeurosci2022(procDataFileID)
 % Written by Kyle W. Gheres & Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Track changes in pupil area and detect periods of blinking
+% Purpose: Track changes in pupil area and detect periods of blinking
 %________________________________________________________________________________________________________________________
 
 load(procDataFileID)

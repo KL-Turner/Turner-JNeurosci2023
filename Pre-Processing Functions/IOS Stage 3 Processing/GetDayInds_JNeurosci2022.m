@@ -1,23 +1,22 @@
-function [day_inds,day_logic] = GetDayInds_JNeurosci2022(DateList,Ind_Day)
-%___________________________________________________________________________________________________
-% Edited by Kevin L. Turner 
-% Ph.D. Candidate, Department of Bioengineering 
-% The Pennsylvania State University
-%
-% Originally written by Aaron T. Winder
+function [dayInds,dayLogic] = GetDayInds_JNeurosci2022(DateList,Ind_Day)
 %________________________________________________________________________________________________________________________
+% Written by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
 %
-%   Purpose: Gets the indeces of each unique day in a file list
+% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
+%
+% Purpose: Gets the indeces of each unique day in a file list
 %________________________________________________________________________________________________________________________
 
-% Process the list for format
-% Tramspose into row vector if needed
+% process the list for format
+% transpose into row vector if needed
 if size(DateList,1)>size(DateList,2)
     temp = DateList';
     DateList = temp;
     clear temp;
 end
-% Convert from cell if needed
+% convert from cell if needed
 if iscell(DateList)
     temp = reshape(cell2mat(DateList),length(DateList{1}),length(DateList))';
     DateList = temp;
@@ -33,10 +32,10 @@ elseif length(filebreaks) == 6
 else
     error('Format of the list of dates not recognized...')
 end
-% Convert the fileid list into a searchable form
+% convert the fileid list into a searchable form
 listdays = mat2cell(AllDates,ones(1,size(AllDates,1)));
-% Search for matching inds
-day_logic = strcmp(listdays,Ind_Day);
-day_inds = find(day_logic);
+% search for matching inds
+dayLogic = strcmp(listdays,Ind_Day);
+dayInds = find(dayLogic);
 
 end

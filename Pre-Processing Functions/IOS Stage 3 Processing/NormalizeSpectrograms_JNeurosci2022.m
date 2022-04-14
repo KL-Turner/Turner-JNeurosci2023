@@ -3,7 +3,6 @@ function [SpecData] = NormalizeSpectrograms_JNeurosci2022(neuralDataTypes,Restin
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
 % Purpose: Normalizes each spectrogram by the resting baseline for that day.
 %________________________________________________________________________________________________________________________
@@ -20,8 +19,8 @@ for aa = 1:size(specDataFileIDs,1)
     for bb = 1:length(neuralDataTypes)
         neuralDataType = neuralDataTypes{1,bb};
         baseLine = RestingBaselines.Spectrograms.(neuralDataType).fiveSecA.(strDay);
-        S = SpecData.(neuralDataType).S;       
-        holdMatrix = baseLine.*ones(size(S));       
+        S = SpecData.(neuralDataType).S;
+        holdMatrix = baseLine.*ones(size(S));
         SpecData.(neuralDataType).normS = (S - holdMatrix)./holdMatrix;
     end
     save(specDataFileIDs(aa,:),'SpecData')
@@ -38,8 +37,8 @@ for cc = 1:size(specDataFileIDs,1)
     for dd = 1:length(neuralDataTypes)
         neuralDataType = neuralDataTypes{1,dd};
         baseLine = RestingBaselines.Spectrograms.(neuralDataType).oneSecB.(strDay);
-        S = SpecData.(neuralDataType).S;       
-        holdMatrix = baseLine.*ones(size(S));       
+        S = SpecData.(neuralDataType).S;
+        holdMatrix = baseLine.*ones(size(S));
         SpecData.(neuralDataType).normS = (S - holdMatrix)./holdMatrix;
     end
     save(specDataFileIDs(cc,:),'SpecData')
@@ -56,8 +55,8 @@ for ee = 1:size(specDataFileIDs,1)
     for ff = 1:length(neuralDataTypes)
         neuralDataType = neuralDataTypes{1,ff};
         baseLine = RestingBaselines.Spectrograms.(neuralDataType).oneSecC.(strDay);
-        S = SpecData.(neuralDataType).S;       
-        holdMatrix = baseLine.*ones(size(S));       
+        S = SpecData.(neuralDataType).S;
+        holdMatrix = baseLine.*ones(size(S));
         SpecData.(neuralDataType).normS = (S - holdMatrix)./holdMatrix;
     end
     save(specDataFileIDs(ee,:),'SpecData')

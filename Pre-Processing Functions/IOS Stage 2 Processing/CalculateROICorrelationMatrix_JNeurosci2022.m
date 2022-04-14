@@ -4,9 +4,7 @@ function [ROIs] = CalculateROICorrelationMatrix_JNeurosci2022(animalID,strDay,fi
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
-%________________________________________________________________________________________________________________________
-%
-%   Purpose: Analyze the cross-correlation between gamma-band power and each pixel to properly place a circular 1 mm ROI
+% Purpose: Analyze the cross-correlation between gamma-band power and each pixel to properly place a circular 1 mm ROI
 %________________________________________________________________________________________________________________________
 
 % pull file information and camera frames
@@ -25,9 +23,8 @@ ylabel('Image size (pixels)')
 colormap gray
 colorbar
 axis image
-caxis([0 2^RawData.notes.CBVCamBitDepth])
+caxis([0,2^RawData.notes.CBVCamBitDepth])
 set(gca,'Ticklength',[0,0])
-
 % determine which ROIs to draw based on imaging type
 if strcmp(imagingType,'bilateral') == true
     hem = {'LH','RH'};
@@ -52,10 +49,11 @@ for a = 1:length(hem)
 end
 close(windowFig)
 % extract the pixel values from the window ROIs
-% Character list of all ProcData files
+% character list of all ProcData files
 procDataFileStruct = dir('*_ProcData.mat');
 procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
+% character list of all WindowCam files
 windowDataFileStruct = dir('*_WindowCam.bin');
 windowDataFiles = {windowDataFileStruct.name}';
 windowDataFileIDs = char(windowDataFiles);
@@ -137,13 +135,13 @@ if strcmp(lensMag,'0.75X') == true
 elseif strcmp(lensMag,'1.0X') == true
     circRadius = 10;
 elseif strcmp(lensMag,'1.5X') == true
-        circRadius = 15;
+    circRadius = 15;
 elseif strcmp(lensMag,'2.0X') == true
-        circRadius = 20;
+    circRadius = 20;
 elseif strcmp(lensMag,'2.5X') == true
-        circRadius = 25;
+    circRadius = 25;
 elseif strcmp(lensMag,'3.0X') == true
-        circRadius = 30;
+    circRadius = 30;
 end
 % place circle along the most correlation region of each hemisphere
 for f = 1:length(hem)

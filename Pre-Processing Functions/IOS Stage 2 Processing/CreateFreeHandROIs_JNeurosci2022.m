@@ -5,9 +5,8 @@ function [ROIs] = CreateFreeHandROIs_JNeurosci2022(img,ROIname,animalID,ROIs)
 % https://github.com/KL-Turner
 %
 % Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Draw free-hand ROIs, typically over the cement for drift correction
+% Purpose: Draw free-hand ROIs, typically over the cement for drift correction
 %________________________________________________________________________________________________________________________
 
 % create figure of the image frame

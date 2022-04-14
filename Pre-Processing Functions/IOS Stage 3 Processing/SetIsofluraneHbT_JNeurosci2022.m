@@ -3,7 +3,6 @@ function [] = SetIsofluraneHbT_JNeurosci2022()
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
 % Purpose: Converts reflectance values to changes in total hemoglobin using absorbance curves of hardware
 %________________________________________________________________________________________________________________________
@@ -30,7 +29,7 @@ binWhiskers = ProcData.data.binWhiskerAngle;
 % force sensor
 filtForceSensor = filtfilt(sos1,g1,ProcData.data.forceSensor);
 binForce = ProcData.data.binForceSensor;
-% emg
+% EMG
 EMG = ProcData.data.EMG.emg;
 % heart rate
 heartRate = ProcData.data.heartRate;
@@ -79,7 +78,6 @@ for x = 1:length(whiskInds)
         forceInds(1,x) = NaN;
     end
 end
-
 %% Figure
 figHandle = figure;
 % force sensor and EMG
@@ -97,7 +95,7 @@ set(gca,'TickLength',[0,0])
 set(gca,'Xticklabel',[])
 set(gca,'box','off')
 axis tight
-% Whisker angle and heart rate
+% whisker angle and heart rate
 ax2 = subplot(6,1,2);
 plot((1:length(filteredWhiskerAngle))/ProcData.notes.dsFs,-filteredWhiskerAngle,'color',colors('blue-green'),'LineWidth',1)
 ylabel('Angle (deg)')
@@ -127,7 +125,7 @@ set(gca,'TickLength',[0,0])
 set(gca,'Xticklabel',[])
 set(gca,'box','off')
 axis tight
-% Left cortical electrode spectrogram
+% left cortical electrode spectrogram
 ax4 = subplot(6,1,4);
 Semilog_ImageSC(T,F,cortical_LHnormS,'y')
 axis xy
@@ -142,8 +140,8 @@ set(gca,'Xticklabel',[])
 set(gca,'box','off')
 yyaxis right
 ylabel('Left cortical LFP')
-set(gca,'Yticklabel', [])
-% Right cortical electrode spectrogram
+set(gca,'Yticklabel',[])
+% right cortical electrode spectrogram
 ax5 = subplot(6,1,5);
 Semilog_ImageSC(T,F,cortical_RHnormS,'y')
 axis xy
@@ -159,7 +157,7 @@ set(gca,'box','off')
 yyaxis right
 ylabel('Right cortical LFP')
 set(gca,'Yticklabel',[])
-% Hippocampal electrode spectrogram
+% hippocampal electrode spectrogram
 ax6 = subplot(6,1,6);
 Semilog_ImageSC(T,F,hippocampusNormS,'y')
 c6 = colorbar;
@@ -173,7 +171,7 @@ set(gca,'box','off')
 yyaxis right
 ylabel('Hippocampal LFP')
 set(gca,'Yticklabel',[])
-% Axes properties
+% axes properties
 linkaxes([ax1,ax2,ax3,ax4,ax5,ax6],'x')
 ax1Pos = get(ax1,'position');
 ax4Pos = get(ax4,'position');
@@ -185,7 +183,6 @@ ax6Pos(3:4) = ax1Pos(3:4);
 set(ax4,'position',ax4Pos);
 set(ax5,'position',ax5Pos);
 set(ax6,'position',ax6Pos);
-
 %% set awake period
 startTime = input('Enter awake start time (s): '); disp(' ')
 endTime = input('Enter awake end time (s): '); disp(' ')
@@ -205,7 +202,6 @@ ProcData.data.CBV.normAdjRH = reflNormRH_CBV;
 reflFiltRH_CBV = (filtfilt(sos2,g2,reflNormRH_CBV))*100;
 ProcData.data.CBV_HbT.adjRH = (log(ProcData.data.CBV.adjRH/RH_baseline))*weightedcoeffHbT*conv2um;
 save(procDataFileID,'ProcData')
-
 %% new reflectance figure
 % Yvals for behavior Indices
 if max(reflFiltLH_CBV) >= max(reflFiltRH_CBV)
@@ -250,7 +246,7 @@ set(gca,'TickLength',[0,0])
 set(gca,'Xticklabel',[])
 set(gca,'box','off')
 axis tight
-% Whisker angle and heart rate
+% whisker angle and heart rate
 ax2 = subplot(6,1,2);
 plot((1:length(filteredWhiskerAngle))/ProcData.notes.dsFs,-filteredWhiskerAngle,'color',colors('blue-green'),'LineWidth',1)
 ylabel('Angle (deg)')
@@ -280,7 +276,7 @@ set(gca,'TickLength',[0,0])
 set(gca,'Xticklabel',[])
 set(gca,'box','off')
 axis tight
-% Left cortical electrode spectrogram
+% left cortical electrode spectrogram
 ax4 = subplot(6,1,4);
 Semilog_ImageSC(T,F,cortical_LHnormS,'y')
 axis xy
@@ -295,8 +291,8 @@ set(gca,'Xticklabel',[])
 set(gca,'box','off')
 yyaxis right
 ylabel('Left cortical LFP')
-set(gca,'Yticklabel', [])
-% Right cortical electrode spectrogram
+set(gca,'Yticklabel',[])
+% right cortical electrode spectrogram
 ax5 = subplot(6,1,5);
 Semilog_ImageSC(T,F,cortical_RHnormS,'y')
 axis xy
@@ -312,7 +308,7 @@ set(gca,'box','off')
 yyaxis right
 ylabel('Right cortical LFP')
 set(gca,'Yticklabel',[])
-% Hippocampal electrode spectrogram
+% hippocampal electrode spectrogram
 ax6 = subplot(6,1,6);
 Semilog_ImageSC(T,F,hippocampusNormS,'y')
 c6 = colorbar;
@@ -326,7 +322,7 @@ set(gca,'box','off')
 yyaxis right
 ylabel('Hippocampal LFP')
 set(gca,'Yticklabel',[])
-% Axes properties
+% xes properties
 linkaxes([ax1,ax2,ax3,ax4,ax5,ax6],'x')
 ax1Pos = get(ax1,'position');
 ax4Pos = get(ax4,'position');
@@ -339,7 +335,6 @@ set(ax4,'position',ax4Pos);
 set(ax5,'position',ax5Pos);
 set(ax6,'position',ax6Pos);
 savefig(figHandle,[animalID '_' fileID '_reflectance_SingleTrialFig']);
-
 %% new HbT figure
 % Yvals for behavior Indices
 if max(ProcData.data.CBV_HbT.adjLH) >= max(ProcData.data.CBV_HbT.adjRH)
@@ -367,7 +362,6 @@ for x = 1:length(whiskInds)
         forceInds(1,x) = NaN;
     end
 end
-
 % Figure
 figHandle = figure;
 % force sensor and EMG
@@ -385,7 +379,7 @@ set(gca,'TickLength',[0,0])
 set(gca,'Xticklabel',[])
 set(gca,'box','off')
 axis tight
-% Whisker angle and heart rate
+% whisker angle and heart rate
 ax2 = subplot(6,1,2);
 plot((1:length(filteredWhiskerAngle))/ProcData.notes.dsFs,-filteredWhiskerAngle,'color',colors('blue-green'),'LineWidth',1)
 ylabel('Angle (deg)')
@@ -415,7 +409,7 @@ set(gca,'TickLength',[0,0])
 set(gca,'Xticklabel',[])
 set(gca,'box','off')
 axis tight
-% Left cortical electrode spectrogram
+% left cortical electrode spectrogram
 ax4 = subplot(6,1,4);
 Semilog_ImageSC(T,F,cortical_LHnormS,'y')
 axis xy
@@ -430,8 +424,8 @@ set(gca,'Xticklabel',[])
 set(gca,'box','off')
 yyaxis right
 ylabel('Left cortical LFP')
-set(gca,'Yticklabel', [])
-% Right cortical electrode spectrogram
+set(gca,'Yticklabel',[])
+% right cortical electrode spectrogram
 ax5 = subplot(6,1,5);
 Semilog_ImageSC(T,F,cortical_RHnormS,'y')
 axis xy
@@ -447,7 +441,7 @@ set(gca,'box','off')
 yyaxis right
 ylabel('Right cortical LFP')
 set(gca,'Yticklabel',[])
-% Hippocampal electrode spectrogram
+% hippocampal electrode spectrogram
 ax6 = subplot(6,1,6);
 Semilog_ImageSC(T,F,hippocampusNormS,'y')
 c6 = colorbar;
@@ -461,7 +455,7 @@ set(gca,'box','off')
 yyaxis right
 ylabel('Hippocampal LFP')
 set(gca,'Yticklabel',[])
-% Axes properties
+% axes properties
 linkaxes([ax1,ax2,ax3,ax4,ax5,ax6],'x')
 ax1Pos = get(ax1,'position');
 ax4Pos = get(ax4,'position');

@@ -3,22 +3,21 @@ function [RestingBaselines] = CalculateSpectrogramBaselines_JNeurosci2022(animal
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Uses the resting time indeces to extract the average resting power in each frequency bin during periods of
-%            rest to normalize the spectrogram data.
+% Purpose: Uses the resting time indeces to extract the average resting power in each frequency bin during periods of
+%          rest to normalize the spectrogram data.
 %________________________________________________________________________________________________________________________
 
 for a = 1:length(neuralDataTypes)
     neuralDataType = neuralDataTypes{1,a};
-    restFileList = unique(RestingBaselines.(baselineType).baselineFileInfo.fileIDs);      % Obtain the list of unique fileIDs
+    restFileList = unique(RestingBaselines.(baselineType).baselineFileInfo.fileIDs); % obtain the list of unique fileIDs
     restS1C = cell(size(restFileList,1),1);
     restS1B = cell(size(restFileList,1),1);
     restS5A = cell(size(restFileList,1),1);
-    % Obtain the spectrogram information from all the resting files
+    % obtain the spectrogram information from all the resting files
     for b = 1:length(restFileList)
         fileID = restFileList{b,1};   % FileID of currently loaded file
-        % Load in neural data from current file
+        % load in neural data from current file
         clear SpecData
         specDataFileIDA = [animal '_' fileID '_SpecDataA.mat'];
         load(specDataFileIDA,'-mat')
@@ -94,11 +93,11 @@ for a = 1:length(neuralDataTypes)
         trialRestData.([strDay '_' fileID]).fiveSecA.S_avg = S_trialAvg5A;
     end
     fields = fieldnames(trialRestData);
-    uniqueDays = GetUniqueDays_JNeurosci2022(RestingBaselines.(baselineType).baselineFileInfo.fileIDs);   
+    uniqueDays = GetUniqueDays_JNeurosci2022(RestingBaselines.(baselineType).baselineFileInfo.fileIDs);
     for f = 1:length(uniqueDays)
         g = 1;
         for field = 1:length(fields)
-            if strcmp(fields{field}(7:12), uniqueDays{f})
+            if strcmp(fields{field}(7:12),uniqueDays{f})
                 stringDay = ConvertDate_JNeurosci2022(uniqueDays{f});
                 S_avgs.oneSecC.(stringDay){g,1} = trialRestData.(fields{field}).oneSecC.S_avg;
                 S_avgs.oneSecB.(stringDay){g,1} = trialRestData.(fields{field}).oneSecB.S_avg;
@@ -106,7 +105,7 @@ for a = 1:length(neuralDataTypes)
                 g = g + 1;
             end
         end
-    end   
+    end
     dayFields = fieldnames(S_avgs.oneSecC);
     for h = 1:length(dayFields)
         dayVals1C = [];

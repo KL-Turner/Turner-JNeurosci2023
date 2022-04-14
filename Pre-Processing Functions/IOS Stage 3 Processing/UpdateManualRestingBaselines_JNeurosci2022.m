@@ -1,16 +1,15 @@
-function [RestingBaselines] = CalculateManualRestingBaselinesTimeIndeces_JNeurosci2022(imagingType,hemoType)
+function [RestingBaselines] = UpdateManualRestingBaselines_JNeurosci2022(imagingType,hemoType)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Manually designate files with event times that correspond to appropriate rest
+% Purpose: Manually designate files with event times that correspond to appropriate rest
 %________________________________________________________________________________________________________________________
 
 disp('Calculating the resting baselines using manually selected files each unique day...'); disp(' ')
 % character list of all ProcData files
-procDataFileStruct = dir('*_ProcData.mat'); 
+procDataFileStruct = dir('*_ProcData.mat');
 procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
 % find and load RestingBaselines.mat struct
@@ -49,7 +48,7 @@ for a = 1:size(procDataFileIDs,1)
             % load a figure with the data to visualize which periods are rest. Note that this data is, by default, normalized
             % by the first 30 minutes of data which may or may not reflect accurate normalizations
             [singleTrialFig] = GenerateSingleFigures_JNeurosci2022(procDataFileID,RestingBaselines,baselineType,saveFigs,imagingType,hemoType);
-            fileDecision = input(['Use data from ' procDataFileID ' for resting baseline calculation? (y/n): '], 's'); disp(' ')
+            fileDecision = input(['Use data from ' procDataFileID ' for resting baseline calculation? (y/n): '],'s'); disp(' ')
             if strcmp(fileDecision,'y') || strcmp(fileDecision,'n')
                 b = true;
                 ManualDecisions.validFiles{a,1} = fileDecision;
@@ -102,7 +101,7 @@ end
 % these will typically be CBV, Delta, Theta, Gamma, and MUA, etc
 dataTypes = fieldnames(RestData);
 for e = 1:length(dataTypes)
-    dataType = char(dataTypes(e));   
+    dataType = char(dataTypes(e));
     % find any sub-dataTypes. These are typically LH, RH
     subDataTypes = fieldnames(RestData.(dataType));
     for f = 1:length(subDataTypes)
@@ -111,14 +110,14 @@ for e = 1:length(dataTypes)
         [restLogical] = FilterEvents_JNeurosci2022(RestData.(dataType).(subDataType),RestCriteria);
         [puffLogical] = FilterEvents_JNeurosci2022(RestData.(dataType).(subDataType),PuffCriteria);
         combRestLogical = logical(restLogical.*puffLogical);
-        allRestFileIDs = RestData.(dataType).(subDataType).fileIDs(combRestLogical,:);  
+        allRestFileIDs = RestData.(dataType).(subDataType).fileIDs(combRestLogical,:);
         allRestDurations = RestData.(dataType).(subDataType).durations(combRestLogical,:);
         allRestEventTimes = RestData.(dataType).(subDataType).eventTimes(combRestLogical,:);
-        allRestingData = RestData.(dataType).(subDataType).data(combRestLogical,:);       
+        allRestingData = RestData.(dataType).(subDataType).data(combRestLogical,:);
         % find the unique days and unique file IDs
         uniqueDays = GetUniqueDays_JNeurosci2022(RestData.(dataType).(subDataType).fileIDs);
         uniqueFiles = unique(RestData.(dataType).(subDataType).fileIDs);
-        numberOfFiles = length(unique(RestData.(dataType).(subDataType).fileIDs));        
+        numberOfFiles = length(unique(RestData.(dataType).(subDataType).fileIDs));
         % loop through each unique day in order to create a logical to filter the file list
         for g = 1:length(uniqueDays)
             uniqueDay = uniqueDays(g);
@@ -143,7 +142,7 @@ for e = 1:length(dataTypes)
                 end
             end
         end
-        finalUniqueDayFiltLogical = any(sum(cell2mat(uniqueDayFiltLogical'),2),2);        
+        finalUniqueDayFiltLogical = any(sum(cell2mat(uniqueDayFiltLogical'),2),2);
         % now that the appropriate files from each day are identified, loop through each file name with respect to the original
         % list of ALL resting files, only keeping the ones that fall within the first targetMinutes of each day.
         filtRestFiles = uniqueFiles(finalUniqueDayFiltLogical,:);
@@ -160,7 +159,7 @@ for e = 1:length(dataTypes)
         filtFileIDs = allRestFileIDs(AllFileFilter,:);
         filtDurations = allRestDurations(AllFileFilter,:);
         filtEventTimes = allRestEventTimes(AllFileFilter,:);
-        filtRestData = allRestingData(AllFileFilter,:);        
+        filtRestData = allRestingData(AllFileFilter,:);
         % now that we have decimated the original list to only reflect the proper unique day, approved files
         % we want to only take events that occur during our approved time duration
         for n = 1:length(filtFileIDs)
@@ -184,7 +183,7 @@ for e = 1:length(dataTypes)
         finalEventFileIDs = filtFileIDs(EventTimeFilter,:);
         finalEventDurations = filtDurations(EventTimeFilter,:);
         finalEventTimes = filtEventTimes(EventTimeFilter,:);
-        finalEventRestData = filtRestData(EventTimeFilter,:);       
+        finalEventRestData = filtRestData(EventTimeFilter,:);
         % again loop through each unique day and pull out the data that corresponds to the final resting files
         for p = 1:length(uniqueDays)
             q= 1;
@@ -196,7 +195,7 @@ for e = 1:length(dataTypes)
                     q = q + 1;
                 end
             end
-        end     
+        end
         % find the means of each unique day
         for s = 1:size(uniqueDate,1)
             tempDataMeans{s,1} = cellfun(@(x)mean(x),tempData.(uniqueDate{s,1}));

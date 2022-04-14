@@ -4,13 +4,10 @@ function [] = CheckForNaNs_JNeurosci2022(ProcData,imagingType)
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
-% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
-%________________________________________________________________________________________________________________________
-%
-%   Purpose: Check the most importance CBV ROIs for any NaN values where the IOS camera glitched.
+% Purpose: Check the most important CBV ROIs for any NaN values where the IOS camera glitched.
 %________________________________________________________________________________________________________________________
 
-% check ROI fields corresponding to the imaging type (single, bilateral hem) 
+% check ROI fields corresponding to the imaging type (single, bilateral hem)
 ROInames = fieldnames(ProcData.data.CBV);
 % go through each ROI and check each individual value
 for b = 1:length(ROInames)
@@ -19,7 +16,7 @@ end
 % pause the program if an NaN is found. Will need to add an interpolation method here if NaN events are found and
 % the specific file needs to be kept
 for b = 1:length(nanCheck)
-    if nanCheck{b,1} ~= 0 
+    if nanCheck{b,1} ~= 0
         disp('WARNING - NaNs found in CBV array'); disp(' ')
         keyboard
     end
@@ -35,7 +32,7 @@ end
 % pause the program if an NaN is found. Will need to add an interpolation method here if NaN events are found and
 % the specific file needs to be kept
 for b = 1:length(gcampNanCheck)
-    if gcampNanCheck{b,1} ~= 0 
+    if gcampNanCheck{b,1} ~= 0
         disp('WARNING - NaNs found in CBV array'); disp(' ')
         keyboard
     end
@@ -43,7 +40,7 @@ end
 % pause the program if an NaN is found. Will need to add an interpolation method here if NaN events are found and
 % the specific file needs to be kept
 for b = 1:length(deoxyNanCheck)
-    if deoxyNanCheck{b,1} ~= 0 
+    if deoxyNanCheck{b,1} ~= 0
         disp('WARNING - NaNs found in CBV array'); disp(' ')
         keyboard
     end

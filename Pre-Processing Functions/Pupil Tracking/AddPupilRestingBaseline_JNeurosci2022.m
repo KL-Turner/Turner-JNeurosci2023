@@ -3,9 +3,8 @@ function [RestingBaselines] = AddPupilRestingBaseline_JNeurosci2022()
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Manually designate files with event times that correspond to appropriate rest
+% Purpose: Manually designate files with event times that correspond to appropriate rest
 %________________________________________________________________________________________________________________________
 
 % find and load RestingBaselines.mat struct
@@ -146,7 +145,7 @@ for e = 1:length(dataTypes)
         % find the means of each unique day
         validDates = fieldnames(tempData);
         for s = 1:size(validDates,1)
-            tempDataMeans{s,1} = cellfun(@(x)nanmean(x),tempData.(validDates{s,1}));
+            tempDataMeans{s,1} = cellfun(@(x)mean(x,'omitnan'),tempData.(validDates{s,1}));
         end
         % save the means into the Baseline struct under the current loop iteration with the associated dates
         for t = 1:length(validDates)

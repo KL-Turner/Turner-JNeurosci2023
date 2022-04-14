@@ -3,12 +3,11 @@ function [Results_StateTime] = AnalyzeAnimalStateTime_JNeurosci2022(animalID,roo
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-% Purpose: Generate Table S1 for Turner_Gheres_Proctor_Drew_eLife2020
+% Purpose: Determine the duration of imaging and duration spent in each arousal state for all animals
 %________________________________________________________________________________________________________________________
 
-%% only run analysis for valid animal IDs
+% cd to animal directory
 dataLocation = [rootFolder delim 'Data' delim animalID delim 'Bilateral Imaging'];
 cd(dataLocation)
 % find and load sleep scoring results
@@ -16,11 +15,11 @@ scoringResultsFileStruct = dir('*Forest_ScoringResults.mat');
 scoringResultsFile = {scoringResultsFileStruct.name}';
 scoringResultsFileID = char(scoringResultsFile);
 load(scoringResultsFileID,'-mat')
-% procdata file IDs
+% character list of ProcData file IDs
 procDataFileStruct = dir('*_ProcData.mat');
 procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
-% go through each file and determine animal length
+% go through each file and determine duration of imaging
 bb = 1;
 catLabels = {};
 totalFiles = size(procDataFileIDs,1);
@@ -73,3 +72,4 @@ Results_StateTime.(animalID).remPerc = (sum(remLogical)/length(remLogical))*100;
 cd([rootFolder delim])
 save('Results_StateTime.mat','Results_StateTime')
 
+end

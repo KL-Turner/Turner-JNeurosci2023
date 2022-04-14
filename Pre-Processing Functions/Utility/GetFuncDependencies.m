@@ -3,10 +3,9 @@ function [] = GetFuncDependencies(functionName)
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Outputs all dependencies of a given function, including subfunction dependencies. It also verifies this by
-%            looping through each subfunction and further checking that it doesn't have any dependencies.
+% Purpose: Outputs all dependencies of a given function, including subfunction dependencies. It also verifies this by
+%          looping through each subfunction and further checking that it doesn't have any dependencies.
 %________________________________________________________________________________________________________________________
 
 % control for input

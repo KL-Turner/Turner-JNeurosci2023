@@ -5,14 +5,13 @@ function [TDMSFile] = ReadInTDMSWhiskerTrials_JNeurosci2022(fileName)
 % https://github.com/KL-Turner
 %
 % Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Pull the data and notes from the LabVIEW '.tdms' files into a Matlab structure.
+% Purpose: Pull the data and notes from the LabVIEW '.tdms' files into a Matlab structure.
 %________________________________________________________________________________________________________________________
 
-% Convert the .tdms file into something that Matlab understands
+% convert the .tdms file into something that Matlab understands
 [tempStruct,~] = ConvertTDMS_JNeurosci2022(0,fileName);
-% Extract Whisker Camera info and transfer from TempStruct
+% extract whisker camera info and transfer from tempStruct
 TDMSFile.experimenter = tempStruct.Data.Root.Experimenter;
 TDMSFile.animalID = tempStruct.Data.Root.Animal_ID;
 TDMSFile.hemisphere = tempStruct.Data.Root.Hemisphere;
@@ -46,10 +45,10 @@ TDMSFile.LED_Freq = tempStruct.Data.Root.LED_Freq;
 TDMSFile.LED_Duration_sec = tempStruct.Data.Root.LED_Duration_sec;
 TDMSFile.Interstim_sec = tempStruct.Data.Root.Interstim_sec;
 TDMSFile.Stim_Offset_sec = tempStruct.Data.Root.Stim_Offset_sec;
-% Pre-allocate - Data is contained in .vals folder in rows with corresponding labels in .names
+% pre-allocate - data is contained in .vals folder in rows with corresponding labels in .names
 TDMSFile.data.vals = NaN*ones(length(tempStruct.Data.MeasuredData),length(tempStruct.Data.MeasuredData(1).Data));
 TDMSFile.data.names = cell(length(tempStruct.Data.MeasuredData),1);
-% Pull data from tempStruct and allocate it in the proper areas 
+% pull data from tempStruct and allocate it in the proper areas
 for k = 1:length(tempStruct.Data.MeasuredData)
     TDMSFile.data.vals(k,:) = tempStruct.Data.MeasuredData(k).Data;
     TDMSFile.data.names{k} = strrep(tempStruct.Data.MeasuredData(k).Name,'Analog_Data','');

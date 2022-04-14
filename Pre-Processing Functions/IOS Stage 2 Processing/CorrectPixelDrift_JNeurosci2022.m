@@ -3,10 +3,9 @@ function [] = CorrectPixelDrift_JNeurosci2022(procDataFileIDs)
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Determine the slow exponential drift for each day of imaging and correct the drift if desired. The slow
-%            drift is caused by the CCD sensor's sensitivity changing as the camera heats up over multiple hours.
+% Purpose: Determine the slow exponential drift for each day of imaging and correct the drift if desired. The slow
+%          drift is caused by the CCD sensor's sensitivity changing as the camera heats up over multiple hours.
 %________________________________________________________________________________________________________________________
 
 % establish the number of unique days based on file IDs
@@ -25,12 +24,12 @@ for b = 1:length(firstsFileOfDay)
     catBarrelsData = [];
     catCementData = [];
     fileName = firstsFileOfDay{1,b};
-    [~, fileDate, ~] = GetFileInfo_JNeurosci2022(fileName);
+    [~,fileDate,~] = GetFileInfo_JNeurosci2022(fileName);
     strDay = ConvertDate_JNeurosci2022(fileDate);
     p = 1;
     for c = 1:size(procDataFileIDs,1)
         procDataFileID = procDataFileIDs(c,:);
-        if strfind(procDataFileID, fileDate) >= 1
+        if strfind(procDataFileID,fileDate) >= 1
             indDayProcDataFileList{p,1} = procDataFileID; %#ok<AGROW>
             p = p + 1;
         end
@@ -74,7 +73,6 @@ for b = 1:length(firstsFileOfDay)
     xlabel('Time (sec)')
     ylabel('12-bit pixel val')
     axis tight
-    
     subplot(2,2,2)
     plot(x,filtCatCementData,'k')
     hold on
@@ -84,14 +82,12 @@ for b = 1:length(firstsFileOfDay)
     ylabel('12-bit pixel val')
     legend('cement data','exp fit')
     axis tight
-    
     subplot(2,2,3)
     plot(x,Cement_modelFit_flip,'r')
     title('Correction profile')
     xlabel('Time (sec)')
     ylabel('Normalized val')
     axis tight
-    
     subplot(2,2,4)
     plot(x,catBarrelsData,'k')
     hold on
@@ -101,7 +97,6 @@ for b = 1:length(firstsFileOfDay)
     ylabel('12-bit pixel val')
     legend('original','corrected')
     axis tight
-    
     % determine which correction profile to use for LH data
     correctionDecision = 'n';
     while strcmp(correctionDecision,'n') == true
@@ -112,9 +107,9 @@ for b = 1:length(firstsFileOfDay)
             disp('Invalid input. Must be ''y'', ''n'''); disp(' ')
         end
     end
-    sgtitle([animalID ' ' strDay ' pixel correction applied: ' applyCorrection])   
+    sgtitle([animalID ' ' strDay ' pixel correction applied: ' applyCorrection])
     savefig(fixPixels,[animalID '_' strDay '_PixelDriftCorrection']);
-    close(fixPixels)   
+    close(fixPixels)
     % apply corrected data to each file from reshaped matrix
     for d = 1:length(indDayProcDataFileList)
         indDayProcDataFile = indDayProcDataFileList{d,1};

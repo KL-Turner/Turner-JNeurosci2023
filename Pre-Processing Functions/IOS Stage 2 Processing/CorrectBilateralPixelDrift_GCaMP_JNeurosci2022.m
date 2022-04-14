@@ -3,16 +3,15 @@ function [] = CorrectBilateralPixelDrift_GCaMP_JNeurosci2022(procDataFileIDs)
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Determine the slow exponential drift for each day of imaging and correct the drift if desired. The slow
-%            drift is caused by the CCD sensor's sensitivity changing as the camera heats up over multiple hours.
+% Purpose: Determine the slow exponential drift for each day of imaging and correct the drift if desired. The slow
+%          drift is caused by the CCD sensor's sensitivity changing as the camera heats up over multiple hours.
 %________________________________________________________________________________________________________________________
 
 % establish the number of unique days based on file IDs
 [animalIDs,fileDates,~] = GetFileInfo_JNeurosci2022(procDataFileIDs);
 animalID = animalIDs(1,:);
-[uniqueDays, ~, DayID] = GetUniqueDays_JNeurosci2022(fileDates);
+[uniqueDays,~,DayID] = GetUniqueDays_JNeurosci2022(fileDates);
 firstsFileOfDay = cell(1,length(uniqueDays));
 for a = 1:length(uniqueDays)
     FileInd = DayID == a;
@@ -31,7 +30,7 @@ for b = 1:length(firstsFileOfDay)
     p = 1;
     for c = 1:size(procDataFileIDs,1)
         procDataFileID = procDataFileIDs(c,:);
-        if strfind(procDataFileID, fileDate) >= 1
+        if strfind(procDataFileID,fileDate) >= 1
             indDayProcDataFileList{p,1} = procDataFileID; %#ok<AGROW>
             p = p + 1;
         end
@@ -107,7 +106,7 @@ for b = 1:length(firstsFileOfDay)
     correctionDecision = 'n';
     while strcmp(correctionDecision,'n') == true
         applyCorrection = input(['Apply correction profile to ' strDay ' pixel values? (y/n): '],'s'); disp(' ')
-        if strcmp(applyCorrection,'y') == true || strcmp(applyCorrection,'n') == true 
+        if strcmp(applyCorrection,'y') == true || strcmp(applyCorrection,'n') == true
             correctionDecision = 'y';
         else
             disp('Invalid input'); disp(' ')

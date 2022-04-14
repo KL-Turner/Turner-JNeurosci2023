@@ -3,9 +3,8 @@ function [] = CheckPupilVideoFrames_JNeurosci2022(procDataFileID)
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Track pupil diameter and blinking
+% Purpose: Manually check the video quality of eye camera data
 %________________________________________________________________________________________________________________________
 
 ROIFileDir = dir('*_PupilData.mat');
@@ -13,7 +12,7 @@ ROIFileName = {ROIFileDir.name}';
 ROIFileID = char(ROIFileName);
 load(ROIFileID);
 load(procDataFileID)
-if isfield(ProcData.data.Pupil,'frameCheck') == false %#ok<NODEF>
+if isfield(ProcData.data.Pupil,'frameCheck') == false
     % load files and extract video information
     [animalID,fileDate,fileID] = GetFileInfo_JNeurosci2022(procDataFileID);
     pupilCamFileID = [fileID '_PupilCam.bin'];

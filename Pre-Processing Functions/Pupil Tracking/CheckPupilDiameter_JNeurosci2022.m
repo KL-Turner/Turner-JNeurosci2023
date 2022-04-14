@@ -3,9 +3,8 @@ function [] = CheckPupilDiameter_JNeurosci2022(procDataFileID)
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Manually check pupil diameter
+% Purpose: Manually check pupil diameter
 %________________________________________________________________________________________________________________________
 
 load(procDataFileID)

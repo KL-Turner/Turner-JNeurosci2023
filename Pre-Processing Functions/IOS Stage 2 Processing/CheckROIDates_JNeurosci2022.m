@@ -3,12 +3,11 @@ function [ROIs] = CheckROIDates_JNeurosci2022(animalID,ROIs,ROInames,imagingType
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Create/Update ROIs.mat structure to verify all ROIs are drawn
+% Purpose: Create/Update ROIs.mat structure to verify all ROIs are drawn
 %________________________________________________________________________________________________________________________
 
-% Character list of all WindowCam files
+% character list of all WindowCam files
 windowCamFilesDir = dir('*_WindowCam.bin');
 windowCamDataFiles = {windowCamFilesDir.name}';
 windowCamDataFileIDs = char(windowCamDataFiles);
@@ -30,7 +29,7 @@ if exist(ROIFileID,'file')
 else
     ROIs = [];
 end
-% Create the desired window ROI for each day if it doesn't yet exist
+% create the desired window ROI for each day if it doesn't yet exist
 for b = 1:length(firstsFileOfDay)
     fileID = firstsFileOfDay{1,b};
     strDay = ConvertDate_JNeurosci2022(fileID);

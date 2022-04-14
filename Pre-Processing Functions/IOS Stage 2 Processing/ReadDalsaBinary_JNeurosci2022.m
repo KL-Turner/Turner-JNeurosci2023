@@ -1,13 +1,12 @@
-function [frames] = ReadDalsaBinary_IOS(animalID,fileID)
+function [frames] = ReadDalsaBinary_JNeurosci2022(animalID,fileID)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
 % Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Extract the frames from the desired WindowCam file.
+% Purpose: Extract the frames from the desired WindowCam file.
 %________________________________________________________________________________________________________________________
 
 rawDataFileID = [animalID '_' fileID(1:end - 13) 'RawData.mat'];

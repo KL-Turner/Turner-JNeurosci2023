@@ -1,25 +1,13 @@
 function [fname] = IdentifyStructureSubfield_JNeurosci2022(Structure,field)
-%   function [fname] = IdentifyStructureSubfield(Structure,field)
+%________________________________________________________________________________________________________________________
+% Edited by Kevin L. Turner
+% The Pennsylvania State University, Dept. of Biomedical Engineering
+% https://github.com/KL-Turner
 %
-%   Author: Aaron Winder
-%   Affiliation: Engineering Science and Mechanics, Penn State University
-%   https://github.com/awinde
+% Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
 %
-%   DESCRIPTION: Finds a the subfield of a structure that contains the
-%   requested field.
-%   
-%_______________________________________________________________
-%   PARAMETERS:   
-%                   Structure - [struct] the structure to search
-%
-%                   field - [string] the name of the desired field
-%                               
-%_______________________________________________________________
-%   RETURN:   
-%                   fname = [string] the subfield of "Structure" that
-%                   contains "field"
-%                               
-%_______________________________________________________________
+% Purpose: Finds a the subfield of a structure that contains the requested field.
+%________________________________________________________________________________________________________________________
 
 fnames = fieldnames(Structure);
 fname = [];
@@ -27,4 +15,6 @@ for fn = 1:length(fnames)
     if isfield(Structure.(fnames{fn}),field)
         fname = fnames{fn};
     end
+end
+
 end

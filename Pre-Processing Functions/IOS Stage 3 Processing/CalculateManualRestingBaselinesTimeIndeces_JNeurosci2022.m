@@ -3,9 +3,8 @@ function [RestingBaselines] = CalculateManualRestingBaselinesTimeIndeces_JNeuros
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Manually designate files with event times that correspond to appropriate rest
+% Purpose: Manually designate files with event times that correspond to appropriate rest
 %________________________________________________________________________________________________________________________
 
 disp('Calculating the resting baselines using manually selected files each unique day...'); disp(' ')
@@ -50,7 +49,7 @@ for a = 1:size(procDataFileIDs,1)
             % load a figure with the data to visualize which periods are rest. Note that this data is, by default, normalized
             % by the first 30 minutes of data which may or may not reflect accurate normalizations
             [singleTrialFig] = GenerateSingleFigures_JNeurosci2022(procDataFileID,RestingBaselines,baselineType,saveFigs,imagingType,hemoType);
-            fileDecision = input(['Use data from ' procDataFileID ' for resting baseline calculation? (y/n): '], 's'); disp(' ')
+            fileDecision = input(['Use data from ' procDataFileID ' for resting baseline calculation? (y/n): '],'s'); disp(' ')
             if strcmp(fileDecision,'y') || strcmp(fileDecision,'n')
                 b = true;
                 ManualDecisions.validFiles{a,1} = fileDecision;

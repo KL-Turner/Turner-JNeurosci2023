@@ -1,13 +1,12 @@
-function [days] = ConvertDate_IOS(dateTag)
+function [days] = ConvertDate_JNeurosci2022(dateTag)
 %________________________________________________________________________________________________________________________
 % Edited by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
 % Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Converts a numeric date string to the month/day.
+% Purpose: Converts a numeric date string to the month/day.
 %________________________________________________________________________________________________________________________
 
 days = cell(size(dateTag,1),1);

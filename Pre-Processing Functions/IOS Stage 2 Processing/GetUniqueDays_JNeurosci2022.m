@@ -5,9 +5,8 @@ function [uniqueDays,dayIndex,dayID] = GetUniqueDays_JNeurosci2022(dateList)
 % https://github.com/KL-Turner
 %
 % Adapted from code written by Dr. Aaron T. Winder: https://github.com/awinde
-%________________________________________________________________________________________________________________________
 %
-%   Purpse: Takes a list of fileDates and determines how many unique individual days there are. 
+% Purpse: Takes a list of fileDates and determines how many unique individual days there are.
 %________________________________________________________________________________________________________________________
 
 if iscellstr(dateList) %#ok<ISCLSTR>
