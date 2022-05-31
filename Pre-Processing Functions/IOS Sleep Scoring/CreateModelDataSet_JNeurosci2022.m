@@ -19,7 +19,6 @@ for a = 1:size(procDataFileIDs,1)
     maxCortGammaColumn = zeros(180,1);
     maxHippThetaColumn = zeros(180,1);
     numWhiskEventsColumn = zeros(180,1);
-    numForceEventsColumn = zeros(180,1);
     medEMGColumn = zeros(180,1);
     avgHeartRateColumn = zeros(180,1);
     % extract relevant parameters from each epoch
@@ -52,8 +51,6 @@ for a = 1:size(procDataFileIDs,1)
         maxHippThetaColumn(b,1) = mean(cell2mat(ProcData.sleep.parameters.hippocampus.specThetaBandPower{b,1}));
         % number of binarized whisking events
         numWhiskEventsColumn(b,1) = sum(ProcData.sleep.parameters.binWhiskerAngle{b,1});
-        % number of binarized force sensor events
-        numForceEventsColumn(b,1) = sum(ProcData.sleep.parameters.binForceSensor{b,1});
         % average of the log of the EMG profile
         EMG = ProcData.sleep.parameters.EMG{b,1};
         medEMGColumn(b,1) = median(EMG);

@@ -3,19 +3,19 @@ function [Results_CrossCorrelation] = AnalyzeCrossCorrelation_JNeurosci2022(anim
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Analyze the cross-correlation between neural activity/hemodynamics and pupil measurements
+% Purpose: Analyze the cross-correlation between neural activity/hemodynamics and pupil diameter
 %________________________________________________________________________________________________________________________
 
-%% function parameters & data types
+% function parameters & data types
 dataTypes = {'LH_HbT','RH_HbT','LH_gammaBandPower','RH_gammaBandPower'};
-pupilDataTypes = {'mmArea','mmDiameter','zArea','zDiameter'};
+% pupilDataTypes = {'mmArea','mmDiameter','zArea','zDiameter'};
+pupilDataTypes = {'zDiameter'};
 modelType = 'Forest';
 params.minTime.Rest = 10;
 params.minTime.NREM = 30;
 params.minTime.REM = 60;
-%% load in relevent data structures
+% go to animal's data location
 dataLocation = [rootFolder delim 'Data' delim animalID delim 'Bilateral Imaging'];
 cd(dataLocation)
 % identify and load RestData.mat struct
@@ -47,7 +47,7 @@ load(scoringResultsFileID,'-mat')
 procDataFileStruct = dir('*_ProcData.mat');
 procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
-%% filter characteristics & resting criteria
+% filter characteristics & resting criteria
 samplingRate = RestData.CBV_HbT.LH.CBVCamSamplingRate;
 [z,p,k] = butter(4,1/(samplingRate/2),'low');
 [sos,g] = zp2sos(z,p,k);
@@ -58,15 +58,15 @@ RestCriteria.Value = {params.minTime.Rest};
 RestPuffCriteria.Fieldname = {'puffDistances'};
 RestPuffCriteria.Comparison = {'gt'};
 RestPuffCriteria.Value = {5};
-%% go through each valid data type for arousal-dependent cross-correlation analysis
+% go through each valid data type for arousal-dependent cross-correlation analysis
 for aa = 1:length(dataTypes)
     dataType = dataTypes{1,aa};
     for bb = 1:length(pupilDataTypes)
         pupilDataType = pupilDataTypes{1,bb};
         %% cross-correlation analysis for resting data
         % pull data from RestData.mat structure
-        [restLogical] = FilterEvents_IOS(RestData.Pupil.(pupilDataType),RestCriteria);
-        [puffLogical] = FilterEvents_IOS(RestData.Pupil.(pupilDataType),RestPuffCriteria);
+        [restLogical] = FilterEvents_JNeurosci2022(RestData.Pupil.(pupilDataType),RestCriteria);
+        [puffLogical] = FilterEvents_JNeurosci2022(RestData.Pupil.(pupilDataType),RestPuffCriteria);
         combRestLogical = logical(restLogical.*puffLogical);
         restFileIDs = RestData.Pupil.(pupilDataType).fileIDs(combRestLogical,:);
         restDurations = RestData.Pupil.(pupilDataType).durations(combRestLogical,:);
@@ -74,8 +74,8 @@ for aa = 1:length(dataTypes)
         restData = RestData.Pupil.(dataType).data(combRestLogical,:);
         pupilRestData = RestData.Pupil.(pupilDataType).data(combRestLogical,:);
         % keep only the data that occurs within the manually-approved alert regions
-        [finalRestData,~,~,~] = RemoveInvalidData_IOS(restData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
-        [finalPupilRestData,~,~,~] = RemoveInvalidData_IOS(pupilRestData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
+        [finalRestData,~,~,~] = RemoveInvalidData_JNeurosci2022(restData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
+        [finalPupilRestData,~,~,~] = RemoveInvalidData_JNeurosci2022(pupilRestData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
         % process, filter + detrend each array
         catRestData = [];
         cc = 1;
@@ -124,7 +124,7 @@ for aa = 1:length(dataTypes)
         alertData = []; alertPupilData = []; alertProcData = [];
         for cc = 1:size(procDataFileIDs,1)
             procDataFileID = procDataFileIDs(cc,:);
-            [~,~,alertDataFileID] = GetFileInfo_IOS(procDataFileID);
+            [~,~,alertDataFileID] = GetFileInfo_JNeurosci2022(procDataFileID);
             scoringLabels = [];
             for dd = 1:length(ScoringResults.fileIDs)
                 if strcmp(alertDataFileID,ScoringResults.fileIDs{dd,1}) == true
@@ -192,7 +192,7 @@ for aa = 1:length(dataTypes)
         asleepData = []; asleepPupilData = []; asleepProcData = [];
         for cc = 1:size(procDataFileIDs,1)
             procDataFileID = procDataFileIDs(cc,:);
-            [~,~,asleepDataFileID] = GetFileInfo_IOS(procDataFileID);
+            [~,~,asleepDataFileID] = GetFileInfo_JNeurosci2022(procDataFileID);
             scoringLabels = [];
             for dd = 1:length(ScoringResults.fileIDs)
                 if strcmp(asleepDataFileID,ScoringResults.fileIDs{dd,1}) == true
@@ -259,7 +259,7 @@ for aa = 1:length(dataTypes)
         allData = []; allPupilData = []; allProcData = [];
         for cc = 1:size(procDataFileIDs,1)
             procDataFileID = procDataFileIDs(cc,:);
-            [~,~,~] = GetFileInfo_IOS(procDataFileID);
+            [~,~,~] = GetFileInfo_JNeurosci2022(procDataFileID);
             load(procDataFileID,'-mat')
             % only run on files with good pupil measurement
             if strcmp(ProcData.data.Pupil.diameterCheck,'y') == true
@@ -315,8 +315,8 @@ for aa = 1:length(dataTypes)
         %% cross-correlation analysis for NREM data
         if isempty(SleepData.(modelType).NREM.data.Pupil) == false
             NREM_sleepTime = params.minTime.NREM; % seconds
-            [NREM_finalData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.Pupil.(dataType).data,SleepData.(modelType).NREM.data.Pupil.fileIDs,SleepData.(modelType).NREM.data.Pupil.binTimes);
-            [NREM_finalPupilData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.Pupil.(pupilDataType).data,SleepData.(modelType).NREM.data.Pupil.fileIDs,SleepData.(modelType).NREM.data.Pupil.binTimes);
+            [NREM_finalData,~,~] = RemoveStimSleepData_JNeurosci2022(animalID,SleepData.(modelType).NREM.data.Pupil.(dataType).data,SleepData.(modelType).NREM.data.Pupil.fileIDs,SleepData.(modelType).NREM.data.Pupil.binTimes);
+            [NREM_finalPupilData,~,~] = RemoveStimSleepData_JNeurosci2022(animalID,SleepData.(modelType).NREM.data.Pupil.(pupilDataType).data,SleepData.(modelType).NREM.data.Pupil.fileIDs,SleepData.(modelType).NREM.data.Pupil.binTimes);
             NREM_finalVals = []; NREM_finalPupilVals = [];
             if isempty(NREM_finalData) == false
                 % adjust events to match the edits made to the length of each spectrogram
@@ -360,8 +360,8 @@ for aa = 1:length(dataTypes)
         %% cross-correlation analysis for REM
         if isempty(SleepData.(modelType).REM.data.Pupil) == false
             REM_sleepTime = params.minTime.REM; % seconds
-            [REM_finalData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.Pupil.(dataType).data,SleepData.(modelType).REM.data.Pupil.fileIDs,SleepData.(modelType).REM.data.Pupil.binTimes);
-            [REM_finalPupilData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.Pupil.(pupilDataType).data,SleepData.(modelType).REM.data.Pupil.fileIDs,SleepData.(modelType).REM.data.Pupil.binTimes);
+            [REM_finalData,~,~] = RemoveStimSleepData_JNeurosci2022(animalID,SleepData.(modelType).REM.data.Pupil.(dataType).data,SleepData.(modelType).REM.data.Pupil.fileIDs,SleepData.(modelType).REM.data.Pupil.binTimes);
+            [REM_finalPupilData,~,~] = RemoveStimSleepData_JNeurosci2022(animalID,SleepData.(modelType).REM.data.Pupil.(pupilDataType).data,SleepData.(modelType).REM.data.Pupil.fileIDs,SleepData.(modelType).REM.data.Pupil.binTimes);
             REM_finalVals = []; REM_finalPupilVals = [];
             if isempty(REM_finalData) == false
                 % adjust events to match the edits made to the length of each spectrogram

@@ -100,6 +100,7 @@ for b = 1:length(firstsFileOfDay)
     % determine which correction profile to use for LH data
     correctionDecision = 'n';
     while strcmp(correctionDecision,'n') == true
+        drawnow
         applyCorrection = input(['Apply correction profile to ' strDay ' pixel values? (y/n): '],'s'); disp(' ')
         if strcmp(applyCorrection,'y') == true || strcmp(applyCorrection,'n') == true
             correctionDecision = 'y';

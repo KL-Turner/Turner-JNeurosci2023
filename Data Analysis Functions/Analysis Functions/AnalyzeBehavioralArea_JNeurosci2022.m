@@ -68,10 +68,11 @@ StimCriteriaA.Comparison = {'equal'};
 StimCriteriaB.Value = {'LPadSol'};
 StimCriteriaB.Fieldname = {'solenoidName'};
 StimCriteriaB.Comparison = {'equal'};
-dataTypes = {'pupilArea','diameter','mmArea','mmDiameter','zArea','zDiameter'};
+% dataTypes = {'pupilArea','diameter','mmArea','mmDiameter','zArea','zDiameter'};
+dataTypes = {'mmDiameter','zDiameter'};
 for aa = 1:length(dataTypes)
     dataType = dataTypes{1,aa};
-    % analyze during periods of rest
+    %% analyze during periods of rest
     % pull data from RestData.mat structure
     [restLogical] = FilterEvents_JNeurosci2022(RestData.Pupil.(dataType),RestCriteria);
     [puffLogical] = FilterEvents_JNeurosci2022(RestData.Pupil.(dataType),RestPuffCriteria);
@@ -84,9 +85,9 @@ for aa = 1:length(dataTypes)
     [finalRestData,finalRestFileIDs,~,~] = RemoveInvalidData_JNeurosci2022(restData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
     % filter
     for gg = 1:length(finalRestData)
-        procRestData{gg,1} = filtfilt(sos,g,finalRestData{gg,1}); %#ok<*AGROW>
+        procRestData{gg,1} = filtfilt(sos,g,finalRestData{gg,1});
     end
-    % take nanmean during resting epochs
+    % take mean during resting epochs
     for nn = 1:length(procRestData)
         restMeanData(nn,1) = mean(procRestData{nn,1}(1:end),'omitnan');
     end
@@ -94,7 +95,7 @@ for aa = 1:length(dataTypes)
     Results_BehavData.(animalID).Rest.(dataType).eventMeans = restMeanData;
     Results_BehavData.(animalID).Rest.(dataType).indData = procRestData;
     Results_BehavData.(animalID).Rest.(dataType).fileIDs = finalRestFileIDs;
-    % analyze during periods of moderate whisking (2-5 seconds)
+    %% analyze during periods of moderate whisking (2-5 seconds)
     % pull data from EventData.mat structure
     [whiskLogical] = FilterEvents_JNeurosci2022(EventData.Pupil.(dataType).whisk,WhiskCriteria);
     [puffLogical] = FilterEvents_JNeurosci2022(EventData.Pupil.(dataType).whisk,WhiskPuffCriteria);
@@ -105,11 +106,11 @@ for aa = 1:length(dataTypes)
     whiskData = EventData.Pupil.(dataType).whisk.data(combWhiskLogical,:);
     % keep only the data that occurs within the manually-approved awake regions
     [finalWhiskData,finalWhiskFileIDs,~,~] = RemoveInvalidData_JNeurosci2022(whiskData,whiskFileIDs,whiskDurations,whiskEventTimes,ManualDecisions);
-    % filter and nanmean-subtract 2 seconds prior to whisk
+    % filter and mean-subtract 2 seconds prior to whisk
     for gg = 1:size(finalWhiskData,1)
         procWhiskData(gg,:) = filtfilt(sos,g,finalWhiskData(gg,:));
     end
-    % take nanmean during whisking epochs from onset through 5 seconds
+    % take mean during whisking epochs from onset through 5 seconds
     for nn = 1:size(procWhiskData,1)
         whiskMean{nn,1} = mean(procWhiskData(nn,params.Offset*samplingRate:params.minTime.Whisk*samplingRate),2,'omitnan');
         whisknd{nn,1} = procWhiskData(nn,params.Offset*samplingRate:params.minTime.Whisk*samplingRate);
@@ -118,7 +119,7 @@ for aa = 1:length(dataTypes)
     Results_BehavData.(animalID).Whisk.(dataType).eventMeans = cell2mat(whiskMean);
     Results_BehavData.(animalID).Whisk.(dataType).indData = whisknd;
     Results_BehavData.(animalID).Whisk.(dataType).fileIDs = finalWhiskFileIDs;
-    % analyze during periods of stimulation
+    %% analyze during periods of stimulation
     % pull data from EventData.mat structure
     LH_stimFilter = FilterEvents_JNeurosci2022(EventData.Pupil.(dataType).stim,StimCriteriaA);
     RH_stimFilter = FilterEvents_JNeurosci2022(EventData.Pupil.(dataType).stim,StimCriteriaB);
@@ -155,7 +156,7 @@ for aa = 1:length(dataTypes)
     Results_BehavData.(animalID).Stim.(dataType).eventMeans = cat(1,cell2mat(LH_stimMean),cell2mat(RH_stimMean));
     Results_BehavData.(animalID).Stim.(dataType).indData = cat(1,LH_stim,RH_stim);
     Results_BehavData.(animalID).Stim.(dataType).fileIDs = cat(1,LH_finalStimFileIDs,RH_finalStimFileIDs);
-    % analyze during periods of NREM sleep
+    %% analyze during periods of NREM sleep
     % pull data from SleepData.mat structure
     if isempty(SleepData.(modelType).NREM.data.Pupil) == false
         [nremData,nremFileIDs,~] = RemoveStimSleepData_JNeurosci2022(animalID,SleepData.(modelType).NREM.data.Pupil.(dataType).data,SleepData.(modelType).NREM.data.Pupil.fileIDs,SleepData.(modelType).NREM.data.Pupil.binTimes);
@@ -177,7 +178,7 @@ for aa = 1:length(dataTypes)
         Results_BehavData.(animalID).NREM.(dataType).indData = [];
         Results_BehavData.(animalID).NREM.(dataType).fileIDs = [];
     end
-    % analyze during periods of REM sleep
+    %% analyze during periods of REM sleep
     % pull data from SleepData.mat structure
     if isempty(SleepData.(modelType).REM.data.Pupil) == false
         [remData,remFileIDs,~] = RemoveStimSleepData_JNeurosci2022(animalID,SleepData.(modelType).REM.data.Pupil.(dataType).data,SleepData.(modelType).REM.data.Pupil.fileIDs,SleepData.(modelType).REM.data.Pupil.binTimes);

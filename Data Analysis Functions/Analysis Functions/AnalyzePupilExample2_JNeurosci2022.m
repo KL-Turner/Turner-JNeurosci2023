@@ -1,4 +1,4 @@
-function [Results_Example] = AnalyzePupilExample_JNeurosci2022(rootFolder,delim,Results_Example)
+function [Results_Example2] = AnalyzePupilExample2_JNeurosci2022(rootFolder,delim,Results_Example2)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -9,44 +9,44 @@ function [Results_Example] = AnalyzePupilExample_JNeurosci2022(rootFolder,delim,
 
 filePath = [rootFolder delim 'Data' delim 'T141' delim 'Bilateral Imaging'];
 cd(filePath)
-exampleProcDataFileID = 'T141_201105_12_05_20_ProcData.mat';
+exampleProcDataFileID = 'T123_200304_14_32_00_ProcData.mat';
 load(exampleProcDataFileID,'-mat')
-exampleSpecDataFileID = 'T141_201105_12_05_20_SpecDataA.mat';
+exampleSpecDataFileID = 'T123_200304_14_32_00_SpecDataA.mat';
 load(exampleSpecDataFileID,'-mat')
-trainingDataFileID = 'T141_201105_12_05_20_TrainingData.mat';
+trainingDataFileID = 'T123_200304_14_32_00_TrainingData.mat';
 load(trainingDataFileID,'-mat')
-modelDataFileID = 'T141_201105_12_05_20_ModelData.mat';
+modelDataFileID = 'T123_200304_14_32_00_ModelData.mat';
 load(modelDataFileID,'-mat')
-exampleBaselineFileID = 'T141_RestingBaselines.mat';
+exampleBaselineFileID = 'T123_RestingBaselines.mat';
 load(exampleBaselineFileID,'-mat')
-examplePupilData = 'T141_PupilData.mat';
+examplePupilData = 'T123_PupilData.mat';
 load(examplePupilData)
 [~,fileDate,fileID] = GetFileInfo_JNeurosci2022(exampleProcDataFileID);
 pupilCamFileID = [fileID '_PupilCam.bin'];
 strDay = ConvertDate_JNeurosci2022(fileDate);
-Results_Example.dsFs = ProcData.notes.dsFs;
+Results_Example2.dsFs = ProcData.notes.dsFs;
 % setup butterworth filter coefficients for a 1 Hz and 10 Hz lowpass based on the sampling rate
 [z1,p1,k1] = butter(4,10/(ProcData.notes.dsFs/2),'low');
 [sos1,g1] = zp2sos(z1,p1,k1);
 [z2,p2,k2] = butter(4,1/(ProcData.notes.dsFs/2),'low');
 [sos2,g2] = zp2sos(z2,p2,k2);
 % pupil area
-Results_Example.filtPupilDiameter= filtfilt(sos2,g2,ProcData.data.Pupil.mmDiameter);
-Results_Example.filtPupilZDiameter= filtfilt(sos2,g2,ProcData.data.Pupil.zDiameter);
+Results_Example2.filtPupilDiameter= filtfilt(sos2,g2,ProcData.data.Pupil.mmDiameter);
+Results_Example2.filtPupilZDiameter= filtfilt(sos2,g2,ProcData.data.Pupil.zDiameter);
 % blink times
-Results_Example.blinkTimes = ProcData.data.Pupil.blinkTimes;
+Results_Example2.blinkTimes = ProcData.data.Pupil.blinkTimes;
 % whisker angle
-Results_Example.filtWhiskerAngle = filtfilt(sos1,g1,ProcData.data.whiskerAngle);
+Results_Example2.filtWhiskerAngle = filtfilt(sos1,g1,ProcData.data.whiskerAngle);
 % EMG
 normEMG = ProcData.data.EMG.emg - RestingBaselines.manualSelection.EMG.emg.(strDay).mean;
-Results_Example.filtEMG = filtfilt(sos1,g1,normEMG);
+Results_Example2.filtEMG = filtfilt(sos1,g1,normEMG);
 % HbT
-Results_Example.filtLH_HbT = filtfilt(sos2,g2,ProcData.data.CBV_HbT.adjLH);
-Results_Example.filtRH_HbT = filtfilt(sos2,g2,ProcData.data.CBV_HbT.adjRH);
+Results_Example2.filtLH_HbT = filtfilt(sos2,g2,ProcData.data.CBV_HbT.adjLH);
+Results_Example2.filtRH_HbT = filtfilt(sos2,g2,ProcData.data.CBV_HbT.adjRH);
 % hippocampal spectrogram
-Results_Example.hippocampusNormS = SpecData.hippocampus.normS.*100;
-Results_Example.T = SpecData.hippocampus.T;
-Results_Example.F = SpecData.hippocampus.F;
+Results_Example2.hippocampusNormS = SpecData.hippocampus.normS.*100;
+Results_Example2.T = SpecData.hippocampus.T;
+Results_Example2.F = SpecData.hippocampus.F;
 % images
 fid = fopen(pupilCamFileID); % reads the binary file in to the work space
 fseek(fid,0,'eof'); % find the end of the video frame
@@ -66,7 +66,7 @@ for dd = 1:length(imageStack)
 end
 fclose('all');
 % save images of interest
-Results_Example.images = cat(3,imageStack(:,:,1200),imageStack(:,:,4200),imageStack(:,:,7866),...
+Results_Example2.images = cat(3,imageStack(:,:,1200),imageStack(:,:,4200),imageStack(:,:,7866),...
     imageStack(:,:,13200),imageStack(:,:,18510),imageStack(:,:,23458),imageStack(:,:,26332));
 % pupil tracking
 [data] = FuncRunPupilTracker_JNeurosci2022(exampleProcDataFileID);
@@ -80,18 +80,18 @@ end
 variableNames = {'zDiameter'};
 pupilParamsTable = table(avgPupilDiameter_column,'VariableNames',variableNames);
 % save results
-Results_Example.physioTable = paramsTable;
-Results_Example.pupilTable = pupilParamsTable;
-Results_Example.trueLabels = trainingTable.behavState;
-Results_Example.workingImg = data.workingImg;
-Results_Example.x12 = data.x12;
-Results_Example.y12 = data.y12;
-Results_Example.threshImg = data.threshImg;
-Results_Example.pupilHistEdges = data.pupilHistEdges;
-Results_Example.normFit = data.normFit;
-Results_Example.intensityThresh = data.intensityThresh;
-Results_Example.saveRadonImg = data.saveRadonImg;
-Results_Example.overlay = data.overlay;
+Results_Example2.physioTable = paramsTable;
+Results_Example2.pupilTable = pupilParamsTable;
+Results_Example2.trueLabels = trainingTable.behavState;
+Results_Example2.workingImg = data.workingImg;
+Results_Example2.x12 = data.x12;
+Results_Example2.y12 = data.y12;
+Results_Example2.threshImg = data.threshImg;
+Results_Example2.pupilHistEdges = data.pupilHistEdges;
+Results_Example2.normFit = data.normFit;
+Results_Example2.intensityThresh = data.intensityThresh;
+Results_Example2.saveRadonImg = data.saveRadonImg;
+Results_Example2.overlay = data.overlay;
 cd([rootFolder delim])
 % go to manual scores for this file
 filePath = [rootFolder delim 'Data' delim 'T141' delim 'Example Day'];
@@ -111,10 +111,10 @@ physioTrainingFileIDs = char(physioTrainingFiles);
 for aa = 1:size(procDataFileIDs)
     pupilTrainingFileID = pupilTrainingFileIDs(aa,:);
     load(pupilTrainingFileID,'-mat')
-    Results_Example.allPupilTables{aa,1} = pupilTrainingTable;
+    Results_Example2.allPupilTables{aa,1} = pupilTrainingTable;
     physioTrainingFileID = physioTrainingFileIDs(aa,:);
     load(physioTrainingFileID,'-mat')
-    Results_Example.allPhysioTables{aa,1} = trainingTable;
+    Results_Example2.allPhysioTables{aa,1} = trainingTable;
 end
 % start with file 2 to focus on the differences between each file
 trialDuration = 15; % min
@@ -129,11 +129,11 @@ for gg = 2:size(procDataFileIDs,1)
     leadFileTime = datevec(leadFileStr);
     lagFileTime = datevec(lagFileStr);
     timeDifference = etime(lagFileTime,leadFileTime) - (trialDuration*60); % seconds
-    Results_Example.timePadBins{gg - 1,1} = cell(floor(timeDifference/binTime),1);
-    Results_Example.timePadBins{gg - 1,1}(:) = {'Time Pad'};
+    Results_Example2.timePadBins{gg - 1,1} = cell(floor(timeDifference/binTime),1);
+    Results_Example2.timePadBins{gg - 1,1}(:) = {'Time Pad'};
 end
 % save results
 cd([rootFolder delim])
-save('Results_Example.mat','Results_Example','-v7.3')
+save('Results_Example2.mat','Results_Example2','-v7.3')
 
 end

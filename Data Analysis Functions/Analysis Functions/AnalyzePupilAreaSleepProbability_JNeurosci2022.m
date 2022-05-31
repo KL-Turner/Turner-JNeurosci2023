@@ -3,15 +3,14 @@ function [] = AnalyzePupilAreaSleepProbability_JNeurosci2022(animalIDs,rootFolde
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Analyze the probability of arousal-state classification based on hemodynamic [Diameter] changes (IOS)
+% Purpose: Analyze the probability of arousal-state classification based on diameter
 %________________________________________________________________________________________________________________________
 
-%% function parameters
+% function parameters
 allCatLabels = [];
 diameterAllCatMeans = [];
-%% extract data from each animal's sleep scoring results
+% extract data from each animal's sleep scoring results
 for aa = 1:length(animalIDs)
     animalID = animalIDs{1,aa};
     dataLocation = [rootFolder delim 'Data' delim animalID delim 'Bilateral Imaging'];
@@ -30,7 +29,7 @@ for aa = 1:length(animalIDs)
     for bb = 1:size(procDataFileIDs,1)
         procDataFileID = procDataFileIDs(bb,:);
         load(procDataFileID,'-mat')
-        [~,~,fileID] = GetFileInfo_IOS_eLife2020(procDataFileID);
+        [~,~,fileID] = GetFileInfo_JNeurosci2022(procDataFileID);
         if strcmp(ProcData.data.Pupil.diameterCheck,'y') == true
             for dd = 1:length(ScoringResults.fileIDs)
                 if strcmp(fileID,ScoringResults.fileIDs{dd,1}) == true
@@ -48,7 +47,7 @@ for aa = 1:length(animalIDs)
         end
     end
 end
-%% put each mean and scoring label into a cell
+% put each mean and scoring label into a cell
 minDiameter = floor(min(diameterAllCatMeans) - 0.1);
 maxDiameter = ceil(max(diameterAllCatMeans) + 0.1);
 stepSize = 0.1;
@@ -84,7 +83,7 @@ finCatLabels = cat(1,{cutDownLabels},probBinLabels(cutDownStart + 1:cutUpStart -
 for gg = 1:length(finCatLabels)
     for hh = 1:length(finCatLabels{gg,1})
         if strcmp(finCatLabels{gg,1}{hh,1},'Not Sleep') == true
-            awakeProbEvents{gg,1}(hh,1) = 1; %#ok<*AGROW>
+            awakeProbEvents{gg,1}(hh,1) = 1;
         else
             awakeProbEvents{gg,1}(hh,1) = 0;
         end

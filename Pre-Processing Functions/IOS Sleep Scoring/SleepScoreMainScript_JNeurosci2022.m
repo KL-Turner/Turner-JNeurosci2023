@@ -36,7 +36,7 @@ CreateTrainingDataSet_JNeurosci2022(procDataFileIDs,RestingBaselines,baselineTyp
 % combine the existing training set decisions with any sleep parameter changes
 UpdateTrainingDataSets_JNeurosci2022(procDataFileIDs)
 cd(startingDirectory)
-% Train Models - cycle through each data set and update any necessary parameters
+% train Models - cycle through each data set and update any necessary parameters
 [animalID] = TrainSleepModels_JNeurosci2022;
 % sleep score an animal's data set and create a SleepData.mat structure for classification
 modelNames = {'SVM','Ensemble','Forest','Manual'};

@@ -36,9 +36,9 @@ for b = 1:length(firstsFileOfDay)
     for c = 1:length(ROInames)
         ROIname = [ROInames{1,c} '_' strDay];
         if ~isfield(ROIs,(ROIname))
-            if strcmp(ROInames{1,c},'LH') == true || strcmp(ROInames{1,c},'RH') == true || strcmp(ROInames{1,c},'Barrels') == true
-                if strcmpi(imagingType,'gcamp') == true
-                    [ROIs] = PlaceGCaMP_ROIs_JNeurosci2022(animalID,fileID,ROIs,imagingType,lensMag);
+            if any(strcmp(ROInames{1,c},{'LH','RH','frontalLH','frontalRH','Barrels'})) == true
+                if strcmpi(imagingType,'GCaMP') == true
+                    [ROIs] = PlaceGCaMP_ROIs_JNeurosci2022(animalID,fileID,ROIs,lensMag);
                 else
                     [ROIs] = CalculateROICorrelationMatrix_JNeurosci2022(animalID,strDay,fileID,ROIs,imagingType,lensMag);
                 end

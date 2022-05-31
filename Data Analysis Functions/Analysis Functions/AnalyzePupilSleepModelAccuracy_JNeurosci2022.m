@@ -3,12 +3,11 @@ function [Results_PupilSleepModel] = AnalyzePupilSleepModelAccuracy_JNeurosci202
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: train/validate machine learning classifier using solely the pupil diameter
+% Purpose: train/validate machine learning classifier using solely the pupil diameter
 %________________________________________________________________________________________________________________________
 
-%% go to proper folders and load files/structures for model training
+% go to animal's data location
 dataLocation = [rootFolder delim 'Data' delim animalID delim 'Training Data'];
 cd(dataLocation)
 % character list of all ProcData files
@@ -69,7 +68,8 @@ for aa = 1:length(Yeven.behavState)
 end
 %% train support vector machine (SVM) classifier
 disp('Training Support Vector Machine...'); disp(' ')
-zXodd = Xodd(:,1); zXeven = Xeven(:,1);
+zXodd = Xodd(:,1); 
+zXeven = Xeven(:,1);
 mXodd = Xodd(:,2);
 zSVM_MDL = fitcsvm(zXodd,Yodd);
 mmSVM_MDL = fitcsvm(mXodd,Yodd);
@@ -80,7 +80,7 @@ loss = kfoldLoss(CV_SVM_MDL);
 disp(['10-fold loss classification error: ' num2str(loss)]); disp(' ')
 % use the model to generate a set of scores for the even set of data
 [XoddLabels,~] = predict(zSVM_MDL,zXodd);
-[XevenLabels,~] = predict(zSVM_MDL,Xeven.zDiameter);
+[XevenLabels,~] = predict(zSVM_MDL,zXeven);
 % save labels for later confusion matrix
 Results_PupilSleepModel.(animalID).SVM.mdl = zSVM_MDL;
 Results_PupilSleepModel.(animalID).SVM.zBoundary = -zSVM_MDL.Bias/zSVM_MDL.Beta;
@@ -109,7 +109,7 @@ Results_PupilSleepModel.(animalID).SVM.rocOPTROCPT = OPTROCPTsvm;
 %% ensemble classification - AdaBoostM2, Subspace, Bag, LPBoost,RUSBoost, TotalBoost
 disp('Training Ensemble Classifier...'); disp(' ')
 t = templateTree('Reproducible',true);
-EC_MDL = fitcensemble(Xodd,Yodd,'OptimizeHyperparameters','auto','Learners',t,'HyperparameterOptimizationOptions',...
+EC_MDL = fitcensemble(zXodd,Yodd,'OptimizeHyperparameters','auto','Learners',t,'HyperparameterOptimizationOptions',...
     struct('AcquisitionFunctionName','expected-improvement-plus'),'ClassNames',{'Awake','Asleep'});
 % determine k-fold loss of the model
 disp('Cross-validating (k-fold) the ensemble classifier...'); disp(' ')
@@ -117,14 +117,14 @@ CV_EC_MDL = crossval(EC_MDL,'kfold',10);
 loss = kfoldLoss(CV_EC_MDL);
 disp(['10-fold loss classification error: ' num2str(loss)]); disp(' ')
 % use the model to generate a set of scores for the even set of data
-[XoddLabels,~] = predict(EC_MDL,Xodd);
-[XevenLabels,~] = predict(EC_MDL,Xeven);
+[XoddLabels,~] = predict(EC_MDL,zXodd);
+[XevenLabels,~] = predict(EC_MDL,zXeven);
 % save labels for later confusion matrix
 Results_PupilSleepModel.(animalID).EC.mdl = EC_MDL;
 Results_PupilSleepModel.(animalID).EC.loss = loss;
-Results_PupilSleepModel.(animalID).EC.Xodd = Xodd;
+Results_PupilSleepModel.(animalID).EC.Xodd = zXodd;
 Results_PupilSleepModel.(animalID).EC.Yodd = Yodd;
-Results_PupilSleepModel.(animalID).EC.Xeven = Xeven;
+Results_PupilSleepModel.(animalID).EC.Xeven = zXeven;
 Results_PupilSleepModel.(animalID).EC.Yeven = Yeven;
 Results_PupilSleepModel.(animalID).EC.trainYlabels = Yodd.behavState;
 Results_PupilSleepModel.(animalID).EC.trainXlabels = XoddLabels;
@@ -133,19 +133,19 @@ Results_PupilSleepModel.(animalID).EC.testXlabels = XevenLabels;
 %% random forest
 disp('Training Random Forest Classifier...'); disp(' ')
 numTrees = 128;
-RF_MDL = TreeBagger(numTrees,Xodd,Yodd,'Method','Classification','Surrogate','all','OOBPrediction','on','ClassNames',{'Awake','Asleep'});
+RF_MDL = TreeBagger(numTrees,zXodd,Yodd,'Method','Classification','Surrogate','all','OOBPrediction','on','ClassNames',{'Awake','Asleep'});
 % determine the misclassification probability (for classification trees) for out-of-bag observations in the training data
 RF_OOBerror = oobError(RF_MDL,'Mode','Ensemble');
-disp(['Random Forest out-of-bag error: ' num2str(RF_OOBerror*100) '%']); disp(' ')
+disp(['Random Forest out-of-bag error: ' num2str(RF_OOBerror)]); disp(' ')
 % use the model to generate a set of scores for the even set of data
-[XoddLabels,~] = predict(RF_MDL,Xodd);
-[XevenLabels,~] = predict(RF_MDL,Xeven);
+[XoddLabels,~] = predict(RF_MDL,zXodd);
+[XevenLabels,~] = predict(RF_MDL,zXeven);
 % save labels for later confusion matrix
 Results_PupilSleepModel.(animalID).RF.mdl = RF_MDL;
 Results_PupilSleepModel.(animalID).RF.RF_OOBerror = RF_OOBerror;
-Results_PupilSleepModel.(animalID).RF.Xodd = Xodd;
+Results_PupilSleepModel.(animalID).RF.Xodd = zXodd;
 Results_PupilSleepModel.(animalID).RF.Yodd = Yodd;
-Results_PupilSleepModel.(animalID).RF.Xeven = Xeven;
+Results_PupilSleepModel.(animalID).RF.Xeven = zXeven;
 Results_PupilSleepModel.(animalID).RF.Yeven = Yeven;
 Results_PupilSleepModel.(animalID).RF.trainYlabels = Yodd.behavState;
 Results_PupilSleepModel.(animalID).RF.trainXlabels = XoddLabels;

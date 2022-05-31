@@ -10,7 +10,7 @@ function [] = Fig2_JNeurosci2022(rootFolder,saveFigs,delim)
 %% stimulus and whisking evoked pupil changes
 resultsStruct = 'Results_Evoked';
 load(resultsStruct);
-dataTypes = {'mmArea','mmDiameter','zArea','zDiameter'};
+dataTypes = {'zDiameter'};
 timeVector = (0:12*30)/30 - 2;
 animalIDs = fieldnames(Results_Evoked);
 % pre-allocate
@@ -119,8 +119,8 @@ zDiameterStats = fitglme(zDiameterTable,zDiameterFitFormula);
 resultsStruct = 'Results_PowerSpectrum';
 load(resultsStruct);
 animalIDs = fieldnames(Results_PowerSpectrum);
-behavFields = {'Rest','NREM','REM','Awake','Asleep','All'};
-dataTypes = {'mmArea','mmDiameter','zArea','zDiameter'};
+behavFields = {'Rest','NREM','REM','Alert','Asleep','All'};
+dataTypes = {'zDiameter'};
 % pre-allocate data structure
 for aa = 1:length(behavFields)
     behavField = behavFields{1,aa};
@@ -159,8 +159,8 @@ end
 resultsStruct = 'Results_PreWhitenedPowerSpectrum';
 load(resultsStruct);
 animalIDs = fieldnames(Results_PreWhitenedPowerSpectrum);
-behavFields = {'Rest','NREM','REM','Awake','Asleep','All'};
-dataTypes = {'mmArea','mmDiameter','zArea','zDiameter'};
+behavFields = {'Rest','NREM','REM','Alert','Asleep','All'};
+dataTypes = {'zDiameter'};
 % pre-allocate data structure
 for aa = 1:length(behavFields)
     behavField = behavFields{1,aa};
@@ -199,8 +199,8 @@ end
 resultsStruct = 'Results_Coherence';
 load(resultsStruct);
 animalIDs = fieldnames(Results_Coherence);
-behavFields = {'Rest','NREM','REM','Awake','Asleep','All'};
-dataTypes = {'mmArea','mmDiameter','zArea','zDiameter'};
+behavFields = {'Rest','NREM','REM','Alert','Asleep','All'};
+dataTypes = {'zDiameter'};
 % pre-allocate data structure
 for aa = 1:length(behavFields)
     behavField = behavFields{1,aa};
@@ -267,7 +267,7 @@ for ee = 1:length(behavFields)
             elseif strcmp(behavField,'NREM') == true || strcmp(behavField,'REM') == true
                 F = round(data.Coherr.(behavField).(dataType).HbTf(gg,:),2);
                 HbTC = data.Coherr.(behavField).(dataType).HbTC(:,gg);
-                gammaC = data.Coherr.(behavField).(dataType).HbTC(:,gg);
+                gammaC = data.Coherr.(behavField).(dataType).gammaC(:,gg);
                 index03 = find(F == 0.35);
                 data.Coherr.(behavField).(dataType).HbTC035(gg,1) = HbTC(index03(1));
                 data.Coherr.(behavField).(dataType).gammaC035(gg,1) = gammaC(index03(1));
@@ -308,35 +308,35 @@ for ee = 1:length(behavFields)
     end
 end
 % statistics - generalized linear mixed effects model (0.02 HbT coherence)
-HbTC002TableSize = cat(1,data.Coherr.Awake.zDiameter.HbTC002,data.Coherr.Asleep.zDiameter.HbTC002,data.Coherr.All.zDiameter.HbTC002);
+HbTC002TableSize = cat(1,data.Coherr.Alert.zDiameter.HbTC002,data.Coherr.Asleep.zDiameter.HbTC002,data.Coherr.All.zDiameter.HbTC002);
 HbTC002Table = table('Size',[size(HbTC002TableSize,1),3],'VariableTypes',{'string','string','double'},'VariableNames',{'Mouse','Behavior','HbTC002'});
-HbTC002Table.Mouse = cat(1,data.Coherr.Awake.zDiameter.animalID,data.Coherr.Asleep.zDiameter.animalID,data.Coherr.All.zDiameter.animalID);
-HbTC002Table.Behavior = cat(1,data.Coherr.Awake.zDiameter.behavField,data.Coherr.Asleep.zDiameter.behavField,data.Coherr.All.zDiameter.behavField);
-HbTC002Table.HbTC002 = cat(1,data.Coherr.Awake.zDiameter.HbTC002,data.Coherr.Asleep.zDiameter.HbTC002,data.Coherr.All.zDiameter.HbTC002);
+HbTC002Table.Mouse = cat(1,data.Coherr.Alert.zDiameter.animalID,data.Coherr.Asleep.zDiameter.animalID,data.Coherr.All.zDiameter.animalID);
+HbTC002Table.Behavior = cat(1,data.Coherr.Alert.zDiameter.behavField,data.Coherr.Asleep.zDiameter.behavField,data.Coherr.All.zDiameter.behavField);
+HbTC002Table.HbTC002 = cat(1,data.Coherr.Alert.zDiameter.HbTC002,data.Coherr.Asleep.zDiameter.HbTC002,data.Coherr.All.zDiameter.HbTC002);
 HbTC002FitFormula = 'HbTC002 ~ 1 + Behavior + (1|Mouse)';
 HbTC002Stats = fitglme(HbTC002Table,HbTC002FitFormula);
 % statistics - generalized linear mixed effects model (0.02 gamma coherence)
-gammaC002TableSize = cat(1,data.Coherr.Awake.zDiameter.gammaC002,data.Coherr.Asleep.zDiameter.gammaC002,data.Coherr.All.zDiameter.gammaC002);
+gammaC002TableSize = cat(1,data.Coherr.Alert.zDiameter.gammaC002,data.Coherr.Asleep.zDiameter.gammaC002,data.Coherr.All.zDiameter.gammaC002);
 gammaC002Table = table('Size',[size(gammaC002TableSize,1),3],'VariableTypes',{'string','string','double'},'VariableNames',{'Mouse','Behavior','gammaC002'});
-gammaC002Table.Mouse = cat(1,data.Coherr.Awake.zDiameter.animalID,data.Coherr.Asleep.zDiameter.animalID,data.Coherr.All.zDiameter.animalID);
-gammaC002Table.Behavior = cat(1,data.Coherr.Awake.zDiameter.behavField,data.Coherr.Asleep.zDiameter.behavField,data.Coherr.All.zDiameter.behavField);
-gammaC002Table.gammaC002 = cat(1,data.Coherr.Awake.zDiameter.gammaC002,data.Coherr.Asleep.zDiameter.gammaC002,data.Coherr.All.zDiameter.gammaC002);
+gammaC002Table.Mouse = cat(1,data.Coherr.Alert.zDiameter.animalID,data.Coherr.Asleep.zDiameter.animalID,data.Coherr.All.zDiameter.animalID);
+gammaC002Table.Behavior = cat(1,data.Coherr.Alert.zDiameter.behavField,data.Coherr.Asleep.zDiameter.behavField,data.Coherr.All.zDiameter.behavField);
+gammaC002Table.gammaC002 = cat(1,data.Coherr.Alert.zDiameter.gammaC002,data.Coherr.Asleep.zDiameter.gammaC002,data.Coherr.All.zDiameter.gammaC002);
 gammaC002FitFormula = 'gammaC002 ~ 1 + Behavior + (1|Mouse)';
 gammaC002Stats = fitglme(gammaC002Table,gammaC002FitFormula);
 % statistics - generalized linear mixed effects model (0.35 HbT coherence)
-HbTC035TableSize = cat(1,data.Coherr.Rest.zDiameter.HbTC035,data.Coherr.NREM.zDiameter.HbTC035,data.Coherr.REM.zDiameter.HbTC035,data.Coherr.Awake.zDiameter.HbTC035,data.Coherr.Asleep.zDiameter.HbTC035,data.Coherr.All.zDiameter.HbTC035);
+HbTC035TableSize = cat(1,data.Coherr.Rest.zDiameter.HbTC035,data.Coherr.NREM.zDiameter.HbTC035,data.Coherr.REM.zDiameter.HbTC035,data.Coherr.Alert.zDiameter.HbTC035,data.Coherr.Asleep.zDiameter.HbTC035,data.Coherr.All.zDiameter.HbTC035);
 HbTC035Table = table('Size',[size(HbTC035TableSize,1),3],'VariableTypes',{'string','string','double'},'VariableNames',{'Mouse','Behavior','HbTC035'});
-HbTC035Table.Mouse = cat(1,data.Coherr.Rest.zDiameter.animalID,data.Coherr.NREM.zDiameter.animalID,data.Coherr.REM.zDiameter.animalID,data.Coherr.Awake.zDiameter.animalID,data.Coherr.Asleep.zDiameter.animalID,data.Coherr.All.zDiameter.animalID);
-HbTC035Table.Behavior = cat(1,data.Coherr.Rest.zDiameter.behavField,data.Coherr.NREM.zDiameter.behavField,data.Coherr.REM.zDiameter.behavField,data.Coherr.Awake.zDiameter.behavField,data.Coherr.Asleep.zDiameter.behavField,data.Coherr.All.zDiameter.behavField);
-HbTC035Table.HbTC035 = cat(1,data.Coherr.Rest.zDiameter.HbTC035,data.Coherr.NREM.zDiameter.HbTC035,data.Coherr.REM.zDiameter.HbTC035,data.Coherr.Awake.zDiameter.HbTC035,data.Coherr.Asleep.zDiameter.HbTC035,data.Coherr.All.zDiameter.HbTC035);
+HbTC035Table.Mouse = cat(1,data.Coherr.Rest.zDiameter.animalID,data.Coherr.NREM.zDiameter.animalID,data.Coherr.REM.zDiameter.animalID,data.Coherr.Alert.zDiameter.animalID,data.Coherr.Asleep.zDiameter.animalID,data.Coherr.All.zDiameter.animalID);
+HbTC035Table.Behavior = cat(1,data.Coherr.Rest.zDiameter.behavField,data.Coherr.NREM.zDiameter.behavField,data.Coherr.REM.zDiameter.behavField,data.Coherr.Alert.zDiameter.behavField,data.Coherr.Asleep.zDiameter.behavField,data.Coherr.All.zDiameter.behavField);
+HbTC035Table.HbTC035 = cat(1,data.Coherr.Rest.zDiameter.HbTC035,data.Coherr.NREM.zDiameter.HbTC035,data.Coherr.REM.zDiameter.HbTC035,data.Coherr.Alert.zDiameter.HbTC035,data.Coherr.Asleep.zDiameter.HbTC035,data.Coherr.All.zDiameter.HbTC035);
 HbTC035FitFormula = 'HbTC035 ~ 1 + Behavior + (1|Mouse)';
 HbTC035Stats = fitglme(HbTC035Table,HbTC035FitFormula);
 % statistics - generalized linear mixed effects model (0.02 HbT coherence)
-gammaC035TableSize = cat(1,data.Coherr.Rest.zDiameter.gammaC035,data.Coherr.NREM.zDiameter.gammaC035,data.Coherr.REM.zDiameter.gammaC035,data.Coherr.Awake.zDiameter.gammaC035,data.Coherr.Asleep.zDiameter.gammaC035,data.Coherr.All.zDiameter.gammaC035);
+gammaC035TableSize = cat(1,data.Coherr.Rest.zDiameter.gammaC035,data.Coherr.NREM.zDiameter.gammaC035,data.Coherr.REM.zDiameter.gammaC035,data.Coherr.Alert.zDiameter.gammaC035,data.Coherr.Asleep.zDiameter.gammaC035,data.Coherr.All.zDiameter.gammaC035);
 gammaC035Table = table('Size',[size(gammaC035TableSize,1),3],'VariableTypes',{'string','string','double'},'VariableNames',{'Mouse','Behavior','gammaC035'});
-gammaC035Table.Mouse = cat(1,data.Coherr.Rest.zDiameter.animalID,data.Coherr.NREM.zDiameter.animalID,data.Coherr.REM.zDiameter.animalID,data.Coherr.Awake.zDiameter.animalID,data.Coherr.Asleep.zDiameter.animalID,data.Coherr.All.zDiameter.animalID);
-gammaC035Table.Behavior = cat(1,data.Coherr.Rest.zDiameter.behavField,data.Coherr.NREM.zDiameter.behavField,data.Coherr.REM.zDiameter.behavField,data.Coherr.Awake.zDiameter.behavField,data.Coherr.Asleep.zDiameter.behavField,data.Coherr.All.zDiameter.behavField);
-gammaC035Table.gammaC035 = cat(1,data.Coherr.Rest.zDiameter.gammaC035,data.Coherr.NREM.zDiameter.gammaC035,data.Coherr.REM.zDiameter.gammaC035,data.Coherr.Awake.zDiameter.gammaC035,data.Coherr.Asleep.zDiameter.gammaC035,data.Coherr.All.zDiameter.gammaC035);
+gammaC035Table.Mouse = cat(1,data.Coherr.Rest.zDiameter.animalID,data.Coherr.NREM.zDiameter.animalID,data.Coherr.REM.zDiameter.animalID,data.Coherr.Alert.zDiameter.animalID,data.Coherr.Asleep.zDiameter.animalID,data.Coherr.All.zDiameter.animalID);
+gammaC035Table.Behavior = cat(1,data.Coherr.Rest.zDiameter.behavField,data.Coherr.NREM.zDiameter.behavField,data.Coherr.REM.zDiameter.behavField,data.Coherr.Alert.zDiameter.behavField,data.Coherr.Asleep.zDiameter.behavField,data.Coherr.All.zDiameter.behavField);
+gammaC035Table.gammaC035 = cat(1,data.Coherr.Rest.zDiameter.gammaC035,data.Coherr.NREM.zDiameter.gammaC035,data.Coherr.REM.zDiameter.gammaC035,data.Coherr.Alert.zDiameter.gammaC035,data.Coherr.Asleep.zDiameter.gammaC035,data.Coherr.All.zDiameter.gammaC035);
 gammaC035FitFormula = 'gammaC035 ~ 1 + Behavior + (1|Mouse)';
 gammaC035Stats = fitglme(gammaC035Table,gammaC035FitFormula);
 %% pupil HbT/gamma cross correlation
@@ -344,7 +344,7 @@ resultsStruct = 'Results_CrossCorrelation';
 load(resultsStruct);
 animalIDs = fieldnames(Results_CrossCorrelation);
 behavFields = {'Rest','NREM','REM','Alert','Asleep','All'};
-dataTypes = {'mmArea','mmDiameter','zArea','zDiameter'};
+dataTypes = {'zDiameter'};
 % concatenate the cross-correlation during different arousal states for each animal
 for aa = 1:length(animalIDs)
     animalID = animalIDs{aa,1};
@@ -357,20 +357,12 @@ for aa = 1:length(animalIDs)
             if isfield(data.XCorr.(behavField).(dataType),'LH_xcVals_HbT') == false
                 % LH HbT
                 data.XCorr.(behavField).(dataType).LH_xcVals_HbT = [];
-                data.XCorr.(behavField).(dataType).LH_peakLag_HbT = [];
-                data.XCorr.(behavField).(dataType).LH_peak_HbT = [];
                 % RH HbT
                 data.XCorr.(behavField).(dataType).RH_xcVals_HbT = [];
-                data.XCorr.(behavField).(dataType).RH_peakLag_HbT = [];
-                data.XCorr.(behavField).(dataType).RH_peak_HbT = [];
                 % LH gamma
                 data.XCorr.(behavField).(dataType).LH_xcVals_gamma = [];
-                data.XCorr.(behavField).(dataType).LH_peakLag_gamma = [];
-                data.XCorr.(behavField).(dataType).LH_peak_gamma = [];
                 % RH gamma
                 data.XCorr.(behavField).(dataType).RH_xcVals_gamma = [];
-                data.XCorr.(behavField).(dataType).RH_peakLag_gamma = [];
-                data.XCorr.(behavField).(dataType).RH_peak_gamma = [];
                 % lags and stats fields
                 data.XCorr.(behavField).(dataType).lags = [];
                 data.XCorr.(behavField).(dataType).animalID = {};
@@ -378,35 +370,17 @@ for aa = 1:length(animalIDs)
                 data.XCorr.(behavField).(dataType).LH = {};
                 data.XCorr.(behavField).(dataType).RH = {};
             end
-            samplingRate = 30;
-            offset = 3; % sec
             % concatenate cross correlation during each arousal state, find peak + lag time
             if isfield(Results_CrossCorrelation.(animalID),behavField) == true
                 if isempty(Results_CrossCorrelation.(animalID).(behavField).LH_HbT.(dataType).xcVals) == false
                     % LH HbT peak + lag time
                     data.XCorr.(behavField).(dataType).LH_xcVals_HbT = cat(1,data.XCorr.(behavField).(dataType).LH_xcVals_HbT,Results_CrossCorrelation.(animalID).(behavField).LH_HbT.(dataType).xcVals);
-                    midPoint = floor(length(Results_CrossCorrelation.(animalID).(behavField).LH_HbT.(dataType).xcVals)/2);
-                    [minVal,minIndex] = min(Results_CrossCorrelation.(animalID).(behavField).LH_HbT.(dataType).xcVals(midPoint - samplingRate*offset:midPoint + samplingRate*offset));
-                    data.XCorr.(behavField).(dataType).LH_peakLag_HbT = cat(1,data.XCorr.(behavField).(dataType).LH_peakLag_HbT,minIndex/samplingRate - offset);
-                    data.XCorr.(behavField).(dataType).LH_peak_HbT = cat(1,data.XCorr.(behavField).(dataType).LH_peak_HbT,minVal);
                     % RH HbT peak + lag time
                     data.XCorr.(behavField).(dataType).RH_xcVals_HbT = cat(1,data.XCorr.(behavField).(dataType).RH_xcVals_HbT,Results_CrossCorrelation.(animalID).(behavField).RH_HbT.(dataType).xcVals);
-                    midPoint = floor(length(Results_CrossCorrelation.(animalID).(behavField).RH_HbT.(dataType).xcVals)/2);
-                    [minVal,minIndex] = min(Results_CrossCorrelation.(animalID).(behavField).RH_HbT.(dataType).xcVals(midPoint - samplingRate*offset:midPoint + samplingRate*offset));
-                    data.XCorr.(behavField).(dataType).RH_peakLag_HbT = cat(1,data.XCorr.(behavField).(dataType).RH_peakLag_HbT,minIndex/samplingRate - offset);
-                    data.XCorr.(behavField).(dataType).RH_peak_HbT = cat(1,data.XCorr.(behavField).(dataType).RH_peak_HbT,minVal);
                     % LH gamma peak + lag time
                     data.XCorr.(behavField).(dataType).LH_xcVals_gamma = cat(1,data.XCorr.(behavField).(dataType).LH_xcVals_gamma,Results_CrossCorrelation.(animalID).(behavField).LH_gammaBandPower.(dataType).xcVals);
-                    midPoint = floor(length(Results_CrossCorrelation.(animalID).(behavField).LH_gammaBandPower.(dataType).xcVals)/2);
-                    [minVal,minIndex] = min(Results_CrossCorrelation.(animalID).(behavField).LH_gammaBandPower.(dataType).xcVals(midPoint - samplingRate*offset:midPoint + samplingRate*offset));
-                    data.XCorr.(behavField).(dataType).LH_peakLag_gamma = cat(1,data.XCorr.(behavField).(dataType).LH_peakLag_gamma,minIndex/samplingRate - offset);
-                    data.XCorr.(behavField).(dataType).LH_peak_gamma = cat(1,data.XCorr.(behavField).(dataType).LH_peak_gamma,minVal);
                     % RH gamma peak + lag time
                     data.XCorr.(behavField).(dataType).RH_xcVals_gamma = cat(1,data.XCorr.(behavField).(dataType).RH_xcVals_gamma,Results_CrossCorrelation.(animalID).(behavField).RH_gammaBandPower.(dataType).xcVals);
-                    midPoint = floor(length(Results_CrossCorrelation.(animalID).(behavField).RH_gammaBandPower.(dataType).xcVals)/2);
-                    [minVal,minIndex] = min(Results_CrossCorrelation.(animalID).(behavField).RH_gammaBandPower.(dataType).xcVals(midPoint - samplingRate*offset:midPoint + samplingRate*offset));
-                    data.XCorr.(behavField).(dataType).RH_peakLag_gamma = cat(1,data.XCorr.(behavField).(dataType).RH_peakLag_gamma,minIndex/samplingRate - offset);
-                    data.XCorr.(behavField).(dataType).RH_peak_gamma = cat(1,data.XCorr.(behavField).(dataType).RH_peak_gamma,minVal);
                     % lags and stats fields
                     data.XCorr.(behavField).(dataType).lags = cat(1,data.XCorr.(behavField).(dataType).lags,Results_CrossCorrelation.(animalID).(behavField).LH_HbT.(dataType).lags,Results_CrossCorrelation.(animalID).(behavField).RH_HbT.(dataType).lags);
                     data.XCorr.(behavField).(dataType).animalID = cat(1,data.XCorr.(behavField).(dataType).animalID,animalID);
@@ -418,56 +392,36 @@ for aa = 1:length(animalIDs)
         end
     end
 end
+samplingRate = 30;
 % mean and standard error/standard deviation of cross correlation values
 for dd = 1:length(behavFields)
     behavField = behavFields{1,dd};
     for ff = 1:length(dataTypes)
         dataType = dataTypes{1,ff};
+        % Lags time vector
+        data.XCorr.(behavField).(dataType).meanLags = mean(data.XCorr.(behavField).(dataType).lags,1);
         % HbT XC mean/sem
         data.XCorr.(behavField).(dataType).xcVals_HbT = cat(1,data.XCorr.(behavField).(dataType).LH_xcVals_HbT,data.XCorr.(behavField).(dataType).RH_xcVals_HbT);
         data.XCorr.(behavField).(dataType).meanXcVals_HbT = mean(data.XCorr.(behavField).(dataType).xcVals_HbT,1);
+        data.XCorr.(behavField).(dataType).stdXcVals_HbT = std(data.XCorr.(behavField).(dataType).xcVals_HbT,0,1);
         data.XCorr.(behavField).(dataType).semXcVals_HbT = std(data.XCorr.(behavField).(dataType).xcVals_HbT,0,1)./sqrt(size(data.XCorr.(behavField).(dataType).xcVals_HbT,1));
-        % HbT peak lag mean/std
-        data.XCorr.(behavField).(dataType).peakLag_HbT = cat(1,data.XCorr.(behavField).(dataType).LH_peakLag_HbT,data.XCorr.(behavField).(dataType).RH_peakLag_HbT);
-        data.XCorr.(behavField).(dataType).meanPeakLag_HbT = mean(data.XCorr.(behavField).(dataType).peakLag_HbT,1);
-        data.XCorr.(behavField).(dataType).stdPeakLag_HbT = std(data.XCorr.(behavField).(dataType).peakLag_HbT,0,1);
-        % HbT peak mean/std
-        data.XCorr.(behavField).(dataType).peak_HbT = cat(1,data.XCorr.(behavField).(dataType).LH_peak_HbT,data.XCorr.(behavField).(dataType).RH_peak_HbT);
-        data.XCorr.(behavField).(dataType).meanPeak_HbT = mean(data.XCorr.(behavField).(dataType).peak_HbT,1);
-        data.XCorr.(behavField).(dataType).stdPeak_HbT = std(data.XCorr.(behavField).(dataType).peak_HbT,0,1);
+        % find peak lag time and value/std at that time
+        [~,idx] = max(abs(data.XCorr.(behavField).(dataType).meanXcVals_HbT));
+        data.XCorr.(behavField).(dataType).peakHbTVal = data.XCorr.(behavField).(dataType).meanXcVals_HbT(1,idx);
+        data.XCorr.(behavField).(dataType).peakHbTStD = data.XCorr.(behavField).(dataType).stdXcVals_HbT(1,idx);
+        data.XCorr.(behavField).(dataType).peakHbTLag = data.XCorr.(behavField).(dataType).meanLags(1,idx)/samplingRate;
         % Gamma XC mean/sem
         data.XCorr.(behavField).(dataType).xcVals_gamma = cat(1,data.XCorr.(behavField).(dataType).LH_xcVals_gamma,data.XCorr.(behavField).(dataType).RH_xcVals_gamma);
         data.XCorr.(behavField).(dataType).meanXcVals_gamma = mean(data.XCorr.(behavField).(dataType).xcVals_gamma,1);
+        data.XCorr.(behavField).(dataType).stdXcVals_gamma = std(data.XCorr.(behavField).(dataType).xcVals_gamma,0,1);
         data.XCorr.(behavField).(dataType).semXcVals_gamma = std(data.XCorr.(behavField).(dataType).xcVals_gamma,0,1)./sqrt(size(data.XCorr.(behavField).(dataType).xcVals_gamma,1));
-        % Gamma peak lag mean/std
-        data.XCorr.(behavField).(dataType).peakLag_gamma = cat(1,data.XCorr.(behavField).(dataType).LH_peakLag_gamma,data.XCorr.(behavField).(dataType).RH_peakLag_gamma);
-        data.XCorr.(behavField).(dataType).meanPeakLag_gamma = mean(data.XCorr.(behavField).(dataType).peakLag_gamma,1);
-        data.XCorr.(behavField).(dataType).stdPeakLag_gamma = std(data.XCorr.(behavField).(dataType).peakLag_gamma,0,1);
-        % Gamma peak mean/std
-        data.XCorr.(behavField).(dataType).peak_gamma = cat(1,data.XCorr.(behavField).(dataType).LH_peak_gamma,data.XCorr.(behavField).(dataType).RH_peak_gamma);
-        data.XCorr.(behavField).(dataType).meanPeak_gamma = mean(data.XCorr.(behavField).(dataType).peak_gamma,1);
-        data.XCorr.(behavField).(dataType).stdPeak_gamma = std(data.XCorr.(behavField).(dataType).peak_gamma,0,1);
-        % Lags time vector
-        data.XCorr.(behavField).(dataType).meanLags = mean(data.XCorr.(behavField).(dataType).lags,1);
+        % find peak lag time and value/std at that time
+        [~,idx] = max(abs(data.XCorr.(behavField).(dataType).meanXcVals_gamma));
+        data.XCorr.(behavField).(dataType).peakGammaVal = data.XCorr.(behavField).(dataType).meanXcVals_gamma(1,idx);
+        data.XCorr.(behavField).(dataType).peakGammaStD = data.XCorr.(behavField).(dataType).stdXcVals_gamma(1,idx);
+        data.XCorr.(behavField).(dataType).peakGammaLag = data.XCorr.(behavField).(dataType).meanLags(1,idx)/samplingRate;
     end
 end
-% statistics - generalized linear mixed effects model
-% gammaPeakTableSize = cat(1,data.XCorr.Rest.zDiameter.peak_gamma,data.XCorr.NREM.zDiameter.peak_gamma,data.XCorr.REM.zDiameter.peak_gamma,...
-%     data.XCorr.Alert.zDiameter.peak_gamma,data.XCorr.Asleep.zDiameter.peak_gamma,data.XCorr.All.zDiameter.peak_gamma);
-% gammaPeakTable = table('Size',[size(gammaPeakTableSize,1),4],'VariableTypes',{'string','double','string','string'},'VariableNames',{'Mouse','Peak','Behavior','Hemisphere'});
-% gammaPeakTable.Mouse = cat(1,data.XCorr.Rest.zDiameter.animalID,data.XCorr.Rest.zDiameter.animalID,data.XCorr.NREM.zDiameter.animalID,data.XCorr.NREM.zDiameter.animalID,...
-%     data.XCorr.REM.zDiameter.animalID,data.XCorr.REM.zDiameter.animalID,data.XCorr.Alert.zDiameter.animalID,data.XCorr.Alert.zDiameter.animalID,...
-%     data.XCorr.Asleep.zDiameter.animalID,data.XCorr.Asleep.zDiameter.animalID,data.XCorr.All.zDiameter.animalID,data.XCorr.All.zDiameter.animalID);
-% gammaPeakTable.Peak = cat(1,data.XCorr.Rest.zDiameter.peak_gamma,data.XCorr.NREM.zDiameter.peak_gamma,data.XCorr.REM.zDiameter.peak_gamma,...
-%     data.XCorr.Alert.zDiameter.peak_gamma,data.XCorr.Asleep.zDiameter.peak_gamma,data.XCorr.All.zDiameter.peak_gamma);
-% gammaPeakTable.Behavior = cat(1,data.XCorr.Rest.zDiameter.behavField,data.XCorr.Rest.zDiameter.behavField,data.XCorr.NREM.zDiameter.behavField,data.XCorr.NREM.zDiameter.behavField,...
-%     data.XCorr.REM.zDiameter.behavField,data.XCorr.REM.zDiameter.behavField,data.XCorr.Alert.zDiameter.behavField,data.XCorr.Alert.zDiameter.behavField,...
-%     data.XCorr.Asleep.zDiameter.behavField,data.XCorr.Asleep.zDiameter.behavField,data.XCorr.All.zDiameter.behavField,data.XCorr.All.zDiameter.behavField);
-% gammaPeakTable.Hemisphere = cat(1,data.XCorr.Rest.zDiameter.LH,data.XCorr.Rest.zDiameter.RH,data.XCorr.NREM.zDiameter.LH,data.XCorr.NREM.zDiameter.RH,...
-%     data.XCorr.REM.zDiameter.LH,data.XCorr.REM.zDiameter.RH,data.XCorr.Alert.zDiameter.LH,data.XCorr.Alert.zDiameter.RH,...
-%     data.XCorr.Asleep.zDiameter.LH,data.XCorr.Asleep.zDiameter.RH,data.XCorr.All.zDiameter.LH,data.XCorr.All.zDiameter.RH);
-% gammaPeakFitFormula = 'Peak ~ 1 + Behavior + (1|Mouse) + (1|Mouse:Hemisphere)';
-% gammaPeakStats = fitglme(gammaPeakTable,gammaPeakFitFormula); %#ok<*NASGU>
 %% figures
 Fig2 = figure('Name','Figure Panel 2 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
 %% stimulus/whisking evoked zDiameter changes
@@ -565,35 +519,38 @@ set(gca,'box','off')
 ax3.TickLength = [0.03,0.03];
 %% zDiameter pupil power spectrum during arousal states
 ax4 = subplot(3,4,4);
-L1 = loglog(data.PowerSpec.Rest.zDiameter.meanf,data.PowerSpec.Rest.zDiameter.meanS,'color',colors('custom rest'),'LineWidth',2);
+L1 = loglog(data.PreWhitenedPowerSpec.Rest.zDiameter.meanf,data.PreWhitenedPowerSpec.Rest.zDiameter.meanS,'color',colors('custom rest'),'LineWidth',2);
 hold on
-loglog(data.PowerSpec.Rest.zDiameter.meanf,data.PowerSpec.Rest.zDiameter.meanS + data.PowerSpec.Rest.zDiameter.semS,'color',colors('custom rest'),'LineWidth',0.5);
-loglog(data.PowerSpec.Rest.zDiameter.meanf,data.PowerSpec.Rest.zDiameter.meanS - data.PowerSpec.Rest.zDiameter.semS,'color',colors('custom rest'),'LineWidth',0.5);
-rectangle('Position',[0.005,0.1,0.1 - 0.005,1],'FaceColor','w','EdgeColor','w')
-L2 = loglog(data.PowerSpec.NREM.zDiameter.meanf,data.PowerSpec.NREM.zDiameter.meanS,'color',colors('custom nrem'),'LineWidth',2);
-loglog(data.PowerSpec.NREM.zDiameter.meanf,data.PowerSpec.NREM.zDiameter.meanS + data.PowerSpec.NREM.zDiameter.semS,'color',colors('custom nrem'),'LineWidth',0.5);
-loglog(data.PowerSpec.NREM.zDiameter.meanf,data.PowerSpec.NREM.zDiameter.meanS - data.PowerSpec.NREM.zDiameter.semS,'color',colors('custom nrem'),'LineWidth',0.5);
-rectangle('Position',[0.005,0.1,1/30 - 0.005,5],'FaceColor','w','EdgeColor','w')
-L3 = loglog(data.PowerSpec.REM.zDiameter.meanf,data.PowerSpec.REM.zDiameter.meanS,'color',colors('custom rem'),'LineWidth',2);
-loglog(data.PowerSpec.REM.zDiameter.meanf,data.PowerSpec.REM.zDiameter.meanS + data.PowerSpec.REM.zDiameter.semS,'color',colors('custom rem'),'LineWidth',0.5);
-loglog(data.PowerSpec.REM.zDiameter.meanf,data.PowerSpec.REM.zDiameter.meanS - data.PowerSpec.REM.zDiameter.semS,'color',colors('custom rem'),'LineWidth',0.5);
-rectangle('Position',[0.005,0.1,1/60 - 0.005,5],'FaceColor','w','EdgeColor','w')
-L4 = loglog(data.PowerSpec.Awake.zDiameter.meanf,data.PowerSpec.Awake.zDiameter.meanS,'color',colors('custom alert'),'LineWidth',2);
-loglog(data.PowerSpec.Awake.zDiameter.meanf,data.PowerSpec.Awake.zDiameter.meanS + data.PowerSpec.Awake.zDiameter.semS,'color',colors('custom alert'),'LineWidth',0.5);
-loglog(data.PowerSpec.Awake.zDiameter.meanf,data.PowerSpec.Awake.zDiameter.meanS - data.PowerSpec.Awake.zDiameter.semS,'color',colors('custom alert'),'LineWidth',0.5);
-L5 = loglog(data.PowerSpec.Asleep.zDiameter.meanf,data.PowerSpec.Asleep.zDiameter.meanS,'color',colors('custom asleep'),'LineWidth',2);
-loglog(data.PowerSpec.Asleep.zDiameter.meanf,data.PowerSpec.Asleep.zDiameter.meanS + data.PowerSpec.Asleep.zDiameter.semS,'color',colors('custom asleep'),'LineWidth',0.5);
-loglog(data.PowerSpec.Asleep.zDiameter.meanf,data.PowerSpec.Asleep.zDiameter.meanS - data.PowerSpec.Asleep.zDiameter.semS,'color',colors('custom asleep'),'LineWidth',0.5);
-L6 = loglog(data.PowerSpec.All.zDiameter.meanf,data.PowerSpec.All.zDiameter.meanS,'color',colors('custom all'),'LineWidth',2);
-loglog(data.PowerSpec.All.zDiameter.meanf,data.PowerSpec.All.zDiameter.meanS + data.PowerSpec.All.zDiameter.semS,'color',colors('custom all'),'LineWidth',0.5);
-loglog(data.PowerSpec.All.zDiameter.meanf,data.PowerSpec.All.zDiameter.meanS - data.PowerSpec.All.zDiameter.semS,'color',colors('custom all'),'LineWidth',0.5);
+loglog(data.PreWhitenedPowerSpec.Rest.zDiameter.meanf,data.PreWhitenedPowerSpec.Rest.zDiameter.meanS + data.PreWhitenedPowerSpec.Rest.zDiameter.semS,'color',colors('custom rest'),'LineWidth',0.5);
+loglog(data.PreWhitenedPowerSpec.Rest.zDiameter.meanf,data.PreWhitenedPowerSpec.Rest.zDiameter.meanS - data.PreWhitenedPowerSpec.Rest.zDiameter.semS,'color',colors('custom rest'),'LineWidth',0.5);
+rectangle('Position',[0.004,0.00004,0.1 - 0.004,0.001],'FaceColor','w','EdgeColor','w')
+L2 = loglog(data.PreWhitenedPowerSpec.NREM.zDiameter.meanf,data.PreWhitenedPowerSpec.NREM.zDiameter.meanS,'color',colors('custom nrem'),'LineWidth',2);
+loglog(data.PreWhitenedPowerSpec.NREM.zDiameter.meanf,data.PreWhitenedPowerSpec.NREM.zDiameter.meanS + data.PreWhitenedPowerSpec.NREM.zDiameter.semS,'color',colors('custom nrem'),'LineWidth',0.5);
+loglog(data.PreWhitenedPowerSpec.NREM.zDiameter.meanf,data.PreWhitenedPowerSpec.NREM.zDiameter.meanS - data.PreWhitenedPowerSpec.NREM.zDiameter.semS,'color',colors('custom nrem'),'LineWidth',0.5);
+rectangle('Position',[0.004,0.00004,1/30 - 0.004,0.001],'FaceColor','w','EdgeColor','w')
+L3 = loglog(data.PreWhitenedPowerSpec.REM.zDiameter.meanf,data.PreWhitenedPowerSpec.REM.zDiameter.meanS,'color',colors('custom rem'),'LineWidth',2);
+loglog(data.PreWhitenedPowerSpec.REM.zDiameter.meanf,data.PreWhitenedPowerSpec.REM.zDiameter.meanS + data.PreWhitenedPowerSpec.REM.zDiameter.semS,'color',colors('custom rem'),'LineWidth',0.5);
+loglog(data.PreWhitenedPowerSpec.REM.zDiameter.meanf,data.PreWhitenedPowerSpec.REM.zDiameter.meanS - data.PreWhitenedPowerSpec.REM.zDiameter.semS,'color',colors('custom rem'),'LineWidth',0.5);
+rectangle('Position',[0.004,0.00004,1/60 - 0.004,0.001],'FaceColor','w','EdgeColor','w')
+L4 = loglog(data.PreWhitenedPowerSpec.Alert.zDiameter.meanf,data.PreWhitenedPowerSpec.Alert.zDiameter.meanS,'color',colors('custom alert'),'LineWidth',2);
+loglog(data.PreWhitenedPowerSpec.Alert.zDiameter.meanf,data.PreWhitenedPowerSpec.Alert.zDiameter.meanS + data.PreWhitenedPowerSpec.Alert.zDiameter.semS,'color',colors('custom alert'),'LineWidth',0.5);
+loglog(data.PreWhitenedPowerSpec.Alert.zDiameter.meanf,data.PreWhitenedPowerSpec.Alert.zDiameter.meanS - data.PreWhitenedPowerSpec.Alert.zDiameter.semS,'color',colors('custom alert'),'LineWidth',0.5);
+L5 = loglog(data.PreWhitenedPowerSpec.Asleep.zDiameter.meanf,data.PreWhitenedPowerSpec.Asleep.zDiameter.meanS,'color',colors('custom asleep'),'LineWidth',2);
+loglog(data.PreWhitenedPowerSpec.Asleep.zDiameter.meanf,data.PreWhitenedPowerSpec.Asleep.zDiameter.meanS + data.PreWhitenedPowerSpec.Asleep.zDiameter.semS,'color',colors('custom asleep'),'LineWidth',0.5);
+loglog(data.PreWhitenedPowerSpec.Asleep.zDiameter.meanf,data.PreWhitenedPowerSpec.Asleep.zDiameter.meanS - data.PreWhitenedPowerSpec.Asleep.zDiameter.semS,'color',colors('custom asleep'),'LineWidth',0.5);
+L6 = loglog(data.PreWhitenedPowerSpec.All.zDiameter.meanf,data.PreWhitenedPowerSpec.All.zDiameter.meanS,'color',colors('custom all'),'LineWidth',2);
+loglog(data.PreWhitenedPowerSpec.All.zDiameter.meanf,data.PreWhitenedPowerSpec.All.zDiameter.meanS + data.PreWhitenedPowerSpec.All.zDiameter.semS,'color',colors('custom all'),'LineWidth',0.5);
+loglog(data.PreWhitenedPowerSpec.All.zDiameter.meanf,data.PreWhitenedPowerSpec.All.zDiameter.meanS - data.PreWhitenedPowerSpec.All.zDiameter.semS,'color',colors('custom all'),'LineWidth',0.5);
 title('Pupil power spectrum')
+xline(1/10)
+xline(1/30)
+xline(1/60)
 ylabel('Power (a.u.)')
 xlabel('Freq (Hz)')
-legend([L1,L2,L3,L4,L5,L6],'Rest','NREM','REM','Alert','Asleep','All','Location','SouthWest')
+legend([L1,L2,L3,L4,L5,L6],'Rest','NREM','REM','Alert','Asleep','All','Location','NorthWest')
 axis square
-axis tight
 xlim([0.003,1])
+ylim([0.000035,0.0012])
 set(gca,'box','off')
 ax4.TickLength = [0.03,0.03];
 %% HbT-pupil coherence
@@ -611,9 +568,9 @@ semilogx(data.Coherr.REM.zDiameter.meanHbTf,data.Coherr.REM.zDiameter.meanHbTC,'
 semilogx(data.Coherr.REM.zDiameter.meanHbTf,data.Coherr.REM.zDiameter.meanHbTC + data.Coherr.REM.zDiameter.semHbTC,'color',colors('custom rem'),'LineWidth',0.5);
 semilogx(data.Coherr.REM.zDiameter.meanHbTf,data.Coherr.REM.zDiameter.meanHbTC - data.Coherr.REM.zDiameter.semHbTC,'color',colors('custom rem'),'LineWidth',0.5);
 rectangle('Position',[0.005,0.1,1/60 - 0.005,1],'FaceColor','w','EdgeColor','w')
-semilogx(data.Coherr.Awake.zDiameter.meanHbTf,data.Coherr.Awake.zDiameter.meanHbTC,'color',colors('custom alert'),'LineWidth',2);
-semilogx(data.Coherr.Awake.zDiameter.meanHbTf,data.Coherr.Awake.zDiameter.meanHbTC + data.Coherr.Awake.zDiameter.semHbTC,'color',colors('custom alert'),'LineWidth',0.5);
-semilogx(data.Coherr.Awake.zDiameter.meanHbTf,data.Coherr.Awake.zDiameter.meanHbTC - data.Coherr.Awake.zDiameter.semHbTC,'color',colors('custom alert'),'LineWidth',0.5);
+semilogx(data.Coherr.Alert.zDiameter.meanHbTf,data.Coherr.Alert.zDiameter.meanHbTC,'color',colors('custom alert'),'LineWidth',2);
+semilogx(data.Coherr.Alert.zDiameter.meanHbTf,data.Coherr.Alert.zDiameter.meanHbTC + data.Coherr.Alert.zDiameter.semHbTC,'color',colors('custom alert'),'LineWidth',0.5);
+semilogx(data.Coherr.Alert.zDiameter.meanHbTf,data.Coherr.Alert.zDiameter.meanHbTC - data.Coherr.Alert.zDiameter.semHbTC,'color',colors('custom alert'),'LineWidth',0.5);
 semilogx(data.Coherr.Asleep.zDiameter.meanHbTf,data.Coherr.Asleep.zDiameter.meanHbTC,'color',colors('custom asleep'),'LineWidth',2);
 semilogx(data.Coherr.Asleep.zDiameter.meanHbTf,data.Coherr.Asleep.zDiameter.meanHbTC + data.Coherr.Asleep.zDiameter.semHbTC,'color',colors('custom asleep'),'LineWidth',0.5);
 semilogx(data.Coherr.Asleep.zDiameter.meanHbTf,data.Coherr.Asleep.zDiameter.meanHbTC - data.Coherr.Asleep.zDiameter.semHbTC,'color',colors('custom asleep'),'LineWidth',0.5);
@@ -632,9 +589,9 @@ set(gca,'box','off')
 ax5.TickLength = [0.03,0.03];
 %% HbT-pupil coherence Stats
 ax6 = subplot(3,4,6);
-scatter(ones(1,length(data.Coherr.Awake.zDiameter.HbTC002))*1,data.Coherr.Awake.zDiameter.HbTC002,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom alert'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Coherr.Alert.zDiameter.HbTC002))*1,data.Coherr.Alert.zDiameter.HbTC002,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom alert'),'jitter','on','jitterAmount',0.25);
 hold on
-e1 = errorbar(1,data.Coherr.Awake.zDiameter.meanHbTC002,data.Coherr.Awake.zDiameter.stdHbTC002,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e1 = errorbar(1,data.Coherr.Alert.zDiameter.meanHbTC002,data.Coherr.Alert.zDiameter.stdHbTC002,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e1.Color = 'black';
 e1.MarkerSize = 10;
 e1.CapSize = 10;
@@ -663,8 +620,8 @@ e6 = errorbar(7,data.Coherr.REM.zDiameter.meanHbTC035,data.Coherr.REM.zDiameter.
 e6.Color = 'black';
 e6.MarkerSize = 10;
 e6.CapSize = 10;
-scatter(ones(1,length(data.Coherr.Awake.zDiameter.HbTC035))*8,data.Coherr.Awake.zDiameter.HbTC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom alert'),'jitter','on','jitterAmount',0.25);
-e7 = errorbar(8,data.Coherr.Awake.zDiameter.meanHbTC035,data.Coherr.Awake.zDiameter.stdHbTC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+scatter(ones(1,length(data.Coherr.Alert.zDiameter.HbTC035))*8,data.Coherr.Alert.zDiameter.HbTC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom alert'),'jitter','on','jitterAmount',0.25);
+e7 = errorbar(8,data.Coherr.Alert.zDiameter.meanHbTC035,data.Coherr.Alert.zDiameter.stdHbTC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e7.Color = 'black';
 e7.MarkerSize = 10;
 e7.CapSize = 10;
@@ -701,9 +658,9 @@ semilogx(data.Coherr.REM.zDiameter.meanGammaf,data.Coherr.REM.zDiameter.meanGamm
 semilogx(data.Coherr.REM.zDiameter.meanGammaf,data.Coherr.REM.zDiameter.meanGammaC + data.Coherr.REM.zDiameter.semGammaC,'color',colors('custom rem'),'LineWidth',0.5);
 semilogx(data.Coherr.REM.zDiameter.meanGammaf,data.Coherr.REM.zDiameter.meanGammaC - data.Coherr.REM.zDiameter.semGammaC,'color',colors('custom rem'),'LineWidth',0.5);
 rectangle('Position',[0.005,0.1,1/60 - 0.005,1],'FaceColor','w','EdgeColor','w')
-semilogx(data.Coherr.Awake.zDiameter.meanGammaf,data.Coherr.Awake.zDiameter.meanGammaC,'color',colors('custom alert'),'LineWidth',2);
-semilogx(data.Coherr.Awake.zDiameter.meanGammaf,data.Coherr.Awake.zDiameter.meanGammaC + data.Coherr.Awake.zDiameter.semGammaC,'color',colors('custom alert'),'LineWidth',0.5);
-semilogx(data.Coherr.Awake.zDiameter.meanGammaf,data.Coherr.Awake.zDiameter.meanGammaC - data.Coherr.Awake.zDiameter.semGammaC,'color',colors('custom alert'),'LineWidth',0.5);
+semilogx(data.Coherr.Alert.zDiameter.meanGammaf,data.Coherr.Alert.zDiameter.meanGammaC,'color',colors('custom alert'),'LineWidth',2);
+semilogx(data.Coherr.Alert.zDiameter.meanGammaf,data.Coherr.Alert.zDiameter.meanGammaC + data.Coherr.Alert.zDiameter.semGammaC,'color',colors('custom alert'),'LineWidth',0.5);
+semilogx(data.Coherr.Alert.zDiameter.meanGammaf,data.Coherr.Alert.zDiameter.meanGammaC - data.Coherr.Alert.zDiameter.semGammaC,'color',colors('custom alert'),'LineWidth',0.5);
 semilogx(data.Coherr.Asleep.zDiameter.meanGammaf,data.Coherr.Asleep.zDiameter.meanGammaC,'color',colors('custom asleep'),'LineWidth',2);
 semilogx(data.Coherr.Asleep.zDiameter.meanGammaf,data.Coherr.Asleep.zDiameter.meanGammaC + data.Coherr.Asleep.zDiameter.semGammaC,'color',colors('custom asleep'),'LineWidth',0.5);
 semilogx(data.Coherr.Asleep.zDiameter.meanGammaf,data.Coherr.Asleep.zDiameter.meanGammaC - data.Coherr.Asleep.zDiameter.semGammaC,'color',colors('custom asleep'),'LineWidth',0.5);
@@ -722,9 +679,9 @@ set(gca,'box','off')
 ax7.TickLength = [0.03,0.03];
 %% gamma-pupil coherence stats
 ax8 = subplot(3,4,8);
-scatter(ones(1,length(data.Coherr.Awake.zDiameter.gammaC002))*1,data.Coherr.Awake.zDiameter.gammaC002,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom alert'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Coherr.Alert.zDiameter.gammaC002))*1,data.Coherr.Alert.zDiameter.gammaC002,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom alert'),'jitter','on','jitterAmount',0.25);
 hold on
-e1 = errorbar(1,data.Coherr.Awake.zDiameter.meanGammaC002,data.Coherr.Awake.zDiameter.stdGammaC002,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e1 = errorbar(1,data.Coherr.Alert.zDiameter.meanGammaC002,data.Coherr.Alert.zDiameter.stdGammaC002,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e1.Color = 'black';
 e1.MarkerSize = 10;
 e1.CapSize = 10;
@@ -753,8 +710,8 @@ e6 = errorbar(7,data.Coherr.REM.zDiameter.meanGammaC035,data.Coherr.REM.zDiamete
 e6.Color = 'black';
 e6.MarkerSize = 10;
 e6.CapSize = 10;
-scatter(ones(1,length(data.Coherr.Awake.zDiameter.gammaC035))*8,data.Coherr.Awake.zDiameter.gammaC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom alert'),'jitter','on','jitterAmount',0.25);
-e7 = errorbar(8,data.Coherr.Awake.zDiameter.meanGammaC035,data.Coherr.Awake.zDiameter.stdGammaC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+scatter(ones(1,length(data.Coherr.Alert.zDiameter.gammaC035))*8,data.Coherr.Alert.zDiameter.gammaC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom alert'),'jitter','on','jitterAmount',0.25);
+e7 = errorbar(8,data.Coherr.Alert.zDiameter.meanGammaC035,data.Coherr.Alert.zDiameter.stdGammaC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e7.Color = 'black';
 e7.MarkerSize = 10;
 e7.CapSize = 10;
@@ -793,6 +750,7 @@ plot(data.XCorr.REM.zDiameter.meanLags,data.XCorr.REM.zDiameter.meanXcVals_HbT -
 xticks([-lagSec*freq,-lagSec*freq/2,0,lagSec*freq/2,lagSec*freq])
 xticklabels({'-5','-2.5','0','2.5','5'})
 xlim([-lagSec*freq,lagSec*freq])
+ylim([-0.7,0.3])
 xlabel('Lags (s)')
 ylabel('Correlation')
 title('Pupil-HbT XCorr')
@@ -816,6 +774,7 @@ plot(data.XCorr.All.zDiameter.meanLags,data.XCorr.All.zDiameter.meanXcVals_HbT -
 xticks([-lagSec*freq,-lagSec*freq/2,0,lagSec*freq/2,lagSec*freq])
 xticklabels({'-30','-15','0','15','30'})
 xlim([-lagSec*freq,lagSec*freq])
+ylim([-0.7,0.3])
 xlabel('Lags (s)')
 ylabel('Correlation')
 title('Pupil-HbT XCorr')
@@ -839,6 +798,7 @@ plot(data.XCorr.REM.zDiameter.meanLags,data.XCorr.REM.zDiameter.meanXcVals_gamma
 xticks([-lagSec*freq,-lagSec*freq/2,0,lagSec*freq/2,lagSec*freq])
 xticklabels({'-5','-2.5','0','2.5','5'})
 xlim([-lagSec*freq,lagSec*freq])
+ylim([-0.35,0.15])
 xlabel('Lags (s)')
 ylabel('Correlation')
 title('Pupil-Gamma XCorr')
@@ -862,18 +822,16 @@ plot(data.XCorr.All.zDiameter.meanLags,data.XCorr.All.zDiameter.meanXcVals_gamma
 xticks([-lagSec*freq,-lagSec*freq/2,0,lagSec*freq/2,lagSec*freq])
 xticklabels({'-30','-15','0','15','30'})
 xlim([-lagSec*freq,lagSec*freq])
+ylim([-0.35,0.15])
 xlabel('Lags (s)')
 ylabel('Correlation')
 title('Pupil-Gamma XCorr')
 axis square
 set(gca,'box','off')
 ax12.TickLength = [0.03,0.03];
-% link axis
-linkaxes([ax9,ax10],'y')
-linkaxes([ax11,ax12],'y')
 %% save figure(s)
 if saveFigs == true
-    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'Figure Panels' delim];
+    dirpath = [rootFolder delim 'Figure Panels' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
@@ -887,26 +845,17 @@ if saveFigs == true
     end
     diary(diaryFile)
     diary on
-    % peak whisk/stim
-    disp('======================================================================================================================')
-    disp('Peak change in z-unit post-stimulation/whisking')
-    disp('======================================================================================================================')
-    disp('----------------------------------------------------------------------------------------------------------------------')
-    disp(['Whisker stimulation z-unit increase ' num2str(data.Evoked.stimSolenoid.zDiameter.meanPeak) ' +/- ' num2str(data.Evoked.stimSolenoid.zDiameter.stdPeak) ' (n = ' num2str(length(data.Evoked.stimSolenoid.zDiameter.peak)/2) ') mice']); disp(' ')
-    disp(['Auditory stimulation z-unit increase ' num2str(data.Evoked.controlSolenoid.zDiameter.meanPeak) ' +/- ' num2str(data.Evoked.controlSolenoid.zDiameter.stdPeak) ' (n = ' num2str(length(data.Evoked.controlSolenoid.zDiameter.peak)) ') mice']); disp(' ')
-    disp(['2-5 sec volitional whisking z-unit increase ' num2str(data.Evoked.interWhisk.zDiameter.meanPeak) ' +/- ' num2str(data.Evoked.interWhisk.zDiameter.stdPeak) ' (n = ' num2str(length(data.Evoked.interWhisk.zDiameter.peak)) ') mice']); disp(' ')
-    disp('----------------------------------------------------------------------------------------------------------------------')
     % mm diameter statistical diary
     disp('======================================================================================================================')
     disp('GLME stats for mm diameter during Rest, Whisk, Stim, NREM, and REM')
     disp('======================================================================================================================')
     disp(mmDiameterStats)
     disp('----------------------------------------------------------------------------------------------------------------------')
-    disp(['Rest diameter (mm): ' num2str(round(data.Diameter.Rest.meanDiameter,2)) ' +/- ' num2str(round(data.Diameter.Whisk.stdDiameter,2)) ' (n = ' num2str(length(data.Diameter.Rest.mmDiameter)) ') mice']); disp(' ')
-    disp(['Whisk diameter (mm): ' num2str(round(data.Diameter.Whisk.meanDiameter,2)) ' +/- ' num2str(round(data.Diameter.Whisk.stdDiameter,2)) ' (n = ' num2str(length(data.Diameter.Whisk.mmDiameter)) ') mice']); disp(' ')
-    disp(['Stim diameter (mm): ' num2str(round(data.Diameter.Stim.meanDiameter,2)) ' +/- ' num2str(round(data.Diameter.Stim.stdDiameter,2)) ' (n = ' num2str(length(data.Diameter.Stim.mmDiameter)) ') mice']); disp(' ')
-    disp(['NREM diameter (mm): ' num2str(round(data.Diameter.NREM.meanDiameter,2)) ' +/- ' num2str(round(data.Diameter.NREM.stdDiameter,2)) ' (n = ' num2str(length(data.Diameter.NREM.mmDiameter)) ') mice']); disp(' ')
-    disp(['REM diameter (mm): ' num2str(round(data.Diameter.REM.meanDiameter,2)) ' +/- ' num2str(round(data.Diameter.REM.stdDiameter,2)) ' (n = ' num2str(length(data.Diameter.REM.mmDiameter)) ') mice']); disp(' ')
+    disp(['Rest  diameter (mm): ' num2str(round(data.Diameter.Rest.meanDiameter,2)) ' ± ' num2str(round(data.Diameter.Whisk.stdDiameter,2)) ' (n = ' num2str(length(data.Diameter.Rest.mmDiameter)) ') mice']); disp(' ')
+    disp(['Whisk diameter (mm): ' num2str(round(data.Diameter.Whisk.meanDiameter,2)) ' ± ' num2str(round(data.Diameter.Whisk.stdDiameter,2)) ' (n = ' num2str(length(data.Diameter.Whisk.mmDiameter)) ') mice']); disp(' ')
+    disp(['Stim  diameter (mm): ' num2str(round(data.Diameter.Stim.meanDiameter,2)) ' ± ' num2str(round(data.Diameter.Stim.stdDiameter,2)) ' (n = ' num2str(length(data.Diameter.Stim.mmDiameter)) ') mice']); disp(' ')
+    disp(['NREM  diameter (mm): ' num2str(round(data.Diameter.NREM.meanDiameter,2)) ' ± ' num2str(round(data.Diameter.NREM.stdDiameter,2)) ' (n = ' num2str(length(data.Diameter.NREM.mmDiameter)) ') mice']); disp(' ')
+    disp(['REM   diameter (mm): ' num2str(round(data.Diameter.REM.meanDiameter,2)) ' ± ' num2str(round(data.Diameter.REM.stdDiameter,2)) ' (n = ' num2str(length(data.Diameter.REM.mmDiameter)) ') mice']); disp(' ')
     disp('----------------------------------------------------------------------------------------------------------------------')
     % z-unit Diameter statistical diary
     disp('======================================================================================================================')
@@ -914,11 +863,20 @@ if saveFigs == true
     disp('======================================================================================================================')
     disp(zDiameterStats)
     disp('----------------------------------------------------------------------------------------------------------------------')
-    disp(['Rest diameter (z-unit): ' num2str(round(data.Diameter.Rest.meanzDiameter,2)) ' +/- ' num2str(round(data.Diameter.Whisk.stdzDiameter,2)) ' (n = ' num2str(length(data.Diameter.Rest.zDiameter)) ') mice']); disp(' ')
-    disp(['Whisk diameter (z-unit): ' num2str(round(data.Diameter.Whisk.meanzDiameter,2)) ' +/- ' num2str(round(data.Diameter.Whisk.stdzDiameter,2)) ' (n = ' num2str(length(data.Diameter.Whisk.zDiameter)) ') mice']); disp(' ')
-    disp(['Stim diameter (z-unit): ' num2str(round(data.Diameter.Stim.meanzDiameter,2)) ' +/- ' num2str(round(data.Diameter.Stim.stdzDiameter,2)) ' (n = ' num2str(length(data.Diameter.Stim.zDiameter)) ') mice']); disp(' ')
-    disp(['NREM diameter (z-unit): ' num2str(round(data.Diameter.NREM.meanzDiameter,2)) ' +/- ' num2str(round(data.Diameter.NREM.stdzDiameter,2)) ' (n = ' num2str(length(data.Diameter.NREM.zDiameter)) ') mice']); disp(' ')
-    disp(['REM diameter (z-unit): ' num2str(round(data.Diameter.REM.meanzDiameter,2)) ' +/- ' num2str(round(data.Diameter.REM.stdzDiameter,2)) ' (n = ' num2str(length(data.Diameter.REM.zDiameter)) ') mice']); disp(' ')
+    disp(['Rest  diameter (z-unit): ' num2str(round(data.Diameter.Rest.meanzDiameter,2)) ' ± ' num2str(round(data.Diameter.Whisk.stdzDiameter,2)) ' (n = ' num2str(length(data.Diameter.Rest.zDiameter)) ') mice']); disp(' ')
+    disp(['Whisk diameter (z-unit): ' num2str(round(data.Diameter.Whisk.meanzDiameter,2)) ' ± ' num2str(round(data.Diameter.Whisk.stdzDiameter,2)) ' (n = ' num2str(length(data.Diameter.Whisk.zDiameter)) ') mice']); disp(' ')
+    disp(['Stim  diameter (z-unit): ' num2str(round(data.Diameter.Stim.meanzDiameter,2)) ' ± ' num2str(round(data.Diameter.Stim.stdzDiameter,2)) ' (n = ' num2str(length(data.Diameter.Stim.zDiameter)) ') mice']); disp(' ')
+    disp(['NREM  diameter (z-unit): ' num2str(round(data.Diameter.NREM.meanzDiameter,2)) ' ± ' num2str(round(data.Diameter.NREM.stdzDiameter,2)) ' (n = ' num2str(length(data.Diameter.NREM.zDiameter)) ') mice']); disp(' ')
+    disp(['REM   diameter (z-unit): ' num2str(round(data.Diameter.REM.meanzDiameter,2)) ' ± ' num2str(round(data.Diameter.REM.stdzDiameter,2)) ' (n = ' num2str(length(data.Diameter.REM.zDiameter)) ') mice']); disp(' ')
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    % peak whisk/stim
+    disp('======================================================================================================================')
+    disp('Peak change in z-unit post-stimulation/whisking')
+    disp('======================================================================================================================')
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp(['Whisker stimulation z-unit increase ' num2str(data.Evoked.stimSolenoid.zDiameter.meanPeak) ' ± ' num2str(data.Evoked.stimSolenoid.zDiameter.stdPeak) ' (n = ' num2str(length(data.Evoked.stimSolenoid.zDiameter.peak)/2) ') mice']); disp(' ')
+    disp(['Auditory stimulation z-unit increase ' num2str(data.Evoked.controlSolenoid.zDiameter.meanPeak) ' ± ' num2str(data.Evoked.controlSolenoid.zDiameter.stdPeak) ' (n = ' num2str(length(data.Evoked.controlSolenoid.zDiameter.peak)) ') mice']); disp(' ')
+    disp(['Volitional whisking z-unit increase ' num2str(data.Evoked.interWhisk.zDiameter.meanPeak) ' ± ' num2str(data.Evoked.interWhisk.zDiameter.stdPeak) ' (n = ' num2str(length(data.Evoked.interWhisk.zDiameter.peak)) ') mice']); disp(' ')
     disp('----------------------------------------------------------------------------------------------------------------------')
     % coherence between pupil diameter and HbT @ 0.35 Hz
     disp('======================================================================================================================')
@@ -926,12 +884,12 @@ if saveFigs == true
     disp('======================================================================================================================')
     disp(HbTC035Stats)
     disp('----------------------------------------------------------------------------------------------------------------------')
-    disp(['Rest coherence - [HbT] (\muM) vs. pupil diameter (z-units): ' num2str(round(data.Coherr.Rest.zDiameter.meanHbTC035,2)) ' +/- ' num2str(round(data.Coherr.Rest.zDiameter.stdHbTC035,2)) ' (n = ' num2str(length(data.Coherr.Rest.zDiameter.HbTC035)/2) ') mice']); disp(' ')
-    disp(['NREM coherence - [HbT] (\muM) vs. pupil diameter (z-units): ' num2str(round(data.Coherr.NREM.zDiameter.meanHbTC035,2)) ' +/- ' num2str(round(data.Coherr.NREM.zDiameter.stdHbTC035,2)) ' (n = ' num2str(length(data.Coherr.NREM.zDiameter.HbTC035)/2) ') mice']); disp(' ')
-    disp(['REM coherence - [HbT] (\muM) vs. pupil diameter (z-units): ' num2str(round(data.Coherr.REM.zDiameter.meanHbTC035,2)) ' +/- ' num2str(round(data.Coherr.REM.zDiameter.stdHbTC035,2)) ' (n = ' num2str(length(data.Coherr.REM.zDiameter.HbTC035)/2) ') mice']); disp(' ')
-    disp(['Alert coherence - [HbT] (\muM) vs. pupil diameter (z-units):: ' num2str(round(data.Coherr.Awake.zDiameter.meanHbTC035,2)) ' +/- ' num2str(round(data.Coherr.Awake.zDiameter.stdHbTC035,2)) ' (n = ' num2str(length(data.Coherr.Awake.zDiameter.HbTC035)/2) ') mice']); disp(' ')
-    disp(['Asleep coherence - [HbT] (\muM) vs. pupil diameter (z-units):: ' num2str(round(data.Coherr.Asleep.zDiameter.meanHbTC035,2)) ' +/- ' num2str(round(data.Coherr.Asleep.zDiameter.stdHbTC035,2)) ' (n = ' num2str(length(data.Coherr.Asleep.zDiameter.HbTC035)/2) ') mice']); disp(' ')
-    disp(['All coherence - [HbT] (\muM) vs. pupil diameter (z-units):: ' num2str(round(data.Coherr.All.zDiameter.meanHbTC035,2)) ' +/- ' num2str(round(data.Coherr.All.zDiameter.stdHbTC035,2)) ' (n = ' num2str(length(data.Coherr.All.zDiameter.HbTC035)/2) ') mice']); disp(' ')
+    disp(['Rest   [HbT]-pupil coherence: ' num2str(round(data.Coherr.Rest.zDiameter.meanHbTC035,2)) ' ± ' num2str(round(data.Coherr.Rest.zDiameter.stdHbTC035,2)) ' (n = ' num2str(length(data.Coherr.Rest.zDiameter.HbTC035)/2) ') mice']); disp(' ')
+    disp(['NREM   [HbT]-pupil coherence: ' num2str(round(data.Coherr.NREM.zDiameter.meanHbTC035,2)) ' ± ' num2str(round(data.Coherr.NREM.zDiameter.stdHbTC035,2)) ' (n = ' num2str(length(data.Coherr.NREM.zDiameter.HbTC035)/2) ') mice']); disp(' ')
+    disp(['REM    [HbT]-pupil coherence: ' num2str(round(data.Coherr.REM.zDiameter.meanHbTC035,2)) ' ± ' num2str(round(data.Coherr.REM.zDiameter.stdHbTC035,2)) ' (n = ' num2str(length(data.Coherr.REM.zDiameter.HbTC035)/2) ') mice']); disp(' ')
+    disp(['Alert  [HbT]-pupil coherence: ' num2str(round(data.Coherr.Alert.zDiameter.meanHbTC035,2)) ' ± ' num2str(round(data.Coherr.Alert.zDiameter.stdHbTC035,2)) ' (n = ' num2str(length(data.Coherr.Alert.zDiameter.HbTC035)/2) ') mice']); disp(' ')
+    disp(['Asleep [HbT]-pupil coherence: ' num2str(round(data.Coherr.Asleep.zDiameter.meanHbTC035,2)) ' ± ' num2str(round(data.Coherr.Asleep.zDiameter.stdHbTC035,2)) ' (n = ' num2str(length(data.Coherr.Asleep.zDiameter.HbTC035)/2) ') mice']); disp(' ')
+    disp(['All    [HbT]-pupil coherence: ' num2str(round(data.Coherr.All.zDiameter.meanHbTC035,2)) ' ± ' num2str(round(data.Coherr.All.zDiameter.stdHbTC035,2)) ' (n = ' num2str(length(data.Coherr.All.zDiameter.HbTC035)/2) ') mice']); disp(' ')
     disp('----------------------------------------------------------------------------------------------------------------------')
     % coherence between pupil diameter and HbT @ 0.02 Hz
     disp('======================================================================================================================')
@@ -939,9 +897,9 @@ if saveFigs == true
     disp('======================================================================================================================')
     disp(HbTC002Stats)
     disp('----------------------------------------------------------------------------------------------------------------------')
-    disp(['Alert coherence - [HbT] (\muM) vs. pupil diameter (z-units):: ' num2str(round(data.Coherr.Awake.zDiameter.meanHbTC002,2)) ' +/- ' num2str(round(data.Coherr.Awake.zDiameter.stdHbTC002,2)) ' (n = ' num2str(length(data.Coherr.Awake.zDiameter.HbTC002)/2) ') mice']); disp(' ')
-    disp(['Asleep coherence - [HbT] (\muM) vs. pupil diameter (z-units):: ' num2str(round(data.Coherr.Asleep.zDiameter.meanHbTC002,2)) ' +/- ' num2str(round(data.Coherr.Asleep.zDiameter.stdHbTC002,2)) ' (n = ' num2str(length(data.Coherr.Asleep.zDiameter.HbTC002)/2) ') mice']); disp(' ')
-    disp(['All coherence - [HbT] (\muM) vs. pupil diameter (z-units):: ' num2str(round(data.Coherr.All.zDiameter.meanHbTC002,2)) ' +/- ' num2str(round(data.Coherr.All.zDiameter.stdHbTC002,2)) ' (n = ' num2str(length(data.Coherr.All.zDiameter.HbTC002)/2) ') mice']); disp(' ')
+    disp(['Alert  [HbT]-pupil coherence: ' num2str(round(data.Coherr.Alert.zDiameter.meanHbTC002,2)) ' ± ' num2str(round(data.Coherr.Alert.zDiameter.stdHbTC002,2)) ' (n = ' num2str(length(data.Coherr.Alert.zDiameter.HbTC002)/2) ') mice']); disp(' ')
+    disp(['Asleep [HbT]-pupil coherence: ' num2str(round(data.Coherr.Asleep.zDiameter.meanHbTC002,2)) ' ± ' num2str(round(data.Coherr.Asleep.zDiameter.stdHbTC002,2)) ' (n = ' num2str(length(data.Coherr.Asleep.zDiameter.HbTC002)/2) ') mice']); disp(' ')
+    disp(['All    [HbT]-pupil coherence: ' num2str(round(data.Coherr.All.zDiameter.meanHbTC002,2)) ' ± ' num2str(round(data.Coherr.All.zDiameter.stdHbTC002,2)) ' (n = ' num2str(length(data.Coherr.All.zDiameter.HbTC002)/2) ') mice']); disp(' ')
     disp('----------------------------------------------------------------------------------------------------------------------')
     % coherence between pupil diameter and gamma @ 0.35 Hz
     disp('======================================================================================================================')
@@ -949,12 +907,12 @@ if saveFigs == true
     disp('======================================================================================================================')
     disp(gammaC035Stats)
     disp('----------------------------------------------------------------------------------------------------------------------')
-    disp(['Rest coherence - Gamma-band (\DeltaP/P) vs. pupil diameter (z-units): ' num2str(round(data.Coherr.Rest.zDiameter.meanGammaC035,2)) ' +/- ' num2str(round(data.Coherr.Rest.zDiameter.stdGammaC035,2)) ' (n = ' num2str(length(data.Coherr.Rest.zDiameter.gammaC035)/2) ') mice']); disp(' ')
-    disp(['NREM coherence - Gamma-band (\DeltaP/P) vs. pupil diameter (z-units): ' num2str(round(data.Coherr.NREM.zDiameter.meanGammaC035,2)) ' +/- ' num2str(round(data.Coherr.NREM.zDiameter.stdGammaC035,2)) ' (n = ' num2str(length(data.Coherr.NREM.zDiameter.gammaC035)/2) ') mice']); disp(' ')
-    disp(['REM coherence - Gamma-band (\DeltaP/P) vs. pupil diameter (z-units): ' num2str(round(data.Coherr.REM.zDiameter.meanGammaC035,2)) ' +/- ' num2str(round(data.Coherr.REM.zDiameter.stdGammaC035,2)) ' (n = ' num2str(length(data.Coherr.REM.zDiameter.gammaC035)/2) ') mice']); disp(' ')
-    disp(['Alert coherence - Gamma-band (\DeltaP/P) vs. pupil diameter (z-units):: ' num2str(round(data.Coherr.Awake.zDiameter.meanGammaC035,2)) ' +/- ' num2str(round(data.Coherr.Awake.zDiameter.stdGammaC035,2)) ' (n = ' num2str(length(data.Coherr.Awake.zDiameter.gammaC035)/2) ') mice']); disp(' ')
-    disp(['Asleep coherence - Gamma-band (\DeltaP/P) vs. pupil diameter (z-units):: ' num2str(round(data.Coherr.Asleep.zDiameter.meanGammaC035,2)) ' +/- ' num2str(round(data.Coherr.Asleep.zDiameter.stdGammaC035,2)) ' (n = ' num2str(length(data.Coherr.Asleep.zDiameter.gammaC035)/2) ') mice']); disp(' ')
-    disp(['All coherence - Gamma-band (\DeltaP/P) vs. pupil diameter (z-units):: ' num2str(round(data.Coherr.All.zDiameter.meanGammaC035,2)) ' +/- ' num2str(round(data.Coherr.All.zDiameter.stdGammaC035,2)) ' (n = ' num2str(length(data.Coherr.All.zDiameter.gammaC035)/2) ') mice']); disp(' ')
+    disp(['Rest   Gamma-pupil coherence: ' num2str(round(data.Coherr.Rest.zDiameter.meanGammaC035,2)) ' ± ' num2str(round(data.Coherr.Rest.zDiameter.stdGammaC035,2)) ' (n = ' num2str(length(data.Coherr.Rest.zDiameter.gammaC035)/2) ') mice']); disp(' ')
+    disp(['NREM   Gamma-pupil coherence: ' num2str(round(data.Coherr.NREM.zDiameter.meanGammaC035,2)) ' ± ' num2str(round(data.Coherr.NREM.zDiameter.stdGammaC035,2)) ' (n = ' num2str(length(data.Coherr.NREM.zDiameter.gammaC035)/2) ') mice']); disp(' ')
+    disp(['REM    Gamma-pupil coherence: ' num2str(round(data.Coherr.REM.zDiameter.meanGammaC035,2)) ' ± ' num2str(round(data.Coherr.REM.zDiameter.stdGammaC035,2)) ' (n = ' num2str(length(data.Coherr.REM.zDiameter.gammaC035)/2) ') mice']); disp(' ')
+    disp(['Alert  Gamma-pupil coherence: ' num2str(round(data.Coherr.Alert.zDiameter.meanGammaC035,2)) ' ± ' num2str(round(data.Coherr.Alert.zDiameter.stdGammaC035,2)) ' (n = ' num2str(length(data.Coherr.Alert.zDiameter.gammaC035)/2) ') mice']); disp(' ')
+    disp(['Asleep Gamma-pupil coherence: ' num2str(round(data.Coherr.Asleep.zDiameter.meanGammaC035,2)) ' ± ' num2str(round(data.Coherr.Asleep.zDiameter.stdGammaC035,2)) ' (n = ' num2str(length(data.Coherr.Asleep.zDiameter.gammaC035)/2) ') mice']); disp(' ')
+    disp(['All    Gamma-pupil coherence: ' num2str(round(data.Coherr.All.zDiameter.meanGammaC035,2)) ' ± ' num2str(round(data.Coherr.All.zDiameter.stdGammaC035,2)) ' (n = ' num2str(length(data.Coherr.All.zDiameter.gammaC035)/2) ') mice']); disp(' ')
     disp('----------------------------------------------------------------------------------------------------------------------')
     % coherence between pupil diameter and gamma @ 0.02 Hz
     disp('======================================================================================================================')
@@ -962,45 +920,33 @@ if saveFigs == true
     disp('======================================================================================================================')
     disp(gammaC002Stats)
     disp('----------------------------------------------------------------------------------------------------------------------')
-    disp(['Alert coherence - Gamma-band (\DeltaP/P) vs. pupil diameter (z-units):: ' num2str(round(data.Coherr.Awake.zDiameter.meanGammaC002,2)) ' +/- ' num2str(round(data.Coherr.Awake.zDiameter.stdGammaC002,2)) ' (n = ' num2str(length(data.Coherr.Awake.zDiameter.gammaC002)/2) ') mice']); disp(' ')
-    disp(['Asleep coherence - Gamma-band (\DeltaP/P) vs. pupil diameter (z-units):: ' num2str(round(data.Coherr.Asleep.zDiameter.meanGammaC002,2)) ' +/- ' num2str(round(data.Coherr.Asleep.zDiameter.stdGammaC002,2)) ' (n = ' num2str(length(data.Coherr.Asleep.zDiameter.gammaC002)/2) ') mice']); disp(' ')
-    disp(['All coherence - Gamma-band (\DeltaP/P) vs. pupil diameter (z-units):: ' num2str(round(data.Coherr.All.zDiameter.meanGammaC002,2)) ' +/- ' num2str(round(data.Coherr.All.zDiameter.stdGammaC002,2)) ' (n = ' num2str(length(data.Coherr.All.zDiameter.gammaC002)/2) ') mice']); disp(' ')
+    disp(['Alert  Gamma-pupil coherence: ' num2str(round(data.Coherr.Alert.zDiameter.meanGammaC002,2)) ' ± ' num2str(round(data.Coherr.Alert.zDiameter.stdGammaC002,2)) ' (n = ' num2str(length(data.Coherr.Alert.zDiameter.gammaC002)/2) ') mice']); disp(' ')
+    disp(['Asleep Gamma-pupil coherence: ' num2str(round(data.Coherr.Asleep.zDiameter.meanGammaC002,2)) ' ± ' num2str(round(data.Coherr.Asleep.zDiameter.stdGammaC002,2)) ' (n = ' num2str(length(data.Coherr.Asleep.zDiameter.gammaC002)/2) ') mice']); disp(' ')
+    disp(['All    Gamma-pupil coherence: ' num2str(round(data.Coherr.All.zDiameter.meanGammaC002,2)) ' ± ' num2str(round(data.Coherr.All.zDiameter.stdGammaC002,2)) ' (n = ' num2str(length(data.Coherr.All.zDiameter.gammaC002)/2) ') mice']); disp(' ')
     disp('----------------------------------------------------------------------------------------------------------------------')
     % cross correlation between [HbT] and pupil diameter
     disp('======================================================================================================================')
     disp('Peak cross-correlation and lag time for Rest, NREM, REM, Alert, Asleep, All')
     disp('======================================================================================================================')
     disp('----------------------------------------------------------------------------------------------------------------------')
-    disp(['Rest [HbT]-diameter peak cross-correlation: ' num2str(data.XCorr.Rest.zDiameter.meanPeak_HbT) ' +/- ' num2str(data.XCorr.Rest.zDiameter.stdPeak_HbT) ' (n = ' num2str(length(data.XCorr.Rest.zDiameter.peak_HbT)/2) ') mice']); disp(' ')
-    disp(['Rest [HbT]-diameter lag time (sec): ' num2str(data.XCorr.Rest.zDiameter.meanPeakLag_HbT) ' +/- ' num2str(data.XCorr.Rest.zDiameter.stdPeakLag_HbT) ' (n = ' num2str(length(data.XCorr.Rest.zDiameter.peakLag_HbT)/2) ') mice']); disp(' ')
-    disp(['NREM [HbT]-diameter peak cross-correlation: ' num2str(data.XCorr.NREM.zDiameter.meanPeak_HbT) ' +/- ' num2str(data.XCorr.NREM.zDiameter.stdPeak_HbT) ' (n = ' num2str(length(data.XCorr.NREM.zDiameter.peak_HbT)/2) ') mice']); disp(' ')
-    disp(['NREM [HbT]-diameter lag time (sec): ' num2str(data.XCorr.NREM.zDiameter.meanPeakLag_HbT) ' +/- ' num2str(data.XCorr.NREM.zDiameter.stdPeakLag_HbT) ' (n = ' num2str(length(data.XCorr.NREM.zDiameter.peakLag_HbT)/2) ') mice']); disp(' ')
-    disp(['REM [HbT]-diameter peak cross-correlation: ' num2str(data.XCorr.REM.zDiameter.meanPeak_HbT) ' +/- ' num2str(data.XCorr.REM.zDiameter.stdPeak_HbT) ' (n = ' num2str(length(data.XCorr.REM.zDiameter.peak_HbT)/2) ') mice']); disp(' ')
-    disp(['REM [HbT]-diameter lag time (sec): ' num2str(data.XCorr.REM.zDiameter.meanPeakLag_HbT) ' +/- ' num2str(data.XCorr.REM.zDiameter.stdPeakLag_HbT) ' (n = ' num2str(length(data.XCorr.REM.zDiameter.peakLag_HbT)/2) ') mice']); disp(' ')
-    disp(['Alert [HbT]-diameter peak cross-correlation: ' num2str(data.XCorr.Alert.zDiameter.meanPeak_HbT) ' +/- ' num2str(data.XCorr.Alert.zDiameter.stdPeak_HbT) ' (n = ' num2str(length(data.XCorr.Alert.zDiameter.peak_HbT)/2) ') mice']); disp(' ')
-    disp(['Alert [HbT]-diameter lag time (sec): ' num2str(data.XCorr.Alert.zDiameter.meanPeakLag_HbT) ' +/- ' num2str(data.XCorr.Alert.zDiameter.stdPeakLag_HbT) ' (n = ' num2str(length(data.XCorr.Alert.zDiameter.peakLag_HbT)/2) ') mice']); disp(' ')
-    disp(['Asleep [HbT]-diameter peak cross-correlation: ' num2str(data.XCorr.Asleep.zDiameter.meanPeak_HbT) ' +/- ' num2str(data.XCorr.Asleep.zDiameter.stdPeak_HbT) ' (n = ' num2str(length(data.XCorr.Asleep.zDiameter.peak_HbT)/2) ') mice']); disp(' ')
-    disp(['Asleep [HbT]-diameter lag time (sec): ' num2str(data.XCorr.Asleep.zDiameter.meanPeakLag_HbT) ' +/- ' num2str(data.XCorr.Asleep.zDiameter.stdPeakLag_HbT) ' (n = ' num2str(length(data.XCorr.Asleep.zDiameter.peakLag_HbT)/2) ') mice']); disp(' ')
-    disp(['All [HbT]-diameter peak cross-correlation: ' num2str(data.XCorr.All.zDiameter.meanPeak_HbT) ' +/- ' num2str(data.XCorr.All.zDiameter.stdPeak_HbT) ' (n = ' num2str(length(data.XCorr.All.zDiameter.peak_HbT)/2) ') mice']); disp(' ')
-    disp(['All [HbT]-diameter lag time (sec): ' num2str(data.XCorr.All.zDiameter.meanPeakLag_HbT) ' +/- ' num2str(data.XCorr.All.zDiameter.stdPeakLag_HbT) ' (n = ' num2str(length(data.XCorr.All.zDiameter.peakLag_HbT)/2) ') mice']); disp(' ')
+    disp(['Rest   [HbT]-pupil peak cross-correlation: ' num2str(data.XCorr.Rest.zDiameter.peakHbTVal) ' ± ' num2str(data.XCorr.Rest.zDiameter.peakHbTStD) ' at a lag time of ' num2str(data.XCorr.Rest.zDiameter.peakHbTLag) ' seconds (n = ' num2str(size(data.XCorr.Rest.zDiameter.xcVals_HbT,1)/2) ') mice']); disp(' ')
+    disp(['NREM   [HbT]-pupil peak cross-correlation: ' num2str(data.XCorr.NREM.zDiameter.peakHbTVal) ' ± ' num2str(data.XCorr.NREM.zDiameter.peakHbTStD) ' at a lag time of ' num2str(data.XCorr.NREM.zDiameter.peakHbTLag) 'seconds (n = ' num2str(size(data.XCorr.NREM.zDiameter.xcVals_HbT,1)/2) ') mice']); disp(' ')
+    disp(['REM    [HbT]-pupil peak cross-correlation: ' num2str(data.XCorr.REM.zDiameter.peakHbTVal) ' ± ' num2str(data.XCorr.REM.zDiameter.peakHbTStD) ' at a lag time of ' num2str(data.XCorr.REM.zDiameter.peakHbTLag) ' seconds (n = ' num2str(size(data.XCorr.REM.zDiameter.xcVals_HbT,1)/2) ') mice']); disp(' ')
+    disp(['Alert  [HbT]-pupil peak cross-correlation: ' num2str(data.XCorr.Alert.zDiameter.peakHbTVal) ' ± ' num2str(data.XCorr.Alert.zDiameter.peakHbTStD) ' at a lag time of ' num2str(data.XCorr.Alert.zDiameter.peakHbTLag) ' seconds (n = ' num2str(size(data.XCorr.Alert.zDiameter.xcVals_HbT,1)/2) ') mice']); disp(' ')
+    disp(['Asleep [HbT]-pupil peak cross-correlation: ' num2str(data.XCorr.Asleep.zDiameter.peakHbTVal) ' ± ' num2str(data.XCorr.Asleep.zDiameter.peakHbTStD) ' at a lag time of ' num2str(data.XCorr.Asleep.zDiameter.peakHbTLag) ' seconds (n = ' num2str(size(data.XCorr.Asleep.zDiameter.xcVals_HbT,1)/2) ') mice']); disp(' ')
+    disp(['All    [HbT]-pupil peak cross-correlation: ' num2str(data.XCorr.All.zDiameter.peakHbTVal) ' ± ' num2str(data.XCorr.All.zDiameter.peakHbTStD) ' at a lag time of ' num2str(data.XCorr.All.zDiameter.peakHbTLag) ' seconds (n = ' num2str(size(data.XCorr.All.zDiameter.xcVals_HbT,1)/2) ') mice']); disp(' ')
     disp('----------------------------------------------------------------------------------------------------------------------')
     % cross correlation between gamma-band and pupil diameter
     disp('======================================================================================================================')
     disp('Peak cross-correlation and lag time for Rest, NREM, REM, Alert, Asleep, All')
     disp('======================================================================================================================')
     disp('----------------------------------------------------------------------------------------------------------------------')
-    disp(['Rest gamma-diameter peak cross-correlation: ' num2str(data.XCorr.Rest.zDiameter.meanPeak_gamma) ' +/- ' num2str(data.XCorr.Rest.zDiameter.stdPeak_gamma) ' (n = ' num2str(length(data.XCorr.Rest.zDiameter.peak_gamma)/2) ') mice']); disp(' ')
-    disp(['Rest gamma-diameter lag time (sec): ' num2str(data.XCorr.Rest.zDiameter.meanPeakLag_gamma) ' +/- ' num2str(data.XCorr.Rest.zDiameter.stdPeakLag_gamma) ' (n = ' num2str(length(data.XCorr.Rest.zDiameter.peakLag_gamma)/2) ') mice']); disp(' ')
-    disp(['NREM gamma-diameter peak cross-correlation: ' num2str(data.XCorr.NREM.zDiameter.meanPeak_gamma) ' +/- ' num2str(data.XCorr.NREM.zDiameter.stdPeak_gamma) ' (n = ' num2str(length(data.XCorr.NREM.zDiameter.peak_gamma)/2) ') mice']); disp(' ')
-    disp(['NREM gamma-diameter lag time (sec): ' num2str(data.XCorr.NREM.zDiameter.meanPeakLag_gamma) ' +/- ' num2str(data.XCorr.NREM.zDiameter.stdPeakLag_gamma) ' (n = ' num2str(length(data.XCorr.NREM.zDiameter.peakLag_gamma)/2) ') mice']); disp(' ')
-    disp(['REM gamma-diameter peak cross-correlation: ' num2str(data.XCorr.REM.zDiameter.meanPeak_gamma) ' +/- ' num2str(data.XCorr.REM.zDiameter.stdPeak_gamma) ' (n = ' num2str(length(data.XCorr.REM.zDiameter.peak_gamma)/2) ') mice']); disp(' ')
-    disp(['REM gamma-diameter lag time (sec): ' num2str(data.XCorr.REM.zDiameter.meanPeakLag_gamma) ' +/- ' num2str(data.XCorr.REM.zDiameter.stdPeakLag_gamma) ' (n = ' num2str(length(data.XCorr.REM.zDiameter.peakLag_gamma)/2) ') mice']); disp(' ')
-    disp(['Alert gamma-diameter peak cross-correlation: ' num2str(data.XCorr.Alert.zDiameter.meanPeak_gamma) ' +/- ' num2str(data.XCorr.Alert.zDiameter.stdPeak_gamma) ' (n = ' num2str(length(data.XCorr.Alert.zDiameter.peak_gamma)/2) ') mice']); disp(' ')
-    disp(['Alert gamma-diameter lag time (sec): ' num2str(data.XCorr.Alert.zDiameter.meanPeakLag_gamma) ' +/- ' num2str(data.XCorr.Alert.zDiameter.stdPeakLag_gamma) ' (n = ' num2str(length(data.XCorr.Alert.zDiameter.peakLag_gamma)/2) ') mice']); disp(' ')
-    disp(['Asleep gamma-diameter peak cross-correlation: ' num2str(data.XCorr.Asleep.zDiameter.meanPeak_gamma) ' +/- ' num2str(data.XCorr.Asleep.zDiameter.stdPeak_gamma) ' (n = ' num2str(length(data.XCorr.Asleep.zDiameter.peak_gamma)/2) ') mice']); disp(' ')
-    disp(['Asleep gamma-diameter lag time (sec): ' num2str(data.XCorr.Asleep.zDiameter.meanPeakLag_gamma) ' +/- ' num2str(data.XCorr.Asleep.zDiameter.stdPeakLag_gamma) ' (n = ' num2str(length(data.XCorr.Asleep.zDiameter.peakLag_gamma)/2) ') mice']); disp(' ')
-    disp(['All gamma-diameter peak cross-correlation: ' num2str(data.XCorr.All.zDiameter.meanPeak_gamma) ' +/- ' num2str(data.XCorr.All.zDiameter.stdPeak_gamma) ' (n = ' num2str(length(data.XCorr.All.zDiameter.peak_gamma)/2) ') mice']); disp(' ')
-    disp(['All gamma-diameter lag time (sec): ' num2str(data.XCorr.All.zDiameter.meanPeakLag_gamma) ' +/- ' num2str(data.XCorr.All.zDiameter.stdPeakLag_gamma) ' (n = ' num2str(length(data.XCorr.All.zDiameter.peakLag_gamma)/2) ') mice']); disp(' ')
+    disp(['Rest   Gamma-pupil peak cross-correlation: ' num2str(data.XCorr.Rest.zDiameter.peakGammaVal) ' ± ' num2str(data.XCorr.Rest.zDiameter.peakGammaStD) ' at a lag time of ' num2str(data.XCorr.Rest.zDiameter.peakGammaLag) ' seconds (n = ' num2str(size(data.XCorr.Rest.zDiameter.xcVals_gamma,1)/2) ') mice']); disp(' ')
+    disp(['NREM   Gamma-pupil peak cross-correlation: ' num2str(data.XCorr.NREM.zDiameter.peakGammaVal) ' ± ' num2str(data.XCorr.NREM.zDiameter.peakGammaStD) ' at a lag time of ' num2str(data.XCorr.NREM.zDiameter.peakGammaLag) ' seconds (n = ' num2str(size(data.XCorr.NREM.zDiameter.xcVals_gamma,1)/2) ') mice']); disp(' ')
+    disp(['REM    Gamma-pupil peak cross-correlation: ' num2str(data.XCorr.REM.zDiameter.peakGammaVal) ' ± ' num2str(data.XCorr.REM.zDiameter.peakGammaStD) ' at a lag time of ' num2str(data.XCorr.REM.zDiameter.peakGammaLag) ' seconds (n = ' num2str(size(data.XCorr.REM.zDiameter.xcVals_gamma,1)/2) ') mice']); disp(' ')
+    disp(['Alert  Gamma-pupil peak cross-correlation: ' num2str(data.XCorr.Alert.zDiameter.peakGammaVal) ' ± ' num2str(data.XCorr.Alert.zDiameter.peakGammaStD) ' at a lag time of ' num2str(data.XCorr.Alert.zDiameter.peakGammaLag) ' seconds (n = ' num2str(size(data.XCorr.Alert.zDiameter.xcVals_gamma,1)/2) ') mice']); disp(' ')
+    disp(['Asleep Gamma-pupil peak cross-correlation: ' num2str(data.XCorr.Asleep.zDiameter.peakGammaVal) ' ± ' num2str(data.XCorr.Asleep.zDiameter.peakGammaStD) ' at a lag time of ' num2str(data.XCorr.Asleep.zDiameter.peakGammaLag) ' seconds (n = ' num2str(size(data.XCorr.Asleep.zDiameter.xcVals_gamma,1)/2) ') mice']); disp(' ')
+    disp(['All    Gamma-pupil peak cross-correlation: ' num2str(data.XCorr.All.zDiameter.peakGammaVal) ' ± ' num2str(data.XCorr.All.zDiameter.peakGammaStD) ' at a lag time of ' num2str(data.XCorr.All.zDiameter.peakGammaLag) ' seconds (n = ' num2str(size(data.XCorr.All.zDiameter.xcVals_gamma,1)/2) ') mice']); disp(' ')
     disp('----------------------------------------------------------------------------------------------------------------------')
     diary off
 end

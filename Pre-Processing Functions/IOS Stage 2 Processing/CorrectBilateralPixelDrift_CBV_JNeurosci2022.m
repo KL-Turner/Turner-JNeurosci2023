@@ -31,7 +31,7 @@ for b = 1:length(firstsFileOfDay)
     for c = 1:size(procDataFileIDs,1)
         procDataFileID = procDataFileIDs(c,:);
         if strfind(procDataFileID,fileDate) >= 1
-            indDayProcDataFileList{p,1} = procDataFileID; %#ok<AGROW>
+            indDayProcDataFileList{p,1} = procDataFileID;
             p = p + 1;
         end
     end
@@ -105,6 +105,7 @@ for b = 1:length(firstsFileOfDay)
     % determine which correction profile to use for RH data
     correctionDecision = 'n';
     while strcmp(correctionDecision,'n') == true
+        drawnow
         applyCorrection = input(['Apply correction profile to ' strDay ' pixel values? (y/n): '],'s'); disp(' ')
         if strcmp(applyCorrection,'y') == true || strcmp(applyCorrection,'n') == true
             correctionDecision = 'y';

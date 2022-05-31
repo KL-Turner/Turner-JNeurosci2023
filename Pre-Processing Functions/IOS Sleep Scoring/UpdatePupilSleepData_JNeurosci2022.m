@@ -38,22 +38,22 @@ for a = 1:size(procDataFileIDs,1) % Loop through the list of ProcData files
         else
             sleepCriteria = (0:(sleepBins - 1)); % this will be used to fix the issue in sleepIndex
             fixedSleepIndex = unique(sleepIndex + sleepCriteria); % sleep Index now has the proper time stamps from sleep logical
-            for indexCount = 1:length(fixedSleepIndex) % loop through the length of sleep Index, and pull out associated data
+            for pp = 1:length(fixedSleepIndex) % loop through the length of sleep Index, and pull out associated data
                 for aa = 1:length(dataTypes)
                     dataType = dataTypes{1,aa};
                     if strcmp(dataType,'LH_HbT') == true
-                        data.(dataType).data{indexCount,1} = ProcData.sleep.parameters.CBV.hbtLH{fixedSleepIndex(indexCount),1};
+                        data.(dataType).data{pp,1} = ProcData.sleep.parameters.CBV.hbtLH{fixedSleepIndex(pp),1};
                     elseif strcmp(dataType,'RH_HbT') == true
-                        data.(dataType).data{indexCount,1} = ProcData.sleep.parameters.CBV.hbtRH{fixedSleepIndex(indexCount),1};
+                        data.(dataType).data{pp,1} = ProcData.sleep.parameters.CBV.hbtRH{fixedSleepIndex(pp),1};
                     elseif strcmp(dataType,'LH_gammaBandPower') == true
-                        data.(dataType).data{indexCount,1} = ProcData.sleep.parameters.cortical_LH.gammaBandPower{fixedSleepIndex(indexCount),1};
+                        data.(dataType).data{pp,1} = ProcData.sleep.parameters.cortical_LH.gammaBandPower{fixedSleepIndex(pp),1};
                     elseif strcmp(dataType,'RH_gammaBandPower') == true
-                        data.(dataType).data{indexCount,1} = ProcData.sleep.parameters.cortical_RH.gammaBandPower{fixedSleepIndex(indexCount),1};
+                        data.(dataType).data{pp,1} = ProcData.sleep.parameters.cortical_RH.gammaBandPower{fixedSleepIndex(pp),1};
                     else
-                        data.(dataType).data{indexCount,1} = ProcData.sleep.parameters.Pupil.(dataType){fixedSleepIndex(indexCount),1};
+                        data.(dataType).data{pp,1} = ProcData.sleep.parameters.Pupil.(dataType){fixedSleepIndex(pp),1};
                     end
                 end
-                binTimes{indexCount,1} = 5*fixedSleepIndex(indexCount);
+                binTimes{pp,1} = 5*fixedSleepIndex(pp);
             end
             indexBreaks = find(fixedSleepIndex(2:end) - fixedSleepIndex(1:end - 1) > 1); % find if there are numerous sleep periods
             if isempty(indexBreaks) % if there is only one period of sleep in this file and not multiple
@@ -71,59 +71,62 @@ for a = 1:size(procDataFileIDs,1) % Loop through the list of ProcData files
             else
                 count = length(fixedSleepIndex);
                 holdIndex = zeros(1,(length(indexBreaks) + 1));
-                for indexCounter = 1:length(indexBreaks) + 1
-                    if indexCounter == 1
-                        holdIndex(indexCounter) = indexBreaks(indexCounter);
-                    elseif indexCounter == length(indexBreaks) + 1
-                        holdIndex(indexCounter) = count - indexBreaks(indexCounter - 1);
+                for ww = 1:length(indexBreaks) + 1
+                    if ww == 1
+                        holdIndex(ww) = indexBreaks(ww);
+                    elseif ww == length(indexBreaks) + 1
+                        holdIndex(ww) = count - indexBreaks(ww - 1);
                     else
-                        holdIndex(indexCounter)= indexBreaks(indexCounter) - indexBreaks(indexCounter - 1);
+                        holdIndex(ww)= indexBreaks(ww) - indexBreaks(ww - 1);
                     end
                 end
                 for aa = 1:length(dataTypes)
                     dataType = dataTypes{1,aa};
                     splitCounter = 1:length(data.(dataType).data);
                     convertedMat2Cell = mat2cell(splitCounter',holdIndex);
-                    for matCounter = 1:length(convertedMat2Cell)
-                        data.(dataType).mat2CellpupilArea{matCounter,1} = data.(dataType).data(convertedMat2Cell{matCounter,1});
-                        mat2CellBinTimes{matCounter,1} = binTimes(convertedMat2Cell{matCounter,1});
+                    for nn = 1:length(convertedMat2Cell)
+                        data.(dataType).mat2CellpupilArea{nn,1} = data.(dataType).data(convertedMat2Cell{nn,1});
+                        mat2CellBinTimes{nn,1} = binTimes(convertedMat2Cell{nn,1});
                     end
-                    for cellCounter = 1:length(data.(dataType).mat2CellpupilArea)
+                    for yy = 1:length(data.(dataType).mat2CellpupilArea)
                         % pupil area
-                        data.(dataType).matpupilArea = cell2mat(data.(dataType).mat2CellpupilArea{cellCounter, 1});
+                        data.(dataType).matpupilArea = cell2mat(data.(dataType).mat2CellpupilArea{yy, 1});
                         data.(dataType).arraypupilArea = reshape(data.(dataType).matpupilArea',[1,size(data.(dataType).matpupilArea,2)*size(data.(dataType).matpupilArea,1)]);
-                        data.(dataType).cellpupilArea{cellCounter, 1} = data.(dataType).arraypupilArea;
+                        data.(dataType).cellpupilArea{yy, 1} = data.(dataType).arraypupilArea;
                         % bin times
-                        matBinTimes = cell2mat(mat2CellBinTimes{cellCounter,1});
+                        matBinTimes = cell2mat(mat2CellBinTimes{yy,1});
                         arrayBinTimes = reshape(matBinTimes',[1,size(matBinTimes,2)*size(matBinTimes,1)]);
-                        cellBinTimes{cellCounter,1} = arrayBinTimes;
+                        cellBinTimes{yy,1} = arrayBinTimes;
                     end
-                    %% save the data in the SleepEventData struct
-                    for cellLength = 1:size(data.(dataType).cellpupilArea,1) % loop through however many sleep epochs this file has
-                        if isfield(SleepData.(modelName).NREM.data.Pupil,(dataType)) == false
-                            SleepData.(modelName).NREM.data.Pupil.(dataType).data{cellLength,1} = data.(dataType).cellpupilArea{1,1};
-                            if aa == 1
-                                SleepData.(modelName).NREM.data.Pupil.binTimes{cellLength,1} = cellBinTimes{1,1};
-                                SleepData.(modelName).NREM.data.Pupil.fileIDs{cellLength,1} = fileID;
-                            end
-                        else
-                            SleepData.(modelName).NREM.data.Pupil.(dataType).data{size(SleepData.(modelName).NREM.data.Pupil.(dataType).data,1) + 1,1} = data.(dataType).cellpupilArea{cellLength,1};
-                            if aa == 1
-                                SleepData.(modelName).NREM.data.Pupil.binTimes{size(SleepData.(modelName).NREM.data.Pupil.binTimes,1) + 1,1} = cellBinTimes{cellLength,1};
-                                SleepData.(modelName).NREM.data.Pupil.fileIDs{size(SleepData.(modelName).NREM.data.Pupil.fileIDs,1) + 1,1} = fileID;
-                            end
-                        end
-                    end
-                    disp(['Adding NREM sleeping epochs from ProcData file ' num2str(a) ' of ' num2str(size(procDataFileIDs, 1)) '...']); disp(' ')
                 end
             end
+            %% save the data in the SleepEventData struct
+            for zz = 1:length(dataTypes)
+                dataType = dataTypes{1,zz};
+                for xx = 1:size(data.(dataType).cellpupilArea,1) % loop through however many sleep epochs this file has
+                    if isfield(SleepData.(modelName).NREM.data.Pupil,(dataType)) == false
+                        SleepData.(modelName).NREM.data.Pupil.(dataType).data{xx,1} = data.(dataType).cellpupilArea{1,1};
+                        if zz == 1
+                            SleepData.(modelName).NREM.data.Pupil.binTimes{xx,1} = cellBinTimes{1,1};
+                            SleepData.(modelName).NREM.data.Pupil.fileIDs{xx,1} = fileID;
+                        end
+                    else
+                        SleepData.(modelName).NREM.data.Pupil.(dataType).data{size(SleepData.(modelName).NREM.data.Pupil.(dataType).data,1) + 1,1} = data.(dataType).cellpupilArea{xx,1};
+                        if zz == 1
+                            SleepData.(modelName).NREM.data.Pupil.binTimes{size(SleepData.(modelName).NREM.data.Pupil.binTimes,1) + 1,1} = cellBinTimes{xx,1};
+                            SleepData.(modelName).NREM.data.Pupil.fileIDs{size(SleepData.(modelName).NREM.data.Pupil.fileIDs,1) + 1,1} = fileID;
+                        end
+                    end
+                end
+            end
+            disp(['Adding NREM sleeping epochs from ProcData file ' num2str(a) ' of ' num2str(size(procDataFileIDs, 1)) '...']); disp(' ')
         end
     end
 end
 %% create REM sleep scored data structure.
 sleepBins = REMsleepTime/5;
 for a = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
-    clearvars -except sleepBins a procDataFileIDs REMsleepTime REMsleepTime SleepData modelName sleepDataFileID dataTypes
+    clearvars -except sleepBins a procDataFileIDs NREMsleepTime REMsleepTime SleepData modelName sleepDataFileID dataTypes
     procDataFileID = procDataFileIDs(a,:); % pull character string associated with the current file
     load(procDataFileID); % load in procDataFile associated with character string
     [~,~,fileID] = GetFileInfo_JNeurosci2022(procDataFileID); % gather file info
@@ -137,22 +140,22 @@ for a = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
         else
             sleepCriteria = (0:(sleepBins - 1)); % this will be used to fix the issue in sleepIndex
             fixedSleepIndex = unique(sleepIndex + sleepCriteria); % sleep Index now has the proper time stamps from sleep logical
-            for indexCount = 1:length(fixedSleepIndex) % loop through the length of sleep Index, and pull out associated data
+            for pp = 1:length(fixedSleepIndex) % loop through the length of sleep Index, and pull out associated data
                 for aa = 1:length(dataTypes)
                     dataType = dataTypes{1,aa};
                     if strcmp(dataType,'LH_HbT') == true
-                        data.(dataType).data{indexCount,1} = ProcData.sleep.parameters.CBV.hbtLH{fixedSleepIndex(indexCount),1};
+                        data.(dataType).data{pp,1} = ProcData.sleep.parameters.CBV.hbtLH{fixedSleepIndex(pp),1};
                     elseif strcmp(dataType,'RH_HbT') == true
-                        data.(dataType).data{indexCount,1} = ProcData.sleep.parameters.CBV.hbtRH{fixedSleepIndex(indexCount),1};
+                        data.(dataType).data{pp,1} = ProcData.sleep.parameters.CBV.hbtRH{fixedSleepIndex(pp),1};
                     elseif strcmp(dataType,'LH_gammaBandPower') == true
-                        data.(dataType).data{indexCount,1} = ProcData.sleep.parameters.cortical_LH.gammaBandPower{fixedSleepIndex(indexCount),1};
+                        data.(dataType).data{pp,1} = ProcData.sleep.parameters.cortical_LH.gammaBandPower{fixedSleepIndex(pp),1};
                     elseif strcmp(dataType,'RH_gammaBandPower') == true
-                        data.(dataType).data{indexCount,1} = ProcData.sleep.parameters.cortical_RH.gammaBandPower{fixedSleepIndex(indexCount),1};
+                        data.(dataType).data{pp,1} = ProcData.sleep.parameters.cortical_RH.gammaBandPower{fixedSleepIndex(pp),1};
                     else
-                        data.(dataType).data{indexCount,1} = ProcData.sleep.parameters.Pupil.(dataType){fixedSleepIndex(indexCount),1};
+                        data.(dataType).data{pp,1} = ProcData.sleep.parameters.Pupil.(dataType){fixedSleepIndex(pp),1};
                     end
                 end
-                binTimes{indexCount,1} = 5*fixedSleepIndex(indexCount);
+                binTimes{pp,1} = 5*fixedSleepIndex(pp);
             end
             indexBreaks = find(fixedSleepIndex(2:end) - fixedSleepIndex(1:end - 1) > 1); % find if there are numerous sleep periods
             if isempty(indexBreaks) % if there is only one period of sleep in this file and not multiple
@@ -170,52 +173,55 @@ for a = 1:size(procDataFileIDs,1) % loop through the list of ProcData files
             else
                 count = length(fixedSleepIndex);
                 holdIndex = zeros(1,(length(indexBreaks) + 1));
-                for indexCounter = 1:length(indexBreaks) + 1
-                    if indexCounter == 1
-                        holdIndex(indexCounter) = indexBreaks(indexCounter);
-                    elseif indexCounter == length(indexBreaks) + 1
-                        holdIndex(indexCounter) = count - indexBreaks(indexCounter - 1);
+                for ww = 1:length(indexBreaks) + 1
+                    if ww == 1
+                        holdIndex(ww) = indexBreaks(ww);
+                    elseif ww == length(indexBreaks) + 1
+                        holdIndex(ww) = count - indexBreaks(ww - 1);
                     else
-                        holdIndex(indexCounter)= indexBreaks(indexCounter) - indexBreaks(indexCounter - 1);
+                        holdIndex(ww)= indexBreaks(ww) - indexBreaks(ww - 1);
                     end
                 end
                 for aa = 1:length(dataTypes)
                     dataType = dataTypes{1,aa};
                     splitCounter = 1:length(data.(dataType).data);
                     convertedMat2Cell = mat2cell(splitCounter',holdIndex);
-                    for matCounter = 1:length(convertedMat2Cell)
-                        data.(dataType).mat2CellpupilArea{matCounter,1} = data.(dataType).data(convertedMat2Cell{matCounter,1});
-                        mat2CellBinTimes{matCounter,1} = binTimes(convertedMat2Cell{matCounter,1});
+                    for nn = 1:length(convertedMat2Cell)
+                        data.(dataType).mat2CellpupilArea{nn,1} = data.(dataType).data(convertedMat2Cell{nn,1});
+                        mat2CellBinTimes{nn,1} = binTimes(convertedMat2Cell{nn,1});
                     end
-                    for cellCounter = 1:length(data.(dataType).mat2CellpupilArea)
+                    for yy = 1:length(data.(dataType).mat2CellpupilArea)
                         % pupil area
-                        data.(dataType).matpupilArea = cell2mat(data.(dataType).mat2CellpupilArea{cellCounter, 1});
+                        data.(dataType).matpupilArea = cell2mat(data.(dataType).mat2CellpupilArea{yy, 1});
                         data.(dataType).arraypupilArea = reshape(data.(dataType).matpupilArea',[1,size(data.(dataType).matpupilArea,2)*size(data.(dataType).matpupilArea,1)]);
-                        data.(dataType).cellpupilArea{cellCounter, 1} = data.(dataType).arraypupilArea;
+                        data.(dataType).cellpupilArea{yy, 1} = data.(dataType).arraypupilArea;
                         % bin times
-                        matBinTimes = cell2mat(mat2CellBinTimes{cellCounter,1});
+                        matBinTimes = cell2mat(mat2CellBinTimes{yy,1});
                         arrayBinTimes = reshape(matBinTimes',[1,size(matBinTimes,2)*size(matBinTimes,1)]);
-                        cellBinTimes{cellCounter,1} = arrayBinTimes;
+                        cellBinTimes{yy,1} = arrayBinTimes;
                     end
-                    %% save the data in the SleepEventData struct
-                    for cellLength = 1:size(data.(dataType).cellpupilArea,1) % loop through however many sleep epochs this file has
-                        if isfield(SleepData.(modelName).REM.data.Pupil,(dataType)) == false
-                            SleepData.(modelName).REM.data.Pupil.(dataType).data{cellLength,1} = data.(dataType).cellpupilArea{1,1};
-                            if aa == 1
-                                SleepData.(modelName).REM.data.Pupil.binTimes{cellLength,1} = cellBinTimes{1,1};
-                                SleepData.(modelName).REM.data.Pupil.fileIDs{cellLength,1} = fileID;
-                            end
-                        else
-                            SleepData.(modelName).REM.data.Pupil.(dataType).data{size(SleepData.(modelName).REM.data.Pupil.(dataType).data,1) + 1,1} = data.(dataType).cellpupilArea{cellLength,1};
-                            if aa == 1
-                                SleepData.(modelName).REM.data.Pupil.binTimes{size(SleepData.(modelName).REM.data.Pupil.binTimes,1) + 1,1} = cellBinTimes{cellLength,1};
-                                SleepData.(modelName).REM.data.Pupil.fileIDs{size(SleepData.(modelName).REM.data.Pupil.fileIDs,1) + 1,1} = fileID;
-                            end
-                        end
-                    end
-                    disp(['Adding REM sleeping epochs from ProcData file ' num2str(a) ' of ' num2str(size(procDataFileIDs, 1)) '...']); disp(' ')
                 end
             end
+            %% save the data in the SleepEventData struct
+            for zz = 1:length(dataTypes)
+                dataType = dataTypes{1,zz};
+                for xx = 1:size(data.(dataType).cellpupilArea,1) % loop through however many sleep epochs this file has
+                    if isfield(SleepData.(modelName).REM.data.Pupil,(dataType)) == false
+                        SleepData.(modelName).REM.data.Pupil.(dataType).data{xx,1} = data.(dataType).cellpupilArea{1,1};
+                        if zz == 1
+                            SleepData.(modelName).REM.data.Pupil.binTimes{xx,1} = cellBinTimes{1,1};
+                            SleepData.(modelName).REM.data.Pupil.fileIDs{xx,1} = fileID;
+                        end
+                    else
+                        SleepData.(modelName).REM.data.Pupil.(dataType).data{size(SleepData.(modelName).REM.data.Pupil.(dataType).data,1) + 1,1} = data.(dataType).cellpupilArea{xx,1};
+                        if zz == 1
+                            SleepData.(modelName).REM.data.Pupil.binTimes{size(SleepData.(modelName).REM.data.Pupil.binTimes,1) + 1,1} = cellBinTimes{xx,1};
+                            SleepData.(modelName).REM.data.Pupil.fileIDs{size(SleepData.(modelName).REM.data.Pupil.fileIDs,1) + 1,1} = fileID;
+                        end
+                    end
+                end
+            end
+            disp(['Adding REM sleeping epochs from ProcData file ' num2str(a) ' of ' num2str(size(procDataFileIDs, 1)) '...']); disp(' ')
         end
     end
 end

@@ -13,12 +13,12 @@
 %            .tdms_index - Index for the LabVIEW data in the .tdms file
 %________________________________________________________________________________________________________________________
 
-%% load the script's necessary variables and data structures.
+% load the script's necessary variables and data structures.
 % Clear the workspace variables and command window
 zap;
 % Asks the user to load all files with a '_WhiskerCam.bin' extension
 fileNames = uigetfile('*_WhiskerCam.bin','MultiSelect','on');   % CTL-A to select all files
-%% preparing to create RawData files.
+% preparing to create RawData files.
 % load in each file one at a time, looping through the list
 for a = 1:length(fileNames)
     disp(['Analyzing WhiskerCam file (' num2str(a) ' of ' num2str(length(fileNames)) ')']); disp(' ')
@@ -34,7 +34,7 @@ for a = 1:length(fileNames)
     % determine if a RawData file has already been created for this file. If it has, skip it
     fileExist = ls(['*' fileID '_RawData.mat']);
     if isempty(fileExist)
-        %% import .tdms data (All channels).
+        % import .tdms data (All channels).
         trialData = ReadInTDMSWhiskerTrials_JNeurosci2022([fileID '.tdms']);
         % left, right, and hippocampal electrodes
         dataRow = strcmp(trialData.data.names,'Cortical_LH');
@@ -58,9 +58,9 @@ for a = 1:length(fileNames)
         forceSensor = trialData.data.vals(dataRow,:);
         dataRow = strcmp(trialData.data.names,'EMG');
         EMG = trialData.data.vals(dataRow,:)/str2double(trialData.amplifierGain);
-        %% start whisker tracker.
+        % start whisker tracker.
         [whiskerAngle] = WhiskerTrackerParallel_JNeurosci2022(fileID);
-        %% save the notes and data.
+        % save the notes and data.
         % notes - all variables are descriptive
         RawData.notes.experimenter = trialData.experimenter;
         RawData.notes.animalID = trialData.animalID;

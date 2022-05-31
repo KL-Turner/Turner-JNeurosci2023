@@ -96,73 +96,7 @@ for dd = 1:length(animalIDs)
 end
 data.physio.meanLoss = mean(data.physio.loss,1);
 data.physio.stdLoss = std(data.physio.loss,0,1);
-
-%% Sleep model accuracy based on physiology
-resultsStructB = 'Results_PupilSleepModel';
-load(resultsStructB);
-animalIDs = fieldnames(Results_PupilSleepModel);
-lags = {'negFifteen','negTen','negFive','zero','five','ten','fifteen'};
-for dd = 1:length(animalIDs)
-    animalID = animalIDs{dd,1};
-    for bb = 1:length(lags)
-        lag = lags{1,bb};
-        data.(lag).loss(dd,1) = Results_PupilSleepModel.(animalID).(lag).SVM.loss;
-    end
-end
-for aa = 1:length(lags)
-    lag = lags{1,aa};
-    data.(lag).meanLoss = mean(data.(lag).loss,1);
-    data.(lag).stdLoss = std(data.(lag).loss,0,1);
-end
-% figure
-% scatter(ones(1,length(data.negFifteen.loss))*-15,data.negFifteen.loss,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('magenta'),'jitter','on','jitterAmount',0.25);
-% hold on
-% e1 = errorbar(-15,data.negFifteen.meanLoss,data.negFifteen.stdLoss,'d','MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'));
-% e1.Color = 'black';
-% e1.MarkerSize = 10;
-% e1.CapSize = 10;
-% scatter(ones(1,length(data.negTen.loss))*-10,data.negTen.loss,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('magenta'),'jitter','on','jitterAmount',0.25);
-% hold on
-% e1 = errorbar(-10,data.negTen.meanLoss,data.negTen.stdLoss,'d','MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'));
-% e1.Color = 'black';
-% e1.MarkerSize = 10;
-% e1.CapSize = 10;
-% scatter(ones(1,length(data.negFive.loss))*-5,data.negFive.loss,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('magenta'),'jitter','on','jitterAmount',0.25);
-% hold on
-% e1 = errorbar(-5,data.negFive.meanLoss,data.negFive.stdLoss,'d','MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'));
-% e1.Color = 'black';
-% e1.MarkerSize = 10;
-% e1.CapSize = 10;
-% scatter(ones(1,length(data.zero.loss))*0,data.zero.loss,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('magenta'),'jitter','on','jitterAmount',0.25);
-% hold on
-% e1 = errorbar(0,data.zero.meanLoss,data.zero.stdLoss,'d','MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'));
-% e1.Color = 'black';
-% e1.MarkerSize = 10;
-% e1.CapSize = 10;
-% scatter(ones(1,length(data.five.loss))*5,data.five.loss,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('magenta'),'jitter','on','jitterAmount',0.25);
-% hold on
-% e1 = errorbar(5,data.five.meanLoss,data.five.stdLoss,'d','MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'));
-% e1.Color = 'black';
-% e1.MarkerSize = 10;
-% e1.CapSize = 10;
-% scatter(ones(1,length(data.ten.loss))*10,data.ten.loss,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('magenta'),'jitter','on','jitterAmount',0.25);
-% hold on
-% e1 = errorbar(10,data.ten.meanLoss,data.ten.stdLoss,'d','MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'));
-% e1.Color = 'black';
-% e1.MarkerSize = 10;
-% e1.CapSize = 10;
-% scatter(ones(1,length(data.fifteen.loss))*15,data.fifteen.loss,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('magenta'),'jitter','on','jitterAmount',0.25);
-% hold on
-% e1 = errorbar(15,data.fifteen.meanLoss,data.fifteen.stdLoss,'d','MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'));
-% e1.Color = 'black';
-% e1.MarkerSize = 10;
-% e1.CapSize = 10;
-% ylabel('Loss (mean squared error)')
-% xlabel('Time (s)')
-% axis square
-% xlim([-20,20])
-% % ylim([0,0.2])
-% set(gca,'box','off')
+[lossStats.h,lossStats.p,lossStats.ci,lossStats.stats] = ttest2(data.physio.loss,data.pupil.loss);
 %% pupil model coherence
 resultsStruct = 'Results_PupilModelCoherence.mat';
 load(resultsStruct);
@@ -183,7 +117,7 @@ data.Coherr.stdPhysioC = std(data.Coherr.physioC,0,1)/sqrt(size(data.Coherr.phys
 %% load data
 dataStructure = 'Results_Example.mat';
 load(dataStructure)
-binTime = 5;
+binTime = 5; % sec
 for aa = 1:length(Results_Example.trueLabels)
     if strcmp(Results_Example.trueLabels{aa,1},'Not Sleep') == true
         trueAwake(aa,1) = 1;
@@ -211,6 +145,64 @@ physioPredAsleep = strcmp(physioPred,'Asleep');
 [pupilPred,~] = predict(Results_PupilSleepModel.T141.SVM.mdl,Results_Example.pupilTable);
 pupilPredAwake = strcmp(pupilPred,'Awake');
 pupilPredAsleep = strcmp(pupilPred,'Asleep');
+%% load data
+catTrueAwake = []; catTrueAsleep = []; catTrueNREM = []; catTrueREM = [];
+catPhysioAwake = []; catPhysioAsleep = []; catPupilAwake = []; catPupilAsleep = [];
+for qq = 1:length(Results_Example.allPhysioTables)
+    physioTable = Results_Example.allPhysioTables{qq,1};
+    physioModel = physioTable(:,1:end - 1);
+    pupilTable = Results_Example.allPupilTables{qq,1};
+    pupilModel = pupilTable(:,1);
+    trueLabels = physioTable.behavState;
+    for aa = 1:length(trueLabels)
+        if strcmp(trueLabels{aa,1},'Not Sleep') == true
+            allTrueAwake(aa,1) = 1;
+            allTrueAsleep(aa,1) = 0;
+        elseif strcmp(trueLabels{aa,1},'NREM Sleep') == true || strcmp(trueLabels{aa,1},'REM Sleep') == true
+            allTrueAwake(aa,1) = 0;
+            allTrueAsleep(aa,1) = 1;
+        end
+    end
+    for aa = 1:length(trueLabels)
+        if strcmp(trueLabels{aa,1},'Not Sleep') == true
+            allTrueNREM(aa,1) = 0;
+            allTrueREM(aa,1) = 0;
+        elseif strcmp(trueLabels{aa,1},'NREM Sleep') == true
+            allTrueNREM(aa,1) = 1;
+            allTrueREM(aa,1) = 0;
+        elseif strcmp(trueLabels{aa,1},'REM Sleep') == true
+            allTrueNREM(aa,1) = 0;
+            allTrueREM(aa,1) = 1;
+        end
+    end
+    [allPhysioPred,~] = predict(Results_PhysioSleepModel.T141.SVM.mdl,physioModel);
+    allPhysioPredAwake = strcmp(allPhysioPred,'Awake');
+    allPhysioPredAsleep = strcmp(allPhysioPred,'Asleep');
+    [allPupilPred,~] = predict(Results_PupilSleepModel.T141.SVM.mdl,pupilModel);
+    allPupilPredAwake = strcmp(allPupilPred,'Awake');
+    allPupilPredAsleep = strcmp(allPupilPred,'Asleep');
+    if qq == 1
+        catTrueAwake = allTrueAwake;
+        catTrueAsleep = allTrueAsleep;
+        catTrueNREM = allTrueNREM;
+        catTrueREM = allTrueREM;
+        catPhysioAwake = allPhysioPredAwake;
+        catPhysioAsleep = allPhysioPredAsleep;
+        catPupilAwake = allPupilPredAwake;
+        catPupilAsleep = allPupilPredAsleep;
+    else
+        delayBins = Results_Example.timePadBins{qq - 1,1};
+        timePadArray = NaN(length(delayBins),1);
+        catTrueAwake = cat(1,catTrueAwake,timePadArray,allTrueAwake);
+        catTrueAsleep = cat(1,catTrueAsleep,timePadArray,allTrueAsleep);
+        catTrueNREM = cat(1,catTrueNREM,timePadArray,allTrueNREM);
+        catTrueREM = cat(1,catTrueREM,timePadArray,allTrueREM);
+        catPhysioAwake = cat(1,catPhysioAwake,timePadArray,allPhysioPredAwake);
+        catPhysioAsleep = cat(1,catPhysioAsleep,timePadArray,allPhysioPredAsleep);
+        catPupilAwake = cat(1,catPupilAwake,timePadArray,allPupilPredAwake);
+        catPupilAsleep = cat(1,catPupilAsleep,timePadArray,allPupilPredAsleep);
+    end
+end
 %% Figure
 HbTawakeHist = figure;
 h1 = histogram2(data.HbTRel.catPupil.Awake,data.HbTRel.catHbT.Awake,'DisplayStyle','tile','ShowEmptyBins','on','XBinedges',-5:0.025:3,'YBinedges',-25:2.5:125,'Normalization','probability');
@@ -338,7 +330,7 @@ close(GammaRemHist)
 close(GammaRemRGB)
 %% save figure(s)
 if saveFigs == true
-    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'Figure Panels' delim];
+    dirpath = [rootFolder delim 'Figure Panels' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
@@ -478,7 +470,7 @@ ylim([0,1])
 set(gca,'box','off')
 %% save figure(s)
 if saveFigs == true
-    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'Figure Panels' delim];
+    dirpath = [rootFolder delim 'Figure Panels' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
@@ -488,7 +480,46 @@ if saveFigs == true
 end
 %% hypnogram for model comparison
 Fig5C = figure('Name','Figure Panel 5 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
-subplot(5,1,1)
+subplot(10,1,1)
+b1 = bar(((1:length(catTrueAwake))*binTime)/60/60,catTrueAwake,'FaceColor',colors('black'),'BarWidth',1);
+hold on
+b2 = bar(((1:length(catTrueNREM))*binTime)/60/60,catTrueNREM,'FaceColor',colors('cyan'),'BarWidth',1);
+b3 = bar(((1:length(catTrueREM))*binTime)/60/60,catTrueREM,'FaceColor',colors('candy apple red'),'BarWidth',1);
+title('True predictions');
+legend([b1,b2,b3],'Awake','NREM','REM')
+set(gca,'box','off')
+subplot(10,1,2)
+b1 = bar((1:length(catTrueAwake))*binTime,catTrueAwake,'FaceColor',colors('black'),'BarWidth',1);
+hold on
+b2 = bar((1:length(catTrueAsleep))*binTime,catTrueAsleep,'FaceColor',colors('royal purple'),'BarWidth',1);
+title('True predictions');
+legend([b1,b2],'Awake','Asleep')
+set(gca,'box','off')
+axis off
+subplot(10,1,3)
+bar((1:length(catPhysioAwake))*binTime,catPhysioAwake,'FaceColor',colors('black'),'BarWidth',1);
+hold on
+bar((1:length(catPhysioAsleep))*binTime,catPhysioAsleep,'FaceColor',colors('royal purple'),'BarWidth',1);
+title('Physio predictions');
+set(gca,'box','off')
+axis off
+subplot(10,1,4)
+bar((1:length(catPupilAwake))*binTime,catPupilAwake,'FaceColor',colors('black'),'BarWidth',1);
+hold on
+bar((1:length(catPupilAsleep))*binTime,catPupilAsleep,'FaceColor',colors('royal purple'),'BarWidth',1);
+title('Pupil predictions');
+set(gca,'box','off')
+axis off
+subplot(10,1,5)
+b1 = bar((1:length(trueAwake))*binTime,trueAwake,'FaceColor',colors('black'),'BarWidth',1);
+hold on
+b2 = bar((1:length(trueNREM))*binTime,trueNREM,'FaceColor',colors('cyan'),'BarWidth',1);
+b3 = bar((1:length(trueREM))*binTime,trueREM,'FaceColor',colors('candy apple red'),'BarWidth',1);
+title('True predictions');
+legend([b1,b2,b3],'Awake','NREM','REM')
+set(gca,'box','off')
+axis off
+subplot(10,1,6)
 b1 = bar((1:length(trueAwake))*binTime,trueAwake,'FaceColor',colors('black'),'BarWidth',1);
 hold on
 b2 = bar((1:length(trueNREM))*binTime,trueNREM,'FaceColor',colors('cyan'),'BarWidth',1);
@@ -498,7 +529,7 @@ legend([b1,b2,b3],'Awake','NREM','REM')
 xlim([0,450])
 set(gca,'box','off')
 axis off
-subplot(5,1,2)
+subplot(10,1,7)
 b1 = bar((1:length(trueAwake))*binTime,trueAwake,'FaceColor',colors('black'),'BarWidth',1);
 hold on
 b2 = bar((1:length(trueAsleep))*binTime,trueAsleep,'FaceColor',colors('royal purple'),'BarWidth',1);
@@ -507,7 +538,7 @@ legend([b1,b2],'Awake','Asleep')
 xlim([0,450])
 set(gca,'box','off')
 axis off
-subplot(5,1,3)
+subplot(10,1,8)
 bar((1:length(physioPredAwake))*binTime,physioPredAwake,'FaceColor',colors('black'),'BarWidth',1);
 hold on
 bar((1:length(physioPredAsleep))*binTime,physioPredAsleep,'FaceColor',colors('royal purple'),'BarWidth',1);
@@ -515,7 +546,7 @@ title('Physio predictions');
 xlim([0,450])
 set(gca,'box','off')
 axis off
-subplot(5,1,4)
+subplot(10,1,9)
 bar((1:length(pupilPredAwake))*binTime,pupilPredAwake,'FaceColor',colors('black'),'BarWidth',1);
 hold on
 bar((1:length(pupilPredAsleep))*binTime,pupilPredAsleep,'FaceColor',colors('royal purple'),'BarWidth',1);
@@ -523,7 +554,7 @@ title('Pupil predictions');
 xlim([0,450])
 set(gca,'box','off')
 axis off
-subplot(5,1,5)
+subplot(10,1,10)
 plot((1:length(Results_Example.filtPupilZDiameter))/Results_Example.dsFs,Results_Example.filtPupilZDiameter,'color',colors('black'));
 hold on;
 yline(exampleBoundary,'color',colors('custom green'),'LineWidth',2)
@@ -533,7 +564,7 @@ xlim([0,450])
 set(gca,'box','off')
 %% save figure(s)
 if saveFigs == true
-    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'Figure Panels' delim];
+    dirpath = [rootFolder delim 'Figure Panels' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
@@ -617,13 +648,64 @@ set(gca,'box','off')
 ax6.TickLength = [0.03,0.03];
 %% save figure(s)
 if saveFigs == true
-    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'Figure Panels' delim];
+    dirpath = [rootFolder delim 'Figure Panels' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
     savefig(Fig5D,[dirpath 'Fig5D_JNeurosci2022']);
     set(Fig5D,'PaperPositionMode','auto');
     print('-vector','-dpdf','-fillpage',[dirpath 'Fig5D_JNeurosci2022'])
+    % text diary
+    diaryFile = [dirpath 'Fig5_Text.txt'];
+    if exist(diaryFile,'file') == 2
+        delete(diaryFile)
+    end
+    diary(diaryFile)
+    diary on
+    % example boundary decision
+    disp('======================================================================================================================')
+    disp('Example boundary decision')
+    disp('======================================================================================================================')
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp(['Example boundary: ' num2str(exampleBoundary) ' z-units']); disp(' ')
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    % Mean z-unit decision boundary
+    disp('======================================================================================================================')
+    disp('Mean z-unit decision boundary')
+    disp('======================================================================================================================')
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp(['z-unit decision boundary: ' num2str(data.pupil.meanZBoundary) ' ± ' num2str(data.pupil.stdZBoundary) ' z-units (n = ' num2str(length(data.pupil.zBoundary)) ') mice']); disp(' ')
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    % Mean mm decision boundary
+    disp('======================================================================================================================')
+    disp('Mean mm decision boundary')
+    disp('======================================================================================================================')
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp(['mm decision boundary: ' num2str(data.pupil.meanMBoundary) ' ± ' num2str(data.pupil.stdMBoundary) ' mm (n = ' num2str(length(data.pupil.mBoundary)) ') mice']); disp(' ')
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    % Physio model loss
+    disp('======================================================================================================================')
+    disp('Physiol model loss')
+    disp('======================================================================================================================')
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp(['Physio model loss: ' num2str(data.physio.meanLoss) ' ± ' num2str(data.physio.stdLoss) ' (n = ' num2str(length(data.physio.loss)) ') mice']); disp(' ')
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    % Pupil model loss
+    disp('======================================================================================================================')
+    disp('Pupil model loss')
+    disp('======================================================================================================================')
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp(['Pupil model loss: ' num2str(data.pupil.meanLoss) ' ± ' num2str(data.pupil.stdLoss) ' (n = ' num2str(length(data.pupil.loss)) ') mice']); disp(' ')
+    disp(['p < ' num2str(lossStats.p)]); disp(' ')    
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    % Mean ROC AUC
+    disp('======================================================================================================================')
+    disp('Pupil ROC AUC')
+    disp('======================================================================================================================')
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp(['AUC: ' num2str(data.pupil.rocMeanAUC) ' ± ' num2str(data.pupil.rocStdAUC) ' (n = ' num2str(length(data.pupil.rocAUC)) ') mice']); disp(' ')
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    diary off
 end
 
 end

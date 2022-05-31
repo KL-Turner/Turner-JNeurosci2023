@@ -44,7 +44,7 @@ data.meanStimPerc = mean(data.stimPerc,1);
 data.stdStimPerc = std(data.stimPerc,0,1);
 data.meanDuration = mean(data.duration,1);
 data.meanBinProb = mean(data.binProb,1);
-data.stdBinProb = std(data.binProb,0,1);
+data.stdBinProb = std(data.binProb,0,1)./sqrt(size(data.binProb,1));
 data.meanIndBinProb = mean(data.indBinProb,1);
 data.stdIndBinProb = std(data.indBinProb,0,1);
 %% blink triggered averages
@@ -262,7 +262,7 @@ set(gca,'box','off')
 ax6.TickLength = [0.03,0.03];
 %% save figure(s)
 if saveFigs == true
-    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'Figure Panels' delim];
+    dirpath = [rootFolder delim 'Figure Panels' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
@@ -387,7 +387,7 @@ ax8Pos(3:4) = ax5Pos(3:4);
 set(ax8,'position',ax8Pos);
 %% save figure(s)
 if saveFigs == true
-    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'Figure Panels' delim];
+    dirpath = [rootFolder delim 'Figure Panels' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
@@ -512,13 +512,35 @@ ax8Pos(3:4) = ax5Pos(3:4);
 set(ax8,'position',ax8Pos);
 %% save figure(s)
 if saveFigs == true
-    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'Figure Panels' delim];
+    dirpath = [rootFolder delim 'Figure Panels' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
     savefig(Fig3C,[dirpath 'Fig3C_JNeurosci2022']);
     set(Fig3C,'PaperPositionMode','auto');
     print('-vector','-dpdf','-bestfit',[dirpath 'Fig3C_JNeurosci2022'])
+    % text diary
+    diaryFile = [dirpath 'Fig2_Text.txt'];
+    if exist(diaryFile,'file') == 2
+        delete(diaryFile)
+    end
+    diary(diaryFile)
+    diary on
+    % mean inter-blink interval (IBI)
+    disp('======================================================================================================================')
+    disp('Mean inter-blink interval')
+    disp('======================================================================================================================')
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp(['Inter-blink interval: ' num2str(data.meanInterblink) ' ± ' num2str(data.stdInterblink) ' seconds (n = ' num2str(length(data.interblink)) ') mice']); disp(' ')
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    % mean blink post whisker stimulus probability
+    disp('======================================================================================================================')
+    disp('Mean inter-blink interval')
+    disp('======================================================================================================================')
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp(['Post-stimulus blink probability: ' num2str(data.meanStimPerc) ' ± ' num2str(data.stdStimPerc) ' seconds (n = ' num2str(length(data.stimPerc)) ') mice']); disp(' ')
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    diary off
 end
 
 end

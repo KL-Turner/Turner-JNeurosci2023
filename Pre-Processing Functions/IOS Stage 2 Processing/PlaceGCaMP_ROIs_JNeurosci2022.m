@@ -1,4 +1,4 @@
-function [ROIs] = PlaceGCaMP_ROIs_JNeurosci2022(animalID,fileID,ROIs,imagingType,lensMag)
+function [ROIs] = PlaceGCaMP_ROIs_JNeurosci2022(animalID,fileID,ROIs,lensMag)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -10,7 +10,7 @@ function [ROIs] = PlaceGCaMP_ROIs_JNeurosci2022(animalID,fileID,ROIs,imagingType
 strDay = ConvertDate_JNeurosci2022(fileID);
 fileDate = fileID(1:6);
 % determine which ROIs to draw based on imaging type
-hem = {'LH','RH'};
+hem = {'LH','RH','frontalLH','frontalRH'};
 % extract the pixel values from the window ROIs
 % character list of all ProcData files
 procDataFileStruct = dir('*_ProcData.mat');
@@ -60,7 +60,12 @@ for qq = 1:size(procDataFileList,1)
     end
     contCheck = false;
     while contCheck == false
-        gcampFrames = input('Which index are blue LED frames (1,2,3): '); disp(' ')
+        drawnow
+        if isfield(ProcData.notes,'blueFrames') == true
+            gcampFrames = ProcData.notes.blueFrames;
+        else
+            gcampFrames = input('Which index are blue LED frames (1,2,3): '); disp(' ')
+        end
         if gcampFrames == 1
             if qq == 1
                 roiFrame = frames{3};
@@ -124,7 +129,8 @@ for f = 1:length(hem)
         colormap gray
         colorbar
         axis image
-        disp(['Move the ROI over the most correlated region for the ' hem{1,f}]); disp(' ')
+        disp(['Move the ROI over the desired region for ' hem{1,f}]); disp(' ')
+        drawnow
         circ = drawcircle('Center',[0,0],'Radius',circRadius,'Color','r');
         checkCircle = input('Is the ROI okay? (y/n): ','s'); disp(' ')
         circPosition = round(circ.Center);
@@ -140,12 +146,10 @@ end
 fig = figure;
 imagesc(roiFrame)
 hold on;
-if strcmpi(imagingType,'bilateral') == true || strcmp(imagingType,'gcamp') == true
-    drawcircle('Center',ROIs.(['LH_' strDay]).circPosition,'Radius',ROIs.(['LH_' strDay]).circRadius,'Color','r');
-    drawcircle('Center',ROIs.(['RH_' strDay]).circPosition,'Radius',ROIs.(['RH_' strDay]).circRadius,'Color','r');
-elseif strcmpi(imagingType,'single')
-    drawcircle('Center',ROIs.(['Barrels_' strDay]).circPosition,'Radius',ROIs.(['Barrels_' strDay]).circRadius,'Color','r');
-end
+drawcircle('Center',ROIs.(['LH_' strDay]).circPosition,'Radius',ROIs.(['LH_' strDay]).circRadius,'Color','r');
+drawcircle('Center',ROIs.(['RH_' strDay]).circPosition,'Radius',ROIs.(['RH_' strDay]).circRadius,'Color','r');
+drawcircle('Center',ROIs.(['frontalLH_' strDay]).circPosition,'Radius',ROIs.(['LH_' strDay]).circRadius,'Color','r');
+drawcircle('Center',ROIs.(['frontalRH_' strDay]).circPosition,'Radius',ROIs.(['RH_' strDay]).circRadius,'Color','r');
 title([animalID ' final ROI placement'])
 xlabel('Image size (pixels)')
 ylabel('Image size (pixels)')

@@ -11,7 +11,9 @@ function [] = Fig4_JNeurosci2022(rootFolder,saveFigs,delim)
 resultsStruct = 'Results_BlinkCoherogram';
 load(resultsStruct);
 animalIDs = fieldnames(Results_BlinkCoherogram);
-behavFields = {'Awake','Asleep','All'};
+animalIDs(ismember(animalIDs,'T189')) = [];
+% behavFields = {'Awake','Asleep','All'};
+behavFields = {'Awake','Asleep'};
 dataTypes = {'HbT','gamma'};
 % take data from each animal during the different arousal states
 for aa = 1:length(animalIDs)
@@ -90,13 +92,17 @@ for aa = 1:length(dataTypes)
     end
 end
 % statistics
-[HbTCoherStats.h,HbTCoherStats.p,HbTCoherStats.ci,HbTCoherStats.stats] = ttest2(data.Coherogram.HbT.Awake.leadC021,data.Coherogram.HbT.Awake.lagC021);
-[GammaCoherStats.h,GammaCoherStats.p,GammaCoherStats.ci,GammaCoherStats.stats] = ttest2(data.Coherogram.gamma.Awake.leadC021,data.Coherogram.gamma.Awake.lagC021);
+[AwakeHbTCoherStats.h,AwakeHbTCoherStats.p,AwakeHbTCoherStats.ci,AwakeHbTCoherStats.stats] = ttest2(data.Coherogram.HbT.Awake.leadC021,data.Coherogram.HbT.Awake.lagC021);
+[AwakeGammaCoherStats.h,AwakeGammaCoherStats.p,AwakeGammaCoherStats.ci,AwakeGammaCoherStats.stats] = ttest2(data.Coherogram.gamma.Awake.leadC021,data.Coherogram.gamma.Awake.lagC021);
+[AsleepHbTCoherStats.h,AsleepHbTCoherStats.p,AsleepHbTCoherStats.ci,AsleepHbTCoherStats.stats] = ttest2(data.Coherogram.HbT.Asleep.leadC021,data.Coherogram.HbT.Asleep.lagC021);
+[AsleepGammaCoherStats.h,AsleepGammaCoherStats.p,AsleepGammaCoherStats.ci,AsleepGammaCoherStats.stats] = ttest2(data.Coherogram.gamma.Asleep.leadC021,data.Coherogram.gamma.Asleep.lagC021);
 %% blink spectrogram
 resultsStruct = 'Results_BlinkSpectrogram';
 load(resultsStruct);
 animalIDs = fieldnames(Results_BlinkSpectrogram);
-behavFields = {'Awake','Asleep','All'};
+animalIDs(ismember(animalIDs,'T189')) = [];
+% behavFields = {'Awake','Asleep','All'};
+behavFields = {'Awake','Asleep'};
 dataTypes = {'HbT','gamma'};
 % take data from each animal during the different arousal states
 for aa = 1:length(animalIDs)
@@ -117,20 +123,30 @@ for aa = 1:length(animalIDs)
                 data.Spectrogram.(dataType).(behavField).lagf = [];
             end
             % calculate change in power for spectrogram based on time index
-            LH_S = Results_BlinkSpectrogram.(animalID).(dataType).(behavField).LH_S;
-            RH_S = Results_BlinkSpectrogram.(animalID).(dataType).(behavField).RH_S;
+            if strcmp(dataType,'gamma') == true
+                LH_S = Results_BlinkSpectrogram.(animalID).(dataType).(behavField).LH_S*10e18;
+                RH_S = Results_BlinkSpectrogram.(animalID).(dataType).(behavField).RH_S*10e18;
+            else
+                LH_S = Results_BlinkSpectrogram.(animalID).(dataType).(behavField).LH_S;
+                RH_S = Results_BlinkSpectrogram.(animalID).(dataType).(behavField).RH_S;
+            end
             meanLH_S = mean(LH_S(:,1:300),2);
             meanRH_S = mean(RH_S(:,1:300),2);
             matLH_S = meanLH_S.*ones(size(LH_S));
             matRH_S = meanRH_S.*ones(size(RH_S));
             msLH_S = ((LH_S - matLH_S)./matLH_S)*.100;
             msRH_S = ((RH_S - matRH_S)./matLH_S)*.100;
-            % concatenate power data from each animal
+            %             % concatenate power data from each animal
             data.Spectrogram.(dataType).(behavField).S = cat(3,data.Spectrogram.(dataType).(behavField).S,msLH_S,msRH_S);
             data.Spectrogram.(dataType).(behavField).t = cat(1,data.Spectrogram.(dataType).(behavField).t,Results_BlinkSpectrogram.(animalID).(dataType).(behavField).LH_t,Results_BlinkSpectrogram.(animalID).(dataType).(behavField).RH_t);
             data.Spectrogram.(dataType).(behavField).f = cat(1,data.Spectrogram.(dataType).(behavField).f,Results_BlinkSpectrogram.(animalID).(dataType).(behavField).LH_f,Results_BlinkSpectrogram.(animalID).(dataType).(behavField).RH_f);
-            data.Spectrogram.(dataType).(behavField).leadS = cat(2,data.Spectrogram.(dataType).(behavField).leadS,Results_BlinkSpectrogram.(animalID).(dataType).(behavField).LH_leadS,Results_BlinkSpectrogram.(animalID).(dataType).(behavField).RH_leadS);
-            data.Spectrogram.(dataType).(behavField).lagS = cat(2,data.Spectrogram.(dataType).(behavField).lagS,Results_BlinkSpectrogram.(animalID).(dataType).(behavField).LH_lagS,Results_BlinkSpectrogram.(animalID).(dataType).(behavField).RH_lagS);
+            if strcmp(dataType,'gamma') == true
+                data.Spectrogram.(dataType).(behavField).leadS = cat(2,data.Spectrogram.(dataType).(behavField).leadS,Results_BlinkSpectrogram.(animalID).(dataType).(behavField).LH_leadS.*10e18,Results_BlinkSpectrogram.(animalID).(dataType).(behavField).RH_leadS.*10e18);
+                data.Spectrogram.(dataType).(behavField).lagS = cat(2,data.Spectrogram.(dataType).(behavField).lagS,Results_BlinkSpectrogram.(animalID).(dataType).(behavField).LH_lagS.*10e18,Results_BlinkSpectrogram.(animalID).(dataType).(behavField).RH_lagS.*10e18);
+            else
+                data.Spectrogram.(dataType).(behavField).leadS = cat(2,data.Spectrogram.(dataType).(behavField).leadS,Results_BlinkSpectrogram.(animalID).(dataType).(behavField).LH_leadS,Results_BlinkSpectrogram.(animalID).(dataType).(behavField).RH_leadS);
+                data.Spectrogram.(dataType).(behavField).lagS = cat(2,data.Spectrogram.(dataType).(behavField).lagS,Results_BlinkSpectrogram.(animalID).(dataType).(behavField).LH_lagS,Results_BlinkSpectrogram.(animalID).(dataType).(behavField).RH_lagS);
+            end
             data.Spectrogram.(dataType).(behavField).leadf = cat(1,data.Spectrogram.(dataType).(behavField).leadf,Results_BlinkSpectrogram.(animalID).(dataType).(behavField).LH_leadf,Results_BlinkSpectrogram.(animalID).(dataType).(behavField).RH_leadf);
             data.Spectrogram.(dataType).(behavField).lagf = cat(1,data.Spectrogram.(dataType).(behavField).lagf,Results_BlinkSpectrogram.(animalID).(dataType).(behavField).LH_lagf,Results_BlinkSpectrogram.(animalID).(dataType).(behavField).RH_lagf);
         end
@@ -179,8 +195,10 @@ for aa = 1:length(dataTypes)
     end
 end
 % statistics
-[HbTPowerStats.h,HbTPowerStats.p,HbTPowerStats.ci,HbTPowerStats.stats] = ttest2(data.Spectrogram.HbT.Awake.leadS021,data.Spectrogram.HbT.Awake.lagS021);
-[GammaPowerStats.h,GammaPowerStats.p,GammaPowerStats.ci,GammaPowerStats.stats] = ttest2(data.Spectrogram.gamma.Awake.leadS021,data.Spectrogram.gamma.Awake.lagS021);
+[AwakeHbTPowerStats.h,AwakeHbTPowerStats.p,AwakeHbTPowerStats.ci,AwakeHbTPowerStats.stats] = ttest2(data.Spectrogram.HbT.Awake.leadS021,data.Spectrogram.HbT.Awake.lagS021);
+[AwakeGammaPowerStats.h,AwakeGammaPowerStats.p,AwakeGammaPowerStats.ci,AwakeGammaPowerStats.stats] = ttest2(data.Spectrogram.gamma.Awake.leadS021,data.Spectrogram.gamma.Awake.lagS021);
+[AsleepHbTPowerStats.h,AsleepHbTPowerStats.p,AsleepHbTPowerStats.ci,AsleepHbTPowerStats.stats] = ttest2(data.Spectrogram.HbT.Asleep.leadS021,data.Spectrogram.HbT.Asleep.lagS021);
+[AsleepGammaPowerStats.h,AsleepGammaPowerStats.p,AsleepGammaPowerStats.ci,AsleepGammaPowerStats.stats] = ttest2(data.Spectrogram.gamma.Asleep.leadS021,data.Spectrogram.gamma.Asleep.lagS021);
 %% power vs coherence differences
 for aa = 1:length(dataTypes)
     dataType = dataTypes{1,aa};
@@ -199,25 +217,9 @@ for aa = 1:length(dataTypes)
     end
 end
 %% coherence vs. power during awake blinking figure
-Fig5A =  figure('Name','Figure Panel 4 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
-% awake gamma-band coherogram
-ax1 = subplot(4,4,1);
-Semilog_ImageSC(data.Coherogram.gamma.Awake.meanT,data.Coherogram.gamma.Awake.meanF,data.Coherogram.gamma.Awake.meanC,'y')
-c1 = colorbar;
-ylabel(c1,'\DeltaCoherence (%)','rotation',-90,'VerticalAlignment','bottom')
-caxis([-0.15,0.05])
-ylabel('Freq (Hz)')
-xlabel('Time (sec)')
-title('Gamma coherogram')
-xlim([10,60])
-xticks([data.Coherogram.gamma.Awake.meanT(1),15,25,35,45,55,data.Coherogram.gamma.Awake.meanT(end)])
-xticklabels({'-30','-20','-10','0','10','20','30'})
-axis square
-axis xy
-set(gca,'box','off')
-ax1.TickLength = [0.03,0.03];
+Fig4 =  figure('Name','Figure Panel 4 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
 % awake gamma-band coherence
-ax2 = subplot(4,4,2);
+ax1 = subplot(4,5,1);
 s1 = semilogx(data.Coherogram.gamma.Awake.meanLeadF,data.Coherogram.gamma.Awake.meanLeadC,'color',colors('caribbean green'),'LineWidth',2);
 hold on
 semilogx(data.Coherogram.gamma.Awake.meanLeadF,data.Coherogram.gamma.Awake.meanLeadC + data.Coherogram.gamma.Awake.stdLeadC,'color',colors('caribbean green'),'LineWidth',0.5)
@@ -225,7 +227,7 @@ semilogx(data.Coherogram.gamma.Awake.meanLeadF,data.Coherogram.gamma.Awake.meanL
 s2 = semilogx(data.Coherogram.gamma.Awake.meanLagF,data.Coherogram.gamma.Awake.meanLagC,'color',colors('caribbean blue'),'LineWidth',2);
 semilogx(data.Coherogram.gamma.Awake.meanLagF,data.Coherogram.gamma.Awake.meanLagC + data.Coherogram.gamma.Awake.stdLagC,'color',colors('caribbean blue'),'LineWidth',0.5)
 semilogx(data.Coherogram.gamma.Awake.meanLagF,data.Coherogram.gamma.Awake.meanLagC - data.Coherogram.gamma.Awake.stdLagC,'color',colors('caribbean blue'),'LineWidth',0.5)
-xline(0.21,'color',colors('black'),'LineWidth',2)
+xline(0.2,'color',colors('black'),'LineWidth',2)
 axis tight
 ylabel('Coherence')
 xlabel('Freq (Hz)')
@@ -233,11 +235,11 @@ title('Gamma lead/lag coherence')
 legend([s1,s2],'lead blink','lag blink')
 axis square
 xlim([1/10,3])
-ylim([0.1,0.45])
+ylim([0,0.5])
 set(gca,'box','off')
-ax2.TickLength = [0.03,0.03];
+ax1.TickLength = [0.03,0.03];
 % awake gamma-band coherence scatter
-ax3 = subplot(4,4,3);
+ax2 = subplot(4,5,2);
 scatter(ones(1,length(data.Coherogram.gamma.Awake.leadC021))*1,data.Coherogram.gamma.Awake.leadC021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('caribbean green'),'jitter','on','jitterAmount',0.25);
 hold on
 e1 = errorbar(1,data.Coherogram.gamma.Awake.meanLeadC021,data.Coherogram.gamma.Awake.stdLeadC021,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
@@ -258,35 +260,9 @@ axis square
 xlim([0,3])
 ylim([0,0.6])
 set(gca,'box','off')
-ax3.TickLength = [0.03,0.03];
-% awake gamma-band coherence vs. power change
-ax4 = subplot(4,4,[4,8]);
-scatter(diffPower.gamma.Awake,diffCoher.gamma.Awake,75,'MarkerEdgeColor',colors('caribbean green'),'MarkerFaceColor',colors('caribbean blue'))
-xlabel('\DeltaPower')
-ylabel('\DeltaCoherence')
-title('Gamma lead/lag blink')
-axis square
-set(gca,'box','off')
-set(gca,'xscale','log')
-ax4.TickLength = [0.03,0.03];
-% awake gamma-band spectrogram
-ax5 = subplot(4,4,5);
-Semilog_ImageSC(data.Spectrogram.gamma.Awake.meanT,data.Spectrogram.gamma.Awake.meanF,data.Spectrogram.gamma.Awake.meanS,'y')
-c1 = colorbar;
-ylabel(c1,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
-caxis([-0.15,0.05])
-ylabel('Freq (Hz)')
-xlabel('Time (sec)')
-title('Gamma spectrogram')
-xlim([10,60])
-xticks([data.Spectrogram.gamma.Awake.meanT(1),15,25,35,45,55,data.Spectrogram.gamma.Awake.meanT(end)])
-xticklabels({'-30','-20','-10','0','10','20','30'})
-axis square
-axis xy
-set(gca,'box','off')
-ax5.TickLength = [0.03,0.03];
+ax2.TickLength = [0.03,0.03];
 % awake gamma-band power
-ax6 = subplot(4,4,6);
+ax3 = subplot(4,5,3);
 loglog(data.Spectrogram.gamma.Awake.meanLeadF,data.Spectrogram.gamma.Awake.meanLeadS,'color',colors('caribbean green'),'LineWidth',2);
 hold on;
 loglog(data.Spectrogram.gamma.Awake.meanLeadF,data.Spectrogram.gamma.Awake.meanLeadS + data.Spectrogram.gamma.Awake.stdLeadS,'color',colors('caribbean green'),'LineWidth',0.5);
@@ -294,7 +270,7 @@ loglog(data.Spectrogram.gamma.Awake.meanLeadF,data.Spectrogram.gamma.Awake.meanL
 loglog(data.Spectrogram.gamma.Awake.meanLagF,data.Spectrogram.gamma.Awake.meanLagS,'color',colors('caribbean blue'),'LineWidth',2);
 loglog(data.Spectrogram.gamma.Awake.meanLagF,data.Spectrogram.gamma.Awake.meanLagS + data.Spectrogram.gamma.Awake.stdLagS,'color',colors('caribbean blue'),'LineWidth',0.5);
 loglog(data.Spectrogram.gamma.Awake.meanLagF,data.Spectrogram.gamma.Awake.meanLagS - data.Spectrogram.gamma.Awake.stdLagS,'color',colors('caribbean blue'),'LineWidth',0.5);
-xline(0.21,'color',colors('black'),'LineWidth',2)
+xline(0.2,'color',colors('black'),'LineWidth',2)
 ylabel('Power (a.u.)')
 xlabel('Freq (Hz)')
 title('Gamma lead/lag power')
@@ -302,9 +278,9 @@ axis square
 axis tight
 xlim([1/10,3])
 set(gca,'box','off')
-ax6.TickLength = [0.03,0.03];
+ax3.TickLength = [0.03,0.03];
 % awake gamma-band power scatter
-ax7 = subplot(4,4,7);
+ax4 = subplot(4,5,4);
 scatter(ones(1,length(data.Spectrogram.gamma.Awake.leadS021))*1,data.Spectrogram.gamma.Awake.leadS021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('caribbean green'),'jitter','on','jitterAmount',0.25);
 hold on
 scatter(1,data.Spectrogram.gamma.Awake.meanLeadS021,100,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
@@ -318,28 +294,21 @@ set(gca,'xtick',[])
 set(gca,'xticklabel',[])
 axis square
 xlim([0,3])
-ylim([4.5e-23,5.5e-17])
 set(gca,'box','off')
 set(gca,'yscale','log')
-ax7.TickLength = [0.03,0.03];
-% awake HbT coherogram
-ax9 = subplot(4,4,9);
-Semilog_ImageSC(data.Coherogram.HbT.Awake.meanT,data.Coherogram.HbT.Awake.meanF,data.Coherogram.HbT.Awake.meanC,'y')
-c1 = colorbar;
-ylabel(c1,'\DeltaCoherence (%)','rotation',-90,'VerticalAlignment','bottom')
-caxis([-0.05,0.05])
-ylabel('Freq (Hz)')
-xlabel('Time (sec)')
-title('HbT coherogram')
-xlim([10,60])
-xticks([data.Coherogram.gamma.Awake.meanT(1),15,25,35,45,55,data.Coherogram.gamma.Awake.meanT(end)])
-xticklabels({'-30','-20','-10','0','10','20','30'})
+ax4.TickLength = [0.03,0.03];
+% awake gamma-band coherence vs. power change
+ax5 = subplot(4,5,5);
+scatter(diffPower.gamma.Awake,diffCoher.gamma.Awake,75,'MarkerEdgeColor',colors('caribbean green'),'MarkerFaceColor',colors('caribbean blue'))
+xlabel('\DeltaPower')
+ylabel('\DeltaCoherence')
+title('Gamma lead/lag blink')
 axis square
-axis xy
 set(gca,'box','off')
-ax9.TickLength = [0.03,0.03];
-% awake HbT coherence
-ax10 = subplot(4,4,10);
+set(gca,'xscale','log')
+ax5.TickLength = [0.03,0.03];
+% awake HbT-band coherence
+ax6 = subplot(4,5,6);
 s1 = semilogx(data.Coherogram.HbT.Awake.meanLeadF,data.Coherogram.HbT.Awake.meanLeadC,'color',colors('candy apple red'),'LineWidth',2);
 hold on
 semilogx(data.Coherogram.HbT.Awake.meanLeadF,data.Coherogram.HbT.Awake.meanLeadC + data.Coherogram.HbT.Awake.stdLeadC,'color',colors('candy apple red'),'LineWidth',0.5)
@@ -347,19 +316,19 @@ semilogx(data.Coherogram.HbT.Awake.meanLeadF,data.Coherogram.HbT.Awake.meanLeadC
 s2 = semilogx(data.Coherogram.HbT.Awake.meanLagF,data.Coherogram.HbT.Awake.meanLagC,'color',colors('deep carrot orange'),'LineWidth',2);
 semilogx(data.Coherogram.HbT.Awake.meanLagF,data.Coherogram.HbT.Awake.meanLagC + data.Coherogram.HbT.Awake.stdLagC,'color',colors('deep carrot orange'),'LineWidth',0.5)
 semilogx(data.Coherogram.HbT.Awake.meanLagF,data.Coherogram.HbT.Awake.meanLagC - data.Coherogram.HbT.Awake.stdLagC,'color',colors('deep carrot orange'),'LineWidth',0.5)
-xline(0.21,'color',colors('black'),'LineWidth',2)
+xline(0.2,'color',colors('black'),'LineWidth',2)
 axis tight
 ylabel('Coherence')
 xlabel('Freq (Hz)')
-title('HbT lead/lag coherence')
+title('Gamma lead/lag coherence')
 legend([s1,s2],'lead blink','lag blink')
-xlim([1/10,3])
-ylim([0.75,0.9])
 axis square
+xlim([1/10,3])
+ylim([0.7,1])
 set(gca,'box','off')
-ax10.TickLength = [0.03,0.03];
-% awake HbT coherence scatter
-ax11 = subplot(4,4,11);
+ax6.TickLength = [0.03,0.03];
+% awake HbT-band coherence scatter
+ax7 = subplot(4,5,7);
 scatter(ones(1,length(data.Coherogram.HbT.Awake.leadC021))*1,data.Coherogram.HbT.Awake.leadC021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('candy apple red'),'jitter','on','jitterAmount',0.25);
 hold on
 e1 = errorbar(1,data.Coherogram.HbT.Awake.meanLeadC021,data.Coherogram.HbT.Awake.stdLeadC021,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
@@ -373,42 +342,16 @@ e2.Color = 'black';
 e2.MarkerSize = 10;
 e2.CapSize = 10;
 ylabel('Coherence')
-title('HbT coherence from 0-0.2 Hz')
+title('Gamma coherence from 0-0.2 Hz')
 set(gca,'xtick',[])
 set(gca,'xticklabel',[])
 axis square
 xlim([0,3])
 ylim([0.7,0.95])
 set(gca,'box','off')
-ax11.TickLength = [0.03,0.03];
-% awake HbT coherence vs. power change
-ax12 = subplot(4,4,[12,16]);
-scatter(diffPower.HbT.Awake,diffCoher.HbT.Awake,75,'MarkerEdgeColor',colors('candy apple red'),'MarkerFaceColor',colors('deep carrot orange'))
-xlabel('\DeltaPower')
-ylabel('\DeltaCoherence')
-title('HbT lead/lag blink')
-axis square
-set(gca,'box','off')
-set(gca,'xscale','log')
-ax12.TickLength = [0.03,0.03];
-% awake HbT spectrogram
-ax13 = subplot(4,4,13);
-Semilog_ImageSC(data.Spectrogram.HbT.Awake.meanT,data.Spectrogram.HbT.Awake.meanF,data.Spectrogram.HbT.Awake.meanS,'y')
-c1 = colorbar;
-ylabel(c1,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
-caxis([-0.05,0.05])
-ylabel('Freq (Hz)')
-xlabel('Time (sec)')
-title('HbT spectrogram')
-xlim([10,60])
-xticks([data.Spectrogram.HbT.Awake.meanT(1),15,25,35,45,55,data.Spectrogram.HbT.Awake.meanT(end)])
-xticklabels({'-30','-20','-10','0','10','20','30'})
-axis square
-axis xy
-set(gca,'box','off')
-ax13.TickLength = [0.03,0.03];
-% awake HbT power
-ax14 = subplot(4,4,14);
+ax7.TickLength = [0.03,0.03];
+% awake HbT-band power
+ax8 = subplot(4,5,8);
 loglog(data.Spectrogram.HbT.Awake.meanLeadF,data.Spectrogram.HbT.Awake.meanLeadS,'color',colors('candy apple red'),'LineWidth',2);
 hold on;
 loglog(data.Spectrogram.HbT.Awake.meanLeadF,data.Spectrogram.HbT.Awake.meanLeadS + data.Spectrogram.HbT.Awake.stdLeadS,'color',colors('candy apple red'),'LineWidth',0.5);
@@ -416,24 +359,26 @@ loglog(data.Spectrogram.HbT.Awake.meanLeadF,data.Spectrogram.HbT.Awake.meanLeadS
 loglog(data.Spectrogram.HbT.Awake.meanLagF,data.Spectrogram.HbT.Awake.meanLagS,'color',colors('deep carrot orange'),'LineWidth',2);
 loglog(data.Spectrogram.HbT.Awake.meanLagF,data.Spectrogram.HbT.Awake.meanLagS + data.Spectrogram.HbT.Awake.stdLagS,'color',colors('deep carrot orange'),'LineWidth',0.5);
 loglog(data.Spectrogram.HbT.Awake.meanLagF,data.Spectrogram.HbT.Awake.meanLagS - data.Spectrogram.HbT.Awake.stdLagS,'color',colors('deep carrot orange'),'LineWidth',0.5);
-xline(0.21,'color',colors('black'),'LineWidth',2)
+xline(0.2,'color',colors('black'),'LineWidth',2)
 ylabel('Power (a.u.)')
 xlabel('Freq (Hz)')
-title('HbT lead/lag power')
+title('Gamma lead/lag power')
 axis square
 axis tight
 xlim([1/10,3])
 set(gca,'box','off')
-ax14.TickLength = [0.03,0.03];
-% awake HbT power scatter
-ax15 = subplot(4,4,15);
+ax8.TickLength = [0.03,0.03];
+% awake HbT-band power scatter
+ax9 = subplot(4,5,9);
 scatter(ones(1,length(data.Spectrogram.HbT.Awake.leadS021))*1,data.Spectrogram.HbT.Awake.leadS021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('candy apple red'),'jitter','on','jitterAmount',0.25);
 hold on
 scatter(1,data.Spectrogram.HbT.Awake.meanLeadS021,100,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
+e1.MarkerSize = 10;
+e1.CapSize = 10;
 scatter(ones(1,length(data.Spectrogram.HbT.Awake.lagS021))*2,data.Spectrogram.HbT.Awake.lagS021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('deep carrot orange'),'jitter','on','jitterAmount',0.25);
 scatter(2,data.Spectrogram.HbT.Awake.meanLagS021,100,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
 ylabel('Power (a.u.)')
-title('HbT power from 0-0.2 Hz')
+title('Gamma power from 0-0.2 Hz')
 set(gca,'xtick',[])
 set(gca,'xticklabel',[])
 axis square
@@ -441,306 +386,205 @@ xlim([0,3])
 ylim([0,300])
 set(gca,'box','off')
 set(gca,'yscale','log')
-ax15.TickLength = [0.03,0.03];
+ax9.TickLength = [0.03,0.03];
+% awake HbT-band coherence vs. power change
+ax10 = subplot(4,5,10);
+scatter(diffPower.HbT.Awake,diffCoher.HbT.Awake,75,'MarkerEdgeColor',colors('candy apple red'),'MarkerFaceColor',colors('deep carrot orange'))
+xlabel('\DeltaPower')
+ylabel('\DeltaCoherence')
+title('Gamma lead/lag blink')
+axis square
+set(gca,'box','off')
+set(gca,'xscale','log')
+ax10.TickLength = [0.03,0.03];
+% awake gamma-band coherence
+ax1 = subplot(4,5,11);
+s1 = semilogx(data.Coherogram.gamma.Asleep.meanLeadF,data.Coherogram.gamma.Asleep.meanLeadC,'color',colors('caribbean green'),'LineWidth',2);
+hold on
+semilogx(data.Coherogram.gamma.Asleep.meanLeadF,data.Coherogram.gamma.Asleep.meanLeadC + data.Coherogram.gamma.Asleep.stdLeadC,'color',colors('caribbean green'),'LineWidth',0.5)
+semilogx(data.Coherogram.gamma.Asleep.meanLeadF,data.Coherogram.gamma.Asleep.meanLeadC - data.Coherogram.gamma.Asleep.stdLeadC,'color',colors('caribbean green'),'LineWidth',0.5)
+s2 = semilogx(data.Coherogram.gamma.Asleep.meanLagF,data.Coherogram.gamma.Asleep.meanLagC,'color',colors('caribbean blue'),'LineWidth',2);
+semilogx(data.Coherogram.gamma.Asleep.meanLagF,data.Coherogram.gamma.Asleep.meanLagC + data.Coherogram.gamma.Asleep.stdLagC,'color',colors('caribbean blue'),'LineWidth',0.5)
+semilogx(data.Coherogram.gamma.Asleep.meanLagF,data.Coherogram.gamma.Asleep.meanLagC - data.Coherogram.gamma.Asleep.stdLagC,'color',colors('caribbean blue'),'LineWidth',0.5)
+xline(0.2,'color',colors('black'),'LineWidth',2)
+axis tight
+ylabel('Coherence')
+xlabel('Freq (Hz)')
+title('Gamma lead/lag coherence')
+legend([s1,s2],'lead blink','lag blink')
+axis square
+xlim([1/10,3])
+ylim([0,0.55])
+set(gca,'box','off')
+ax1.TickLength = [0.03,0.03];
+% awake gamma-band coherence scatter
+ax2 = subplot(4,5,12);
+scatter(ones(1,length(data.Coherogram.gamma.Asleep.leadC021))*1,data.Coherogram.gamma.Asleep.leadC021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('caribbean green'),'jitter','on','jitterAmount',0.25);
+hold on
+e1 = errorbar(1,data.Coherogram.gamma.Asleep.meanLeadC021,data.Coherogram.gamma.Asleep.stdLeadC021,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
+e1.Color = 'black';
+e1.MarkerSize = 10;
+e1.CapSize = 10;
+scatter(ones(1,length(data.Coherogram.gamma.Asleep.lagC021))*2,data.Coherogram.gamma.Asleep.lagC021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('caribbean blue'),'jitter','on','jitterAmount',0.25);
+hold on
+e2 = errorbar(2,data.Coherogram.gamma.Asleep.meanLagC021,data.Coherogram.gamma.Asleep.stdLagC021,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
+e2.Color = 'black';
+e2.MarkerSize = 10;
+e2.CapSize = 10;
+ylabel('Coherence')
+title('Gamma coherence from 0-0.2 Hz')
+set(gca,'xtick',[])
+set(gca,'xticklabel',[])
+axis square
+xlim([0,3])
+ylim([0,1])
+set(gca,'box','off')
+ax2.TickLength = [0.03,0.03];
+% awake gamma-band power
+ax3 = subplot(4,5,13);
+loglog(data.Spectrogram.gamma.Asleep.meanLeadF,data.Spectrogram.gamma.Asleep.meanLeadS,'color',colors('caribbean green'),'LineWidth',2);
+hold on;
+loglog(data.Spectrogram.gamma.Asleep.meanLeadF,data.Spectrogram.gamma.Asleep.meanLeadS + data.Spectrogram.gamma.Asleep.stdLeadS,'color',colors('caribbean green'),'LineWidth',0.5);
+loglog(data.Spectrogram.gamma.Asleep.meanLeadF,data.Spectrogram.gamma.Asleep.meanLeadS - data.Spectrogram.gamma.Asleep.stdLeadS,'color',colors('caribbean green'),'LineWidth',0.5);
+loglog(data.Spectrogram.gamma.Asleep.meanLagF,data.Spectrogram.gamma.Asleep.meanLagS,'color',colors('caribbean blue'),'LineWidth',2);
+loglog(data.Spectrogram.gamma.Asleep.meanLagF,data.Spectrogram.gamma.Asleep.meanLagS + data.Spectrogram.gamma.Asleep.stdLagS,'color',colors('caribbean blue'),'LineWidth',0.5);
+loglog(data.Spectrogram.gamma.Asleep.meanLagF,data.Spectrogram.gamma.Asleep.meanLagS - data.Spectrogram.gamma.Asleep.stdLagS,'color',colors('caribbean blue'),'LineWidth',0.5);
+xline(0.2,'color',colors('black'),'LineWidth',2)
+ylabel('Power (a.u.)')
+xlabel('Freq (Hz)')
+title('Gamma lead/lag power')
+axis square
+axis tight
+xlim([1/10,3])
+set(gca,'box','off')
+ax3.TickLength = [0.03,0.03];
+% awake gamma-band power scatter
+ax4 = subplot(4,5,14);
+scatter(ones(1,length(data.Spectrogram.gamma.Asleep.leadS021))*1,data.Spectrogram.gamma.Asleep.leadS021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('caribbean green'),'jitter','on','jitterAmount',0.25);
+hold on
+scatter(1,data.Spectrogram.gamma.Asleep.meanLeadS021,100,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
+e1.MarkerSize = 10;
+e1.CapSize = 10;
+scatter(ones(1,length(data.Spectrogram.gamma.Asleep.lagS021))*2,data.Spectrogram.gamma.Asleep.lagS021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('caribbean blue'),'jitter','on','jitterAmount',0.25);
+scatter(2,data.Spectrogram.gamma.Asleep.meanLagS021,100,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
+ylabel('Power (a.u.)')
+title('Gamma power from 0-0.2 Hz')
+set(gca,'xtick',[])
+set(gca,'xticklabel',[])
+axis square
+xlim([0,3])
+set(gca,'box','off')
+set(gca,'yscale','log')
+ax4.TickLength = [0.03,0.03];
+% awake gamma-band coherence vs. power change
+ax5 = subplot(4,5,15);
+scatter(diffPower.gamma.Asleep,diffCoher.gamma.Asleep,75,'MarkerEdgeColor',colors('caribbean green'),'MarkerFaceColor',colors('caribbean blue'))
+xlabel('\DeltaPower')
+ylabel('\DeltaCoherence')
+title('Gamma lead/lag blink')
+axis square
+set(gca,'box','off')
+set(gca,'xscale','log')
+ax5.TickLength = [0.03,0.03];
+% awake HbT-band coherence
+ax6 = subplot(4,5,16);
+s1 = semilogx(data.Coherogram.HbT.Asleep.meanLeadF,data.Coherogram.HbT.Asleep.meanLeadC,'color',colors('candy apple red'),'LineWidth',2);
+hold on
+semilogx(data.Coherogram.HbT.Asleep.meanLeadF,data.Coherogram.HbT.Asleep.meanLeadC + data.Coherogram.HbT.Asleep.stdLeadC,'color',colors('candy apple red'),'LineWidth',0.5)
+semilogx(data.Coherogram.HbT.Asleep.meanLeadF,data.Coherogram.HbT.Asleep.meanLeadC - data.Coherogram.HbT.Asleep.stdLeadC,'color',colors('candy apple red'),'LineWidth',0.5)
+s2 = semilogx(data.Coherogram.HbT.Asleep.meanLagF,data.Coherogram.HbT.Asleep.meanLagC,'color',colors('deep carrot orange'),'LineWidth',2);
+semilogx(data.Coherogram.HbT.Asleep.meanLagF,data.Coherogram.HbT.Asleep.meanLagC + data.Coherogram.HbT.Asleep.stdLagC,'color',colors('deep carrot orange'),'LineWidth',0.5)
+semilogx(data.Coherogram.HbT.Asleep.meanLagF,data.Coherogram.HbT.Asleep.meanLagC - data.Coherogram.HbT.Asleep.stdLagC,'color',colors('deep carrot orange'),'LineWidth',0.5)
+xline(0.2,'color',colors('black'),'LineWidth',2)
+axis tight
+ylabel('Coherence')
+xlabel('Freq (Hz)')
+title('Gamma lead/lag coherence')
+legend([s1,s2],'lead blink','lag blink')
+axis square
+xlim([1/10,3])
+ylim([0.6,1])
+set(gca,'box','off')
+ax6.TickLength = [0.03,0.03];
+% awake HbT-band coherence scatter
+ax7 = subplot(4,5,17);
+scatter(ones(1,length(data.Coherogram.HbT.Asleep.leadC021))*1,data.Coherogram.HbT.Asleep.leadC021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('candy apple red'),'jitter','on','jitterAmount',0.25);
+hold on
+e1 = errorbar(1,data.Coherogram.HbT.Asleep.meanLeadC021,data.Coherogram.HbT.Asleep.stdLeadC021,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
+e1.Color = 'black';
+e1.MarkerSize = 10;
+e1.CapSize = 10;
+scatter(ones(1,length(data.Coherogram.HbT.Asleep.lagC021))*2,data.Coherogram.HbT.Asleep.lagC021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('deep carrot orange'),'jitter','on','jitterAmount',0.25);
+hold on
+e2 = errorbar(2,data.Coherogram.HbT.Asleep.meanLagC021,data.Coherogram.HbT.Asleep.stdLagC021,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
+e2.Color = 'black';
+e2.MarkerSize = 10;
+e2.CapSize = 10;
+ylabel('Coherence')
+title('Gamma coherence from 0-0.2 Hz')
+set(gca,'xtick',[])
+set(gca,'xticklabel',[])
+axis square
+xlim([0,3])
+ylim([0.7,1])
+set(gca,'box','off')
+ax7.TickLength = [0.03,0.03];
+% awake HbT-band power
+ax8 = subplot(4,5,18);
+loglog(data.Spectrogram.HbT.Asleep.meanLeadF,data.Spectrogram.HbT.Asleep.meanLeadS,'color',colors('candy apple red'),'LineWidth',2);
+hold on;
+loglog(data.Spectrogram.HbT.Asleep.meanLeadF,data.Spectrogram.HbT.Asleep.meanLeadS + data.Spectrogram.HbT.Asleep.stdLeadS,'color',colors('candy apple red'),'LineWidth',0.5);
+loglog(data.Spectrogram.HbT.Asleep.meanLeadF,data.Spectrogram.HbT.Asleep.meanLeadS - data.Spectrogram.HbT.Asleep.stdLeadS,'color',colors('candy apple red'),'LineWidth',0.5);
+loglog(data.Spectrogram.HbT.Asleep.meanLagF,data.Spectrogram.HbT.Asleep.meanLagS,'color',colors('deep carrot orange'),'LineWidth',2);
+loglog(data.Spectrogram.HbT.Asleep.meanLagF,data.Spectrogram.HbT.Asleep.meanLagS + data.Spectrogram.HbT.Asleep.stdLagS,'color',colors('deep carrot orange'),'LineWidth',0.5);
+loglog(data.Spectrogram.HbT.Asleep.meanLagF,data.Spectrogram.HbT.Asleep.meanLagS - data.Spectrogram.HbT.Asleep.stdLagS,'color',colors('deep carrot orange'),'LineWidth',0.5);
+xline(0.2,'color',colors('black'),'LineWidth',2)
+ylabel('Power (a.u.)')
+xlabel('Freq (Hz)')
+title('Gamma lead/lag power')
+axis square
+axis tight
+xlim([1/10,3])
+set(gca,'box','off')
+ax8.TickLength = [0.03,0.03];
+% awake HbT-band power scatter
+ax9 = subplot(4,5,19);
+scatter(ones(1,length(data.Spectrogram.HbT.Asleep.leadS021))*1,data.Spectrogram.HbT.Asleep.leadS021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('candy apple red'),'jitter','on','jitterAmount',0.25);
+hold on
+scatter(1,data.Spectrogram.HbT.Asleep.meanLeadS021,100,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
+e1.MarkerSize = 10;
+e1.CapSize = 10;
+scatter(ones(1,length(data.Spectrogram.HbT.Asleep.lagS021))*2,data.Spectrogram.HbT.Asleep.lagS021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('deep carrot orange'),'jitter','on','jitterAmount',0.25);
+scatter(2,data.Spectrogram.HbT.Asleep.meanLagS021,100,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
+ylabel('Power (a.u.)')
+title('Gamma power from 0-0.2 Hz')
+set(gca,'xtick',[])
+set(gca,'xticklabel',[])
+axis square
+xlim([0,3])
+% ylim([0,300])
+set(gca,'box','off')
+set(gca,'yscale','log')
+ax9.TickLength = [0.03,0.03];
+% awake HbT-band coherence vs. power change
+ax10 = subplot(4,5,20);
+scatter(diffPower.HbT.Asleep,diffCoher.HbT.Asleep,75,'MarkerEdgeColor',colors('candy apple red'),'MarkerFaceColor',colors('deep carrot orange'))
+xlabel('\DeltaPower')
+ylabel('\DeltaCoherence')
+title('Gamma lead/lag blink')
+axis square
+set(gca,'box','off')
+set(gca,'xscale','log')
+ax10.TickLength = [0.03,0.03];
 %% save figure(s)
 if saveFigs == true
-    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'Figure Panels' delim];
+    dirpath = [rootFolder delim 'Figure Panels' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
-    savefig(Fig5A,[dirpath 'Fig4_JNeurosci2022']);
-    % remove surface subplots because they take forever to render
-    cla(ax1);
-    set(ax1,'YLim',[0,3]);
-    cla(ax5);
-    set(ax5,'YLim',[0,3]);
-    cla(ax9);
-    set(ax9,'YLim',[0,3]);
-    cla(ax13);
-    set(ax13,'YLim',[0,3]);
-    set(Fig5A,'PaperPositionMode','auto');
-    print('-vector','-dpdf','-bestfit',[dirpath 'Fig5A_JNeurosci2022'])
-    close(Fig5A)
-    % subplot figure
-    subplotImgs = figure('Name','Figure Panel 4 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
-    % example 1 LH cortical LFP
-    subplot(2,2,1)
-    Semilog_ImageSC(data.Coherogram.gamma.Awake.meanT,data.Coherogram.gamma.Awake.meanF,data.Coherogram.gamma.Awake.meanC,'y')
-    xlim([10,60])
-    caxis([-0.15,0.05])
-    axis square
-    axis xy
-    axis off
-    set(gca,'box','off')
-    subplot(2,2,2)
-    Semilog_ImageSC(data.Spectrogram.gamma.Awake.meanT,data.Spectrogram.gamma.Awake.meanF,data.Spectrogram.gamma.Awake.meanS,'y')
-    xlim([10,60])
-    caxis([-0.15,0.05])
-    axis square
-    axis xy
-    axis off
-    subplot(2,2,3)
-    Semilog_ImageSC(data.Coherogram.HbT.Awake.meanT,data.Coherogram.HbT.Awake.meanF,data.Coherogram.HbT.Awake.meanC,'y')
-    xlim([10,60])
-    caxis([-0.15,0.05])
-    axis square
-    axis xy
-    axis off
-    set(gca,'box','off')
-    subplot(2,2,4)
-    Semilog_ImageSC(data.Spectrogram.HbT.Awake.meanT,data.Spectrogram.HbT.Awake.meanF,data.Spectrogram.HbT.Awake.meanS,'y')
-    xlim([10,60])
-    caxis([-0.15,0.05])
-    axis square
-    axis xy
-    axis off
-    set(gca,'box','off')
-    print('-vector','-dtiffn',[dirpath 'Fig4_CohImages'])
-    close(subplotImgs)
-    % coherence vs. power during awake blinking figure
-    figure('Name','Figure Panel 4 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
-    % awake gamma-band coherogram
-    ax1 = subplot(4,4,1);
-    Semilog_ImageSC(data.Coherogram.gamma.Awake.meanT,data.Coherogram.gamma.Awake.meanF,data.Coherogram.gamma.Awake.meanC,'y')
-    c1 = colorbar;
-    ylabel(c1,'\DeltaCoherence (%)','rotation',-90,'VerticalAlignment','bottom')
-    caxis([-0.15,0.05])
-    ylabel('Freq (Hz)')
-    xlabel('Time (sec)')
-    title('Gamma coherogram')
-    xlim([10,60])
-    xticks([data.Coherogram.gamma.Awake.meanT(1),15,25,35,45,55,data.Coherogram.gamma.Awake.meanT(end)])
-    xticklabels({'-30','-20','-10','0','10','20','30'})
-    axis square
-    axis xy
-    set(gca,'box','off')
-    ax1.TickLength = [0.03,0.03];
-    % awake gamma-band coherence
-    ax2 = subplot(4,4,2);
-    s1 = semilogx(data.Coherogram.gamma.Awake.meanLeadF,data.Coherogram.gamma.Awake.meanLeadC,'color',colors('caribbean green'),'LineWidth',2);
-    hold on
-    semilogx(data.Coherogram.gamma.Awake.meanLeadF,data.Coherogram.gamma.Awake.meanLeadC + data.Coherogram.gamma.Awake.stdLeadC,'color',colors('caribbean green'),'LineWidth',0.5)
-    semilogx(data.Coherogram.gamma.Awake.meanLeadF,data.Coherogram.gamma.Awake.meanLeadC - data.Coherogram.gamma.Awake.stdLeadC,'color',colors('caribbean green'),'LineWidth',0.5)
-    s2 = semilogx(data.Coherogram.gamma.Awake.meanLagF,data.Coherogram.gamma.Awake.meanLagC,'color',colors('caribbean blue'),'LineWidth',2);
-    semilogx(data.Coherogram.gamma.Awake.meanLagF,data.Coherogram.gamma.Awake.meanLagC + data.Coherogram.gamma.Awake.stdLagC,'color',colors('caribbean blue'),'LineWidth',0.5)
-    semilogx(data.Coherogram.gamma.Awake.meanLagF,data.Coherogram.gamma.Awake.meanLagC - data.Coherogram.gamma.Awake.stdLagC,'color',colors('caribbean blue'),'LineWidth',0.5)
-    xline(0.21,'color',colors('black'),'LineWidth',2)
-    axis tight
-    ylabel('Coherence')
-    xlabel('Freq (Hz)')
-    title('Gamma lead/lag coherence')
-    legend([s1,s2],'lead blink','lag blink')
-    axis square
-    xlim([1/10,3])
-    ylim([0.1,0.45])
-    set(gca,'box','off')
-    ax2.TickLength = [0.03,0.03];
-    % awake gamma-band coherence scatter
-    ax3 = subplot(4,4,3);
-    scatter(ones(1,length(data.Coherogram.gamma.Awake.leadC021))*1,data.Coherogram.gamma.Awake.leadC021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('caribbean green'),'jitter','on','jitterAmount',0.25);
-    hold on
-    e1 = errorbar(1,data.Coherogram.gamma.Awake.meanLeadC021,data.Coherogram.gamma.Awake.stdLeadC021,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
-    e1.Color = 'black';
-    e1.MarkerSize = 10;
-    e1.CapSize = 10;
-    scatter(ones(1,length(data.Coherogram.gamma.Awake.lagC021))*2,data.Coherogram.gamma.Awake.lagC021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('caribbean blue'),'jitter','on','jitterAmount',0.25);
-    hold on
-    e2 = errorbar(2,data.Coherogram.gamma.Awake.meanLagC021,data.Coherogram.gamma.Awake.stdLagC021,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
-    e2.Color = 'black';
-    e2.MarkerSize = 10;
-    e2.CapSize = 10;
-    ylabel('Coherence')
-    title('Gamma coherence from 0-0.2 Hz')
-    set(gca,'xtick',[])
-    set(gca,'xticklabel',[])
-    axis square
-    xlim([0,3])
-    ylim([0,0.6])
-    set(gca,'box','off')
-    ax3.TickLength = [0.03,0.03];
-    % awake gamma-band coherence vs. power change
-    ax4 = subplot(4,4,[4,8]);
-    scatter(diffPower.gamma.Awake,diffCoher.gamma.Awake,75,'MarkerEdgeColor',colors('caribbean green'),'MarkerFaceColor',colors('caribbean blue'))
-    xlabel('\DeltaPower')
-    ylabel('\DeltaCoherence')
-    title('Gamma lead/lag blink')
-    axis square
-    set(gca,'box','off')
-    set(gca,'xscale','log')
-    ax4.TickLength = [0.03,0.03];
-    % awake gamma-band spectrogram
-    ax4 = subplot(4,4,5);
-    Semilog_ImageSC(data.Spectrogram.gamma.Awake.meanT,data.Spectrogram.gamma.Awake.meanF,data.Spectrogram.gamma.Awake.meanS,'y')
-    c1 = colorbar;
-    ylabel(c1,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
-    caxis([-0.15,0.05])
-    ylabel('Freq (Hz)')
-    xlabel('Time (sec)')
-    title('Gamma spectrogram')
-    xlim([10,60])
-    xticks([data.Spectrogram.gamma.Awake.meanT(1),15,25,35,45,55,data.Spectrogram.gamma.Awake.meanT(end)])
-    xticklabels({'-30','-20','-10','0','10','20','30'})
-    axis square
-    axis xy
-    set(gca,'box','off')
-    ax4.TickLength = [0.03,0.03];
-    % awake gamma-band power
-    ax6 = subplot(4,4,6);
-    loglog(data.Spectrogram.gamma.Awake.meanLeadF,data.Spectrogram.gamma.Awake.meanLeadS,'color',colors('caribbean green'),'LineWidth',2);
-    hold on;
-    loglog(data.Spectrogram.gamma.Awake.meanLeadF,data.Spectrogram.gamma.Awake.meanLeadS + data.Spectrogram.gamma.Awake.stdLeadS,'color',colors('caribbean green'),'LineWidth',0.5);
-    loglog(data.Spectrogram.gamma.Awake.meanLeadF,data.Spectrogram.gamma.Awake.meanLeadS - data.Spectrogram.gamma.Awake.stdLeadS,'color',colors('caribbean green'),'LineWidth',0.5);
-    loglog(data.Spectrogram.gamma.Awake.meanLagF,data.Spectrogram.gamma.Awake.meanLagS,'color',colors('caribbean blue'),'LineWidth',2);
-    loglog(data.Spectrogram.gamma.Awake.meanLagF,data.Spectrogram.gamma.Awake.meanLagS + data.Spectrogram.gamma.Awake.stdLagS,'color',colors('caribbean blue'),'LineWidth',0.5);
-    loglog(data.Spectrogram.gamma.Awake.meanLagF,data.Spectrogram.gamma.Awake.meanLagS - data.Spectrogram.gamma.Awake.stdLagS,'color',colors('caribbean blue'),'LineWidth',0.5);
-    xline(0.21,'color',colors('black'),'LineWidth',2)
-    ylabel('Power (a.u.)')
-    xlabel('Freq (Hz)')
-    title('Gamma lead/lag power')
-    axis square
-    axis tight
-    xlim([1/10,3])
-    set(gca,'box','off')
-    ax6.TickLength = [0.03,0.03];
-    % awake gamma-band power scatter
-    ax7 = subplot(4,4,7);
-    scatter(ones(1,length(data.Spectrogram.gamma.Awake.leadS021))*1,data.Spectrogram.gamma.Awake.leadS021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('caribbean green'),'jitter','on','jitterAmount',0.25);
-    hold on
-    scatter(1,data.Spectrogram.gamma.Awake.meanLeadS021,100,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
-    e1.MarkerSize = 10;
-    e1.CapSize = 10;
-    scatter(ones(1,length(data.Spectrogram.gamma.Awake.lagS021))*2,data.Spectrogram.gamma.Awake.lagS021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('caribbean blue'),'jitter','on','jitterAmount',0.25);
-    scatter(2,data.Spectrogram.gamma.Awake.meanLagS021,100,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
-    ylabel('Power (a.u.)')
-    title('Gamma power from 0-0.2 Hz')
-    set(gca,'xtick',[])
-    set(gca,'xticklabel',[])
-    axis square
-    xlim([0,3])
-    ylim([4.5e-23,5.5e-17])
-    set(gca,'box','off')
-    set(gca,'yscale','log')
-    ax7.TickLength = [0.03,0.03];
-    % awake HbT coherogram
-    ax9 = subplot(4,4,9);
-    Semilog_ImageSC(data.Coherogram.HbT.Awake.meanT,data.Coherogram.HbT.Awake.meanF,data.Coherogram.HbT.Awake.meanC,'y')
-    c1 = colorbar;
-    ylabel(c1,'\DeltaCoherence (%)','rotation',-90,'VerticalAlignment','bottom')
-    caxis([-0.05,0.05])
-    ylabel('Freq (Hz)')
-    xlabel('Time (sec)')
-    title('HbT coherogram')
-    xlim([10,60])
-    xticks([data.Coherogram.gamma.Awake.meanT(1),15,25,35,45,55,data.Coherogram.gamma.Awake.meanT(end)])
-    xticklabels({'-30','-20','-10','0','10','20','30'})
-    axis square
-    axis xy
-    set(gca,'box','off')
-    ax9.TickLength = [0.03,0.03];
-    % awake HbT coherence
-    ax10 = subplot(4,4,10);
-    s1 = semilogx(data.Coherogram.HbT.Awake.meanLeadF,data.Coherogram.HbT.Awake.meanLeadC,'color',colors('candy apple red'),'LineWidth',2);
-    hold on
-    semilogx(data.Coherogram.HbT.Awake.meanLeadF,data.Coherogram.HbT.Awake.meanLeadC + data.Coherogram.HbT.Awake.stdLeadC,'color',colors('candy apple red'),'LineWidth',0.5)
-    semilogx(data.Coherogram.HbT.Awake.meanLeadF,data.Coherogram.HbT.Awake.meanLeadC - data.Coherogram.HbT.Awake.stdLeadC,'color',colors('candy apple red'),'LineWidth',0.5)
-    s2 = semilogx(data.Coherogram.HbT.Awake.meanLagF,data.Coherogram.HbT.Awake.meanLagC,'color',colors('deep carrot orange'),'LineWidth',2);
-    semilogx(data.Coherogram.HbT.Awake.meanLagF,data.Coherogram.HbT.Awake.meanLagC + data.Coherogram.HbT.Awake.stdLagC,'color',colors('deep carrot orange'),'LineWidth',0.5)
-    semilogx(data.Coherogram.HbT.Awake.meanLagF,data.Coherogram.HbT.Awake.meanLagC - data.Coherogram.HbT.Awake.stdLagC,'color',colors('deep carrot orange'),'LineWidth',0.5)
-    xline(0.21,'color',colors('black'),'LineWidth',2)
-    axis tight
-    ylabel('Coherence')
-    xlabel('Freq (Hz)')
-    title('HbT lead/lag coherence')
-    legend([s1,s2],'lead blink','lag blink')
-    xlim([1/10,3])
-    ylim([0.75,0.9])
-    axis square
-    set(gca,'box','off')
-    ax10.TickLength = [0.03,0.03];
-    % awake HbT coherence scatter
-    ax11 = subplot(4,4,11);
-    scatter(ones(1,length(data.Coherogram.HbT.Awake.leadC021))*1,data.Coherogram.HbT.Awake.leadC021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('candy apple red'),'jitter','on','jitterAmount',0.25);
-    hold on
-    e1 = errorbar(1,data.Coherogram.HbT.Awake.meanLeadC021,data.Coherogram.HbT.Awake.stdLeadC021,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
-    e1.Color = 'black';
-    e1.MarkerSize = 10;
-    e1.CapSize = 10;
-    scatter(ones(1,length(data.Coherogram.HbT.Awake.lagC021))*2,data.Coherogram.HbT.Awake.lagC021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('deep carrot orange'),'jitter','on','jitterAmount',0.25);
-    hold on
-    e2 = errorbar(2,data.Coherogram.HbT.Awake.meanLagC021,data.Coherogram.HbT.Awake.stdLagC021,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
-    e2.Color = 'black';
-    e2.MarkerSize = 10;
-    e2.CapSize = 10;
-    ylabel('Coherence')
-    title('HbT coherence from 0-0.2 Hz')
-    set(gca,'xtick',[])
-    set(gca,'xticklabel',[])
-    axis square
-    xlim([0,3])
-    ylim([0.7,0.95])
-    set(gca,'box','off')
-    ax11.TickLength = [0.03,0.03];
-    % awake HbT coherence vs. power change
-    ax12 = subplot(4,4,[12,16]);
-    scatter(diffPower.HbT.Awake,diffCoher.HbT.Awake,75,'MarkerEdgeColor',colors('candy apple red'),'MarkerFaceColor',colors('deep carrot orange'))
-    xlabel('\DeltaPower')
-    ylabel('\DeltaCoherence')
-    title('HbT lead/lag blink')
-    axis square
-    set(gca,'box','off')
-    set(gca,'xscale','log')
-    ax12.TickLength = [0.03,0.03];
-    % awake HbT spectrogram
-    ax13 = subplot(4,4,13);
-    Semilog_ImageSC(data.Spectrogram.HbT.Awake.meanT,data.Spectrogram.HbT.Awake.meanF,data.Spectrogram.HbT.Awake.meanS,'y')
-    c1 = colorbar;
-    ylabel(c1,'\DeltaP/P (%)','rotation',-90,'VerticalAlignment','bottom')
-    caxis([-0.05,0.05])
-    ylabel('Freq (Hz)')
-    xlabel('Time (sec)')
-    title('HbT spectrogram')
-    xlim([10,60])
-    xticks([data.Spectrogram.HbT.Awake.meanT(1),15,25,35,45,55,data.Spectrogram.HbT.Awake.meanT(end)])
-    xticklabels({'-30','-20','-10','0','10','20','30'})
-    axis square
-    axis xy
-    set(gca,'box','off')
-    ax13.TickLength = [0.03,0.03];
-    % awake HbT power
-    ax14 = subplot(4,4,14);
-    loglog(data.Spectrogram.HbT.Awake.meanLeadF,data.Spectrogram.HbT.Awake.meanLeadS,'color',colors('candy apple red'),'LineWidth',2);
-    hold on;
-    loglog(data.Spectrogram.HbT.Awake.meanLeadF,data.Spectrogram.HbT.Awake.meanLeadS + data.Spectrogram.HbT.Awake.stdLeadS,'color',colors('candy apple red'),'LineWidth',0.5);
-    loglog(data.Spectrogram.HbT.Awake.meanLeadF,data.Spectrogram.HbT.Awake.meanLeadS - data.Spectrogram.HbT.Awake.stdLeadS,'color',colors('candy apple red'),'LineWidth',0.5);
-    loglog(data.Spectrogram.HbT.Awake.meanLagF,data.Spectrogram.HbT.Awake.meanLagS,'color',colors('deep carrot orange'),'LineWidth',2);
-    loglog(data.Spectrogram.HbT.Awake.meanLagF,data.Spectrogram.HbT.Awake.meanLagS + data.Spectrogram.HbT.Awake.stdLagS,'color',colors('deep carrot orange'),'LineWidth',0.5);
-    loglog(data.Spectrogram.HbT.Awake.meanLagF,data.Spectrogram.HbT.Awake.meanLagS - data.Spectrogram.HbT.Awake.stdLagS,'color',colors('deep carrot orange'),'LineWidth',0.5);
-    xline(0.21,'color',colors('black'),'LineWidth',2)
-    ylabel('Power (a.u.)')
-    xlabel('Freq (Hz)')
-    title('HbT lead/lag power')
-    axis square
-    axis tight
-    xlim([1/10,3])
-    set(gca,'box','off')
-    ax14.TickLength = [0.03,0.03];
-    % awake HbT power scatter
-    ax15 = subplot(4,4,15);
-    scatter(ones(1,length(data.Spectrogram.HbT.Awake.leadS021))*1,data.Spectrogram.HbT.Awake.leadS021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('candy apple red'),'jitter','on','jitterAmount',0.25);
-    hold on
-    scatter(1,data.Spectrogram.HbT.Awake.meanLeadS021,100,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
-    scatter(ones(1,length(data.Spectrogram.HbT.Awake.lagS021))*2,data.Spectrogram.HbT.Awake.lagS021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('deep carrot orange'),'jitter','on','jitterAmount',0.25);
-    scatter(2,data.Spectrogram.HbT.Awake.meanLagS021,100,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
-    ylabel('Power (a.u.)')
-    title('HbT power from 0-0.2 Hz')
-    set(gca,'xtick',[])
-    set(gca,'xticklabel',[])
-    axis square
-    xlim([0,3])
-    ylim([0,300])
-    set(gca,'box','off')
-    set(gca,'yscale','log')
-    ax15.TickLength = [0.03,0.03];
+    savefig(Fig4,[dirpath 'Fig4_JNeurosci2022']);
+    set(Fig4,'PaperPositionMode','auto');
+    print('-vector','-dpdf','-fillpage',[dirpath 'Fig4_JNeurosci2022'])
     % text diary
     diaryFile = [dirpath 'Fig4_Text.txt'];
     if exist(diaryFile,'file') == 2
@@ -750,36 +594,69 @@ if saveFigs == true
     diary on
     % coherence and power statistics
     disp('======================================================================================================================')
-    disp('Gamma-band lead vs. lag coherence statistics')
+    disp('Awake Gamma-band lead vs. lag coherence statistics')
     disp('======================================================================================================================')
     disp('----------------------------------------------------------------------------------------------------------------------')
-    disp(['Gamma-band lead coherence ' num2str(data.Coherogram.gamma.Awake.meanLeadC021) ' +/- ' num2str(data.Coherogram.gamma.Awake.stdLeadC021) ' (n = ' num2str(length(data.Coherogram.gamma.Awake.leadC021)) ') mice']); disp(' ')
-    disp(['Gamma-band lag coherence ' num2str(data.Coherogram.gamma.Awake.meanLagC021) ' +/- ' num2str(data.Coherogram.gamma.Awake.stdLagC021) ' (n = ' num2str(length(data.Coherogram.gamma.Awake.lagC021)) ') mice']); disp(' ')
-    disp(['Lead vs. Lag coherence p < ' num2str(GammaCoherStats.p)]); disp(' ')
+    disp(['Awake Gamma-band lead coherence ' num2str(data.Coherogram.gamma.Awake.meanLeadC021) ' ± ' num2str(data.Coherogram.gamma.Awake.stdLeadC021) ' (n = ' num2str(length(data.Coherogram.gamma.Awake.leadC021)) ') mice']); disp(' ')
+    disp(['Awake Gamma-band lag coherence ' num2str(data.Coherogram.gamma.Awake.meanLagC021) ' ± ' num2str(data.Coherogram.gamma.Awake.stdLagC021) ' (n = ' num2str(length(data.Coherogram.gamma.Awake.lagC021)) ') mice']); disp(' ')
+    disp(['Lead vs. Lag coherence p < ' num2str(AwakeGammaCoherStats.p)]); disp(' ')
     disp('----------------------------------------------------------------------------------------------------------------------')
     disp('======================================================================================================================')
-    disp('Gamma-band lead vs. lag power statistics')
+    disp('Awake Gamma-band lead vs. lag power statistics')
     disp('======================================================================================================================')
     disp('----------------------------------------------------------------------------------------------------------------------')
-    disp(['Gamma-band lead power ' num2str(data.Spectrogram.gamma.Awake.meanLeadS021) ' +/- ' num2str(data.Spectrogram.gamma.Awake.stdLeadS021) ' (n = ' num2str(length(data.Spectrogram.gamma.Awake.leadS021)/2) ') mice']); disp(' ')
-    disp(['Gamma-band lag power ' num2str(data.Spectrogram.gamma.Awake.meanLagS021) ' +/- ' num2str(data.Spectrogram.gamma.Awake.stdLagS021) ' (n = ' num2str(length(data.Spectrogram.gamma.Awake.lagS021)/2) ') mice']); disp(' ')
-    disp(['Lead vs. Lag power p < ' num2str(GammaPowerStats.p)]); disp(' ')
+    disp(['Awake Gamma-band lead power ' num2str(data.Spectrogram.gamma.Awake.meanLeadS021) ' ± ' num2str(data.Spectrogram.gamma.Awake.stdLeadS021) ' (n = ' num2str(length(data.Spectrogram.gamma.Awake.leadS021)/2) ') mice']); disp(' ')
+    disp(['Awake Gamma-band lag power ' num2str(data.Spectrogram.gamma.Awake.meanLagS021) ' ± ' num2str(data.Spectrogram.gamma.Awake.stdLagS021) ' (n = ' num2str(length(data.Spectrogram.gamma.Awake.lagS021)/2) ') mice']); disp(' ')
+    disp(['Lead vs. Lag power p < ' num2str(AwakeGammaPowerStats.p)]); disp(' ')
     disp('----------------------------------------------------------------------------------------------------------------------')
     disp('======================================================================================================================')
-    disp('HbT lead vs. lag coherence statistics')
+    disp('Awake HbT lead vs. lag coherence statistics')
     disp('======================================================================================================================')
     disp('----------------------------------------------------------------------------------------------------------------------')
-    disp(['HbT lead coherence ' num2str(data.Coherogram.HbT.Awake.meanLeadC021) ' +/- ' num2str(data.Coherogram.HbT.Awake.stdLeadC021) ' (n = ' num2str(length(data.Coherogram.HbT.Awake.leadC021)) ') mice']); disp(' ')
-    disp(['HbT lag coherence ' num2str(data.Coherogram.HbT.Awake.meanLagC021) ' +/- ' num2str(data.Coherogram.HbT.Awake.stdLagC021) ' (n = ' num2str(length(data.Coherogram.HbT.Awake.lagC021)) ') mice']); disp(' ')
-    disp(['Lead vs. Lag coherence p < ' num2str(HbTCoherStats.p)]); disp(' ')
+    disp(['Awake HbT lead coherence ' num2str(data.Coherogram.HbT.Awake.meanLeadC021) ' ± ' num2str(data.Coherogram.HbT.Awake.stdLeadC021) ' (n = ' num2str(length(data.Coherogram.HbT.Awake.leadC021)) ') mice']); disp(' ')
+    disp(['Awake HbT lag coherence ' num2str(data.Coherogram.HbT.Awake.meanLagC021) ' ± ' num2str(data.Coherogram.HbT.Awake.stdLagC021) ' (n = ' num2str(length(data.Coherogram.HbT.Awake.lagC021)) ') mice']); disp(' ')
+    disp(['Lead vs. Lag coherence p < ' num2str(AwakeHbTCoherStats.p)]); disp(' ')
     disp('----------------------------------------------------------------------------------------------------------------------')
     disp('======================================================================================================================')
-    disp('HbT lead vs. lag power statistics')
+    disp('Awake HbT lead vs. lag power statistics')
     disp('======================================================================================================================')
     disp('----------------------------------------------------------------------------------------------------------------------')
-    disp(['HbT lead power ' num2str(data.Spectrogram.HbT.Awake.meanLeadS021) ' +/- ' num2str(data.Spectrogram.HbT.Awake.stdLeadS021) ' (n = ' num2str(length(data.Spectrogram.HbT.Awake.leadS021)/2) ') mice']); disp(' ')
-    disp(['HbT lag power ' num2str(data.Spectrogram.HbT.Awake.meanLagS021) ' +/- ' num2str(data.Spectrogram.HbT.Awake.stdLagS021) ' (n = ' num2str(length(data.Spectrogram.HbT.Awake.lagS021)/2) ') mice']); disp(' ')
-    disp(['Lead vs. Lag power p < ' num2str(HbTPowerStats.p)]); disp(' ')
+    disp(['Awake HbT lead power ' num2str(data.Spectrogram.HbT.Awake.meanLeadS021) ' ± ' num2str(data.Spectrogram.HbT.Awake.stdLeadS021) ' (n = ' num2str(length(data.Spectrogram.HbT.Awake.leadS021)/2) ') mice']); disp(' ')
+    disp(['Awake HbT lag power ' num2str(data.Spectrogram.HbT.Awake.meanLagS021) ' ± ' num2str(data.Spectrogram.HbT.Awake.stdLagS021) ' (n = ' num2str(length(data.Spectrogram.HbT.Awake.lagS021)/2) ') mice']); disp(' ')
+    disp(['Lead vs. Lag power p < ' num2str(AwakeHbTPowerStats.p)]); disp(' ')
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    % coherence and power statistics
+    disp('======================================================================================================================')
+    disp('Asleep Gamma-band lead vs. lag coherence statistics')
+    disp('======================================================================================================================')
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp(['Asleep Gamma-band lead coherence ' num2str(data.Coherogram.gamma.Asleep.meanLeadC021) ' ± ' num2str(data.Coherogram.gamma.Asleep.stdLeadC021) ' (n = ' num2str(length(data.Coherogram.gamma.Asleep.leadC021)) ') mice']); disp(' ')
+    disp(['Asleep Gamma-band lag coherence ' num2str(data.Coherogram.gamma.Asleep.meanLagC021) ' ± ' num2str(data.Coherogram.gamma.Asleep.stdLagC021) ' (n = ' num2str(length(data.Coherogram.gamma.Asleep.lagC021)) ') mice']); disp(' ')
+    disp(['Lead vs. Lag coherence p < ' num2str(AsleepGammaCoherStats.p)]); disp(' ')
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp('======================================================================================================================')
+    disp('Asleep Gamma-band lead vs. lag power statistics')
+    disp('======================================================================================================================')
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp(['Asleep Gamma-band lead power ' num2str(data.Spectrogram.gamma.Asleep.meanLeadS021) ' ± ' num2str(data.Spectrogram.gamma.Asleep.stdLeadS021) ' (n = ' num2str(length(data.Spectrogram.gamma.Asleep.leadS021)/2) ') mice']); disp(' ')
+    disp(['Asleep Gamma-band lag power ' num2str(data.Spectrogram.gamma.Asleep.meanLagS021) ' ± ' num2str(data.Spectrogram.gamma.Asleep.stdLagS021) ' (n = ' num2str(length(data.Spectrogram.gamma.Asleep.lagS021)/2) ') mice']); disp(' ')
+    disp(['Lead vs. Lag power p < ' num2str(AsleepGammaPowerStats.p)]); disp(' ')
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp('======================================================================================================================')
+    disp('Asleep HbT lead vs. lag coherence statistics')
+    disp('======================================================================================================================')
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp(['Asleep HbT lead coherence ' num2str(data.Coherogram.HbT.Asleep.meanLeadC021) ' ± ' num2str(data.Coherogram.HbT.Asleep.stdLeadC021) ' (n = ' num2str(length(data.Coherogram.HbT.Asleep.leadC021)) ') mice']); disp(' ')
+    disp(['Asleep HbT lag coherence ' num2str(data.Coherogram.HbT.Asleep.meanLagC021) ' ± ' num2str(data.Coherogram.HbT.Asleep.stdLagC021) ' (n = ' num2str(length(data.Coherogram.HbT.Asleep.lagC021)) ') mice']); disp(' ')
+    disp(['Lead vs. Lag coherence p < ' num2str(AsleepHbTCoherStats.p)]); disp(' ')
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp('======================================================================================================================')
+    disp('Asleep HbT lead vs. lag power statistics')
+    disp('======================================================================================================================')
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp(['Asleep HbT lead power ' num2str(data.Spectrogram.HbT.Asleep.meanLeadS021) ' ± ' num2str(data.Spectrogram.HbT.Asleep.stdLeadS021) ' (n = ' num2str(length(data.Spectrogram.HbT.Asleep.leadS021)/2) ') mice']); disp(' ')
+    disp(['Asleep HbT lag power ' num2str(data.Spectrogram.HbT.Asleep.meanLagS021) ' ± ' num2str(data.Spectrogram.HbT.Asleep.stdLagS021) ' (n = ' num2str(length(data.Spectrogram.HbT.Asleep.lagS021)/2) ') mice']); disp(' ')
+    disp(['Lead vs. Lag power p < ' num2str(AsleepHbTPowerStats.p)]); disp(' ')
     disp('----------------------------------------------------------------------------------------------------------------------')
     diary off
 end

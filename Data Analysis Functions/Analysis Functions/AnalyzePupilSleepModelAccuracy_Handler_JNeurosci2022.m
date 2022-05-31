@@ -21,7 +21,7 @@ end
 % determine waitbar length
 waitBarLength = 0;
 folderList = dir('Data');
-folderList = folderList(~startsWith({folderList.name}, '.'));
+folderList = folderList(~startsWith({folderList.name},'.'));
 animalIDs = {folderList.name};
 waitBarLength = waitBarLength + length(animalIDs);
 % run analysis for each animal in the group

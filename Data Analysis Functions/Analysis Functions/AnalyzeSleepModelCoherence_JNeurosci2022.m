@@ -1,11 +1,10 @@
-function [Results_PupilModelCoherence] = AnalyzePupilModelCoherence_Pupil(animalID,Results_PupilModelCoherence)
+function [Results_PupilModelCoherence] = AnalyzeSleepModelCoherence_JNeurosci2022(animalID,Results_PupilModelCoherence)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Analyze the cross-correlation between neural activity/hemodynamics and pupil measurements
+% Purpose: Analyze the coherence between true and predicted sleep models
 %________________________________________________________________________________________________________________________
 
 % load in relevent data structures
@@ -71,7 +70,6 @@ Results_PupilModelCoherence.(animalID).Physio.C = C_physio;
 Results_PupilModelCoherence.(animalID).Physio.f = f_physio;
 Results_PupilModelCoherence.(animalID).Physio.confC = confC_physio;
 Results_PupilModelCoherence.(animalID).Physio.cErr = cErr_physio;
-% save data
 % calculate the coherence between desired signals
 [C_pupil,~,~,~,~,f_pupil,confC_pupil,~,cErr_pupil] = coherencyc_eLife2020(matPredPupil,matActPupil,params);
 % save results

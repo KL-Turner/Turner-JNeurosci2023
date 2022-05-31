@@ -1,4 +1,4 @@
-function [] = AnalyzePupilExample_Handler_JNeurosci2022(rootFolder,delim,runFromStart)
+function [] = AnalyzePupilExample2_Handler_JNeurosci2022(rootFolder,delim,runFromStart)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -12,15 +12,15 @@ if runFromStart == true
     Results_Example = [];
 elseif runFromStart == false
     % load existing results structure, if it exists
-    if exist('Results_Example.mat','file') == 2
-        load('Results_Example.mat','-mat')
+    if exist('Results_Example2.mat','file') == 2
+        load('Results_Example2.mat','-mat')
     else
         Results_Example = [];
     end
 end
 % run analysis for each animal in the group
 if isempty(Results_Example) == true
-    AnalyzePupilExample_JNeurosci2022(rootFolder,delim,Results_Example);
+    AnalyzePupilExample2_JNeurosci2022(rootFolder,delim,Results_Example);
 end
 
 end

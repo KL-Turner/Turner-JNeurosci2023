@@ -17,7 +17,7 @@
 %            12) Generate a summary figure for all of the analyzed and processed data
 %________________________________________________________________________________________________________________________
 
-%% load the script's necessary variables and data structures.
+% load the script's necessary variables and data structures.
 % clear the workspace variables and command windyow.
 zap;
 % character list of all RawData files
@@ -45,17 +45,17 @@ else
 end
 neuralDataTypes = {'cortical_LH','cortical_RH','hippocampus'};
 basefile = ([animalID '_RestingBaselines.mat']);
-%% categorize data
+% categorize data
 for a = 1:size(procDataFileIDs,1)
     procDataFileID = procDataFileIDs(a,:);
     disp(['Analyzing file ' num2str(a) ' of ' num2str(size(procDataFileIDs,1)) '...']); disp(' ')
     CategorizeData_JNeurosci2022(procDataFileID,stimulationType)
 end
-%% create RestData data structure
+% create RestData data structure
 [RestData] = ExtractRestingData_JNeurosci2022(procDataFileIDs,dataTypes,imagingType);
-%% analyze the spectrogram for each session.
+% analyze the spectrogram for each session.
 CreateTrialSpectrograms_JNeurosci2022(rawDataFileIDs,neuralDataTypes);
-%% create Baselines data structure
+% create Baselines data structure
 baselineType = 'setDuration';
 trialDuration_sec = 900;
 targetMinutes = 60;
@@ -64,20 +64,20 @@ targetMinutes = 60;
 [RestingBaselines] = CalculateSpectrogramBaselines_JNeurosci2022(animalID,neuralDataTypes,trialDuration_sec,RestingBaselines,baselineType);
 % Normalize spectrogram by baseline
 NormalizeSpectrograms_JNeurosci2022(neuralDataTypes,RestingBaselines);
-%% manually select files for custom baseline calculation
+% manually select files for custom baseline calculation
 hemoType = 'reflectance';
 [RestingBaselines] = CalculateManualRestingBaselinesTimeIndeces_JNeurosci2022(imagingType,hemoType);
-%% add delta HbT field to each processed data file
+% add delta HbT field to each processed data file
 updatedBaselineType = 'manualSelection';
 UpdateTotalHemoglobin_JNeurosci2022(procDataFileIDs,RestingBaselines,updatedBaselineType,imagingType,ledColor)
 if strcmpi(imagingType,'GCaMP') == true
     CorrectGCaMPattenuation_JNeurosci2022(procDataFileIDs,RestingBaselines)
 end
-%% re-create the RestData structure now that HbT is available
+% re-create the RestData structure now that HbT is available
 [RestData] = ExtractRestingData_JNeurosci2022(procDataFileIDs,updatedDataTypes,imagingType);
-%% create the EventData structure for CBV and neural data
+% create the EventData structure for CBV and neural data
 [EventData] = ExtractEventTriggeredData_JNeurosci2022(procDataFileIDs,updatedDataTypes,imagingType);
-%% normalize RestData and EventData structures by the resting baseline
+% normalize RestData and EventData structures by the resting baseline
 % character list of all ProcData files
 restDataFileStruct = dir('*_RestData.mat');
 restDataFiles = {restDataFileStruct.name}';
@@ -97,14 +97,14 @@ load(baseDataFileIDs)
 save([animalID '_RestData.mat'],'RestData','-v7.3')
 [EventData] = NormBehavioralDataStruct_JNeurosci2022(EventData,RestingBaselines,updatedBaselineType);
 save([animalID '_EventData.mat'],'EventData','-v7.3')
-%% analyze the spectrogram baseline for each session.
+% analyze the spectrogram baseline for each session.
 % find spectrogram baselines for each day
 [RestingBaselines] = CalculateSpectrogramBaselines_JNeurosci2022(animalID,neuralDataTypes,trialDuration_sec,RestingBaselines,updatedBaselineType);
 % normalize spectrogram by baseline
 NormalizeSpectrograms_JNeurosci2022(neuralDataTypes,RestingBaselines);
 % create a structure with all spectrograms for convenient analysis further downstream
 CreateAllSpecDataStruct_JNeurosci2022(animalID,neuralDataTypes)
-%% generate single trial figures
+% generate single trial figures
 updatedBaselineType = 'manualSelection';
 saveFigs = 'y';
 % HbT
@@ -112,7 +112,9 @@ hemoType = 'HbT';
 if strcmpi(imagingType,'GCaMP') == true
     for bb = 1:size(procDataFileIDs,1)
         procDataFileID = procDataFileIDs(bb,:);
-        [figHandle] = GenerateSingleFigures_GCaMP(procDataFileID,RestingBaselines,updatedBaselineType,saveFigs,imagingType,hemoType);
+        [figHandle] = GenerateSingleFigures_GCaMP_JNeurosci2022(procDataFileID,RestingBaselines,saveFigs,hemoType,'somatosensory');
+        close(figHandle)
+        [figHandle] = GenerateSingleFigures_GCaMP_JNeurosci2022(procDataFileID,RestingBaselines,saveFigs,hemoType,'frontal');
         close(figHandle)
     end
 else
@@ -122,7 +124,7 @@ else
         close(figHandle)
     end
 end
-%% isoflurane manual set
+% isoflurane manual set
 % SetIsofluraneHbT_JNeurosci2022()
-%% identify motion artifacts in neural data
+% identify motion artifacts in neural data
 % CheckNeuralMotionArtifacts_JNeurosci2022(procDataFileIDs,RestingBaselines,baselineType,imagingType,hemoType)

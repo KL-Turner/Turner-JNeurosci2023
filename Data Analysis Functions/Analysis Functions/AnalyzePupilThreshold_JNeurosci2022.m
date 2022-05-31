@@ -3,12 +3,11 @@ function [Results_PupilThreshold] = AnalyzePupilThreshold_JNeurosci2022(animalID
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose:
+% Purpose: Determine the threshold used for pupil tracking
 %________________________________________________________________________________________________________________________
 
-%% only run analysis for valid animal IDs
+% go to animal's data location
 dataLocation = [rootFolder delim 'Data' delim animalID delim 'Bilateral Imaging'];
 cd(dataLocation)
 % find and load RestingBaselines.mat struct
@@ -28,7 +27,7 @@ for aa = 1:length(strDays)
     % model the distribution of pixel intensities as a gaussian to estimate/isolate the population of pupil pixels
     medFiltParams = [5,5]; % [x,y] dimensions for 2d median filter of images
     filtImg = medfilt2(workingImg,medFiltParams); % median filter image
-    threshImg = uint8(double(filtImg).*eyeROI); % only look at pixel values in ROI
+    threshImg = double(filtImg).*eyeROI; % only look at pixel values in ROI
     [phat,~] = mle(reshape(threshImg(threshImg ~= 0),1,numel(threshImg(threshImg ~= 0))),'distribution','Normal');
     threshold = PupilData.Threshold.(strDays{aa,1});
     Results_PupilThreshold.(animalID).thresholdStDev(aa,1) = (threshold - phat(1))/phat(2);

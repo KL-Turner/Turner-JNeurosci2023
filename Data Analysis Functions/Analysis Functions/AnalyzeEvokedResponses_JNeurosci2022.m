@@ -1,16 +1,14 @@
-function [Results_Evoked] = AnalyzeEvokedResponses_Pupil(animalID,rootFolder,delim,Results_Evoked)
+function [Results_Evoked] = AnalyzeEvokedResponses_JNeurosci2022(animalID,rootFolder,delim,Results_Evoked)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose:
+% Purpose: Determine whisking and stimulus evoked changes in pupil diameter and hemodynamics
 %________________________________________________________________________________________________________________________
 
-%% function parameters
+% go to animal's data location
 dataLocation = [rootFolder delim 'Data' delim animalID delim 'Bilateral Imaging'];
-%% only run analysis for valid animal IDs
 cd(dataLocation)
 % find and load EventData.mat struct
 eventDataFileStruct = dir('*_EventData.mat');
@@ -58,9 +56,9 @@ StimCriteriaC.Fieldname = {'solenoidName'};
 StimCriteriaC.Comparison = {'equal'};
 stimCriteriaNames = {'stimCriteriaA','stimCriteriaB','stimCriteriaC'};
 dataTypes = {'mmArea','mmDiameter','zArea','zDiameter','LH_HbT','RH_HbT'};
-%% analyze whisking-evoked responses
 for aa = 1:length(dataTypes)
     dataType = dataTypes{1,aa};
+    %% analyze whisking-evoked responses
     % pull a few necessary numbers from the EventData.mat struct such as trial duration and sampling rate
     samplingRate = EventData.Pupil.(dataType).whisk.samplingRate;
     offset = EventData.Pupil.pupilArea.whisk.epoch.offset;
@@ -77,42 +75,42 @@ for aa = 1:length(dataTypes)
         end
         % pull data from EventData.mat structure
         if strcmp(dataType,'LH_HbT') == true
-            [whiskLogical] = FilterEvents_IOS(EventData.CBV_HbT.adjLH.whisk,WhiskCriteria);
+            [whiskLogical] = FilterEvents_JNeurosci2022(EventData.CBV_HbT.adjLH.whisk,WhiskCriteria);
             combWhiskLogical = logical(whiskLogical);
             [allWhiskData] = EventData.CBV_HbT.adjLH.whisk.data(combWhiskLogical,:);
             [allWhiskFileIDs] = EventData.CBV_HbT.adjLH.whisk.fileIDs(combWhiskLogical,:);
             [allWhiskEventTimes] = EventData.CBV_HbT.adjLH.whisk.eventTime(combWhiskLogical,:);
             allWhiskDurations = EventData.CBV_HbT.adjLH.whisk.duration(combWhiskLogical,:);
             % keep only the data that occurs within the manually-approved awake regions
-            [finalWhiskData,~,~,~] = RemoveInvalidData_IOS(allWhiskData,allWhiskFileIDs,allWhiskDurations,allWhiskEventTimes,ManualDecisions);
+            [finalWhiskData,~,~,~] = RemoveInvalidData_JNeurosci2022(allWhiskData,allWhiskFileIDs,allWhiskDurations,allWhiskEventTimes,ManualDecisions);
         elseif strcmp(dataType,'RH_HbT') == true
-            [whiskLogical] = FilterEvents_IOS(EventData.CBV_HbT.adjRH.whisk,WhiskCriteria);
+            [whiskLogical] = FilterEvents_JNeurosci2022(EventData.CBV_HbT.adjRH.whisk,WhiskCriteria);
             combWhiskLogical = logical(whiskLogical);
             [allWhiskData] = EventData.CBV_HbT.adjRH.whisk.data(combWhiskLogical,:);
             [allWhiskFileIDs] = EventData.CBV_HbT.adjRH.whisk.fileIDs(combWhiskLogical,:);
             [allWhiskEventTimes] = EventData.CBV_HbT.adjRH.whisk.eventTime(combWhiskLogical,:);
             allWhiskDurations = EventData.CBV_HbT.adjRH.whisk.duration(combWhiskLogical,:);
             % keep only the data that occurs within the manually-approved awake regions
-            [finalWhiskData,~,~,~] = RemoveInvalidData_IOS(allWhiskData,allWhiskFileIDs,allWhiskDurations,allWhiskEventTimes,ManualDecisions);
+            [finalWhiskData,~,~,~] = RemoveInvalidData_JNeurosci2022(allWhiskData,allWhiskFileIDs,allWhiskDurations,allWhiskEventTimes,ManualDecisions);
         else
-            [whiskLogical] = FilterEvents_IOS(EventData.Pupil.(dataType).whisk,WhiskCriteria);
+            [whiskLogical] = FilterEvents_JNeurosci2022(EventData.Pupil.(dataType).whisk,WhiskCriteria);
             combWhiskLogical = logical(whiskLogical);
             [allWhiskData] = EventData.Pupil.(dataType).whisk.data(combWhiskLogical,:);
             [allWhiskFileIDs] = EventData.Pupil.(dataType).whisk.fileIDs(combWhiskLogical,:);
             [allWhiskEventTimes] = EventData.Pupil.(dataType).whisk.eventTime(combWhiskLogical,:);
             allWhiskDurations = EventData.Pupil.(dataType).whisk.duration(combWhiskLogical,:);
             % keep only the data that occurs within the manually-approved awake regions
-            [finalWhiskData,~,~,~] = RemoveInvalidData_IOS(allWhiskData,allWhiskFileIDs,allWhiskDurations,allWhiskEventTimes,ManualDecisions);
+            [finalWhiskData,~,~,~] = RemoveInvalidData_JNeurosci2022(allWhiskData,allWhiskFileIDs,allWhiskDurations,allWhiskEventTimes,ManualDecisions);
         end
         % lowpass filter each whisking event and nanmean-subtract by the first 2 seconds
         procWhiskData = [];
         for cc = 1:size(finalWhiskData,1)
             whiskArray = finalWhiskData(cc,:);
             filtWhiskarray = sgolayfilt(whiskArray,3,17);
-            procWhiskData(cc,:) = filtWhiskarray - nanmean(filtWhiskarray(1:(offset*samplingRate)));
+            procWhiskData(cc,:) = filtWhiskarray - mean(filtWhiskarray(1:(offset*samplingRate)),'omitnan');
         end
-        meanWhiskData = nanmean(procWhiskData,1);
-        stdWhiskData = nanstd(procWhiskData,0,1);
+        meanWhiskData = mean(procWhiskData,1,'omitnan');
+        stdWhiskData = std(procWhiskData,0,1,'omitnan');
         % save results
         Results_Evoked.(animalID).Whisk.(dataType).(whiskCriteriaName).mean = meanWhiskData;
         Results_Evoked.(animalID).Whisk.(dataType).(whiskCriteriaName).stdev = stdWhiskData;
@@ -132,39 +130,39 @@ for aa = 1:length(dataTypes)
         end
         % pull data from EventData.mat structure
         if strcmp(dataType,'LH_HbT') == true
-            allStimFilter = FilterEvents_IOS(EventData.CBV_HbT.adjLH.stim,StimCriteria);
+            allStimFilter = FilterEvents_JNeurosci2022(EventData.CBV_HbT.adjLH.stim,StimCriteria);
             [allStimData] = EventData.CBV_HbT.adjLH.stim.data(allStimFilter,:);
             [allStimFileIDs] = EventData.CBV_HbT.adjLH.stim.fileIDs(allStimFilter,:);
             [allStimEventTimes] = EventData.CBV_HbT.adjLH.stim.eventTime(allStimFilter,:);
             allStimDurations = zeros(length(allStimEventTimes),1);
             % keep only the data that occurs within the manually-approved awake regions
-            [finalStimData,~,~,~] = RemoveInvalidData_IOS(allStimData,allStimFileIDs,allStimDurations,allStimEventTimes,ManualDecisions);
+            [finalStimData,~,~,~] = RemoveInvalidData_JNeurosci2022(allStimData,allStimFileIDs,allStimDurations,allStimEventTimes,ManualDecisions);
         elseif strcmp(dataType,'RH_HbT') == true
-            allStimFilter = FilterEvents_IOS(EventData.CBV_HbT.adjRH.stim,StimCriteria);
+            allStimFilter = FilterEvents_JNeurosci2022(EventData.CBV_HbT.adjRH.stim,StimCriteria);
             [allStimData] = EventData.CBV_HbT.adjRH.stim.data(allStimFilter,:);
             [allStimFileIDs] = EventData.CBV_HbT.adjRH.stim.fileIDs(allStimFilter,:);
             [allStimEventTimes] = EventData.CBV_HbT.adjRH.stim.eventTime(allStimFilter,:);
             allStimDurations = zeros(length(allStimEventTimes),1);
             % keep only the data that occurs within the manually-approved awake regions
-            [finalStimData,~,~,~] = RemoveInvalidData_IOS(allStimData,allStimFileIDs,allStimDurations,allStimEventTimes,ManualDecisions);
+            [finalStimData,~,~,~] = RemoveInvalidData_JNeurosci2022(allStimData,allStimFileIDs,allStimDurations,allStimEventTimes,ManualDecisions);
         else
-            allStimFilter = FilterEvents_IOS(EventData.Pupil.(dataType).stim,StimCriteria);
+            allStimFilter = FilterEvents_JNeurosci2022(EventData.Pupil.(dataType).stim,StimCriteria);
             [allStimData] = EventData.Pupil.(dataType).stim.data(allStimFilter,:);
             [allStimFileIDs] = EventData.Pupil.(dataType).stim.fileIDs(allStimFilter,:);
             [allStimEventTimes] = EventData.Pupil.(dataType).stim.eventTime(allStimFilter,:);
             allStimDurations = zeros(length(allStimEventTimes),1);
             % keep only the data that occurs within the manually-approved awake regions
-            [finalStimData,~,~,~] = RemoveInvalidData_IOS(allStimData,allStimFileIDs,allStimDurations,allStimEventTimes,ManualDecisions);
+            [finalStimData,~,~,~] = RemoveInvalidData_JNeurosci2022(allStimData,allStimFileIDs,allStimDurations,allStimEventTimes,ManualDecisions);
         end
         % lowpass filter each stim event and nanmean-subtract by the first 2 seconds
         procStimData = [];
         for kk = 1:size(finalStimData,1)
             stimArray = finalStimData(kk,:);
             filtStimarray = sgolayfilt(stimArray,3,17);
-            procStimData(kk,:) = filtStimarray - nanmean(filtStimarray(1:(offset*samplingRate)));
+            procStimData(kk,:) = filtStimarray - mean(filtStimarray(1:(offset*samplingRate)),'omitnan');
         end
-        meanStimData = nanmean(procStimData,1);
-        stdStimData = nanstd(procStimData,0,1);
+        meanStimData = mean(procStimData,1,'omitnan');
+        stdStimData = std(procStimData,0,1,'omitnan');
         % save results
         Results_Evoked.(animalID).Stim.(dataType).(solenoid).mean = meanStimData;
         Results_Evoked.(animalID).Stim.(dataType).(solenoid).std = stdStimData;

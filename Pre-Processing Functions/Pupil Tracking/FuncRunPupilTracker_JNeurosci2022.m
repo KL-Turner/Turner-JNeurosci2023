@@ -222,7 +222,7 @@ for frameNum = 1:size(imageStack,3)
                                 inPupil = [];
                                 [~,correctBoundaries,~] = bwboundaries(gather(isoSweep),8,'noholes'); % Identify above threshold regions
                                 fillCorrection = correctBoundaries;
-                                fillCorrection =imfill(fillCorrection,8,'holes'); % fill holes in regions
+                                fillCorrection = imfill(fillCorrection,8,'holes'); % fill holes in regions
                                 areaCorrect = regionprops(fillCorrection,'FilledArea','Image','FilledImage','Centroid','MajorAxisLength','MinorAxisLength','PixelList'); %find region properties
                                 for areaNum = 1:size(areaCorrect,1)
                                     areaCentroid = round(areaCorrect(areaNum).Centroid,0);
@@ -236,7 +236,7 @@ for frameNum = 1:size(imageStack,3)
                                         keepMask(keepRegions(keepNum).PixelList(pixNum,2),keepRegions(keepNum).PixelList(pixNum,1)) = 1; % remap kept regions in to image frame
                                     end
                                 end
-                                fuseMask=bwconvhull(keepMask); % use convex hull operation to enclose regions previously within pupil
+                                fuseMask = bwconvhull(keepMask); % use convex hull operation to enclose regions previously within pupil
                                 fusedCorrect = regionprops(fuseMask,'FilledArea','Image','FilledImage','Centroid','MajorAxisLength','MinorAxisLength','PixelList'); % measure new corrected pupil volume properties
                                 if length(fusedCorrect) > 1
                                     fusedCorrect = fusedCorrect(1);

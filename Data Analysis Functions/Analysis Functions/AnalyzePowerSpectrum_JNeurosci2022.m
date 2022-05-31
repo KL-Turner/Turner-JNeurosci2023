@@ -3,18 +3,18 @@ function [Results_PowerSpectrum] = AnalyzePowerSpectrum_JNeurosci2022(animalID,r
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Analyze the spectral power of hemodynamic [HbT] and neural signals (IOS)
+% Purpose: Analyze the spectral power of hemodynamic, neural, and pupil signals
 %________________________________________________________________________________________________________________________
 
-%% function parameters
-dataTypes = {'mmArea','mmDiameter','zArea','zDiameter','LH_HbT','RH_HbT','LH_gammaBandPower','RH_gammaBandPower'};
+% function parameters
+% dataTypes = {'mmArea','mmDiameter','zArea','zDiameter','LH_HbT','RH_HbT','LH_gammaBandPower','RH_gammaBandPower'};
+dataTypes = {'zDiameter','LH_HbT','RH_HbT','LH_gammaBandPower','RH_gammaBandPower'};
 modelType = 'Forest';
 params.minTime.Rest = 10;
 params.minTime.NREM = 30;
 params.minTime.REM = 60;
-%% only run analysis for valid animal IDs
+% go to animal's data location
 dataLocation = [rootFolder delim 'Data' delim animalID delim 'Bilateral Imaging'];
 cd(dataLocation)
 % character list of all ProcData file IDs
@@ -60,15 +60,15 @@ for aa = 1:length(dataTypes)
     dataType = dataTypes{1,aa};
     %% analyze power spectra during periods of rest
     % pull data from RestData.mat structure
-    [restLogical] = FilterEvents_IOS(RestData.Pupil.(dataType),RestCriteria);
-    [puffLogical] = FilterEvents_IOS(RestData.Pupil.(dataType),RestPuffCriteria);
+    [restLogical] = FilterEvents_JNeurosci2022(RestData.Pupil.(dataType),RestCriteria);
+    [puffLogical] = FilterEvents_JNeurosci2022(RestData.Pupil.(dataType),RestPuffCriteria);
     combRestLogical = logical(restLogical.*puffLogical);
     restFileIDs = RestData.Pupil.(dataType).fileIDs(combRestLogical,:);
     restEventTimes = RestData.Pupil.(dataType).eventTimes(combRestLogical,:);
     restDurations = RestData.Pupil.(dataType).durations(combRestLogical,:);
     restData = RestData.Pupil.(dataType).data(combRestLogical,:);
     % keep only the data that occurs within the manually-approved awake regions
-    [finalRestData,~,~,~] = RemoveInvalidData_IOS(restData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
+    [finalRestData,~,~,~] = RemoveInvalidData_JNeurosci2022(restData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
     clear procRestData
     if isempty(finalRestData) == false
         % detrend and truncate data to minimum length to match events
@@ -111,15 +111,15 @@ for aa = 1:length(dataTypes)
     end
     %% analyze power spectra during periods of alert
     zz = 1;
-    clear awakeData procAwakeData
-    awakeData = [];
+    clear alertData procAlertData
+    alertData = [];
     for bb = 1:size(procDataFileIDs,1)
         procDataFileID = procDataFileIDs(bb,:);
-        [~,fileDate,awakeDataFileID] = GetFileInfo_IOS(procDataFileID);
-        strDay = ConvertDate_IOS(fileDate);
+        [~,fileDate,alertDataFileID] = GetFileInfo_JNeurosci2022(procDataFileID);
+        strDay = ConvertDate_JNeurosci2022(fileDate);
         scoringLabels = [];
         for cc = 1:length(ScoringResults.fileIDs)
-            if strcmp(awakeDataFileID,ScoringResults.fileIDs{cc,1}) == true
+            if strcmp(alertDataFileID,ScoringResults.fileIDs{cc,1}) == true
                 scoringLabels = ScoringResults.labels{cc,1};
             end
         end
@@ -135,20 +135,20 @@ for aa = 1:length(dataTypes)
                 % don't include trials with stimulation
                 if isempty(puffs) == true
                     if strcmp(dataType,'LH_HbT') == true
-                        awakeData{zz,1} = ProcData.data.CBV_HbT.adjLH;
+                        alertData{zz,1} = ProcData.data.CBV_HbT.adjLH;
                         zz = zz + 1;
                     elseif strcmp(dataType,'RH_HbT') == true
-                        awakeData{zz,1} = ProcData.data.CBV_HbT.adjRH;
+                        alertData{zz,1} = ProcData.data.CBV_HbT.adjRH;
                         zz = zz + 1;
                     elseif strcmp(dataType,'LH_gammaBandPower') == true
-                        awakeData{zz,1} = (ProcData.data.cortical_RH.gammaBandPower - RestingBaselines.manualSelection.cortical_LH.gammaBandPower.(strDay).mean)./RestingBaselines.manualSelection.cortical_LH.gammaBandPower.(strDay).mean;
+                        alertData{zz,1} = (ProcData.data.cortical_RH.gammaBandPower - RestingBaselines.manualSelection.cortical_LH.gammaBandPower.(strDay).mean)./RestingBaselines.manualSelection.cortical_LH.gammaBandPower.(strDay).mean;
                         zz = zz + 1;
                     elseif strcmp(dataType,'RH_gammaBandPower') == true
-                        awakeData{zz,1} = (ProcData.data.cortical_RH.gammaBandPower - RestingBaselines.manualSelection.cortical_RH.gammaBandPower.(strDay).mean)./RestingBaselines.manualSelection.cortical_RH.gammaBandPower.(strDay).mean;
+                        alertData{zz,1} = (ProcData.data.cortical_RH.gammaBandPower - RestingBaselines.manualSelection.cortical_RH.gammaBandPower.(strDay).mean)./RestingBaselines.manualSelection.cortical_RH.gammaBandPower.(strDay).mean;
                         zz = zz + 1;
                     else
                         if sum(isnan(ProcData.data.Pupil.(dataType))) == 0
-                            awakeData{zz,1} = ProcData.data.Pupil.(dataType);
+                            alertData{zz,1} = ProcData.data.Pupil.(dataType);
                             zz = zz + 1;
                         end
                     end
@@ -156,28 +156,28 @@ for aa = 1:length(dataTypes)
             end
         end
     end
-    if isempty(awakeData) == false
+    if isempty(alertData) == false
         % detrend data
-        for bb = 1:length(awakeData)
-            procAwakeData{bb,1} = detrend(awakeData{bb,1},'constant');
+        for bb = 1:length(alertData)
+            procAlertData{bb,1} = detrend(alertData{bb,1},'constant');
         end
         % input data as time (1st dimension, vertical) by trials (2nd dimension, horizontunstimy)
-        awakeDataMat = zeros(length(procAwakeData{1,1}),length(procAwakeData));
-        for cc = 1:length(procAwakeData)
-            awakeDataMat(:,cc) = procAwakeData{cc,1};
+        alertDataMat = zeros(length(procAlertData{1,1}),length(procAlertData));
+        for cc = 1:length(procAlertData)
+            alertDataMat(:,cc) = procAlertData{cc,1};
         end
         % calculate the power spectra of the desired signals
         params.tapers = [10,19];   % Tapers [n, 2n - 1]
-        [awake_S,awake_f,awake_sErr] = mtspectrumc(awakeDataMat,params);
+        [alert_S,alert_f,alert_sErr] = mtspectrumc(alertDataMat,params);
         % save results
-        Results_PowerSpectrum.(animalID).Awake.(dataType).S = awake_S;
-        Results_PowerSpectrum.(animalID).Awake.(dataType).f = awake_f;
-        Results_PowerSpectrum.(animalID).Awake.(dataType).sErr = awake_sErr;
+        Results_PowerSpectrum.(animalID).Alert.(dataType).S = alert_S;
+        Results_PowerSpectrum.(animalID).Alert.(dataType).f = alert_f;
+        Results_PowerSpectrum.(animalID).Alert.(dataType).sErr = alert_sErr;
     else
         % save results
-        Results_PowerSpectrum.(animalID).Awake.(dataType).S = [];
-        Results_PowerSpectrum.(animalID).Awake.(dataType).f = [];
-        Results_PowerSpectrum.(animalID).Awake.(dataType).sErr = [];
+        Results_PowerSpectrum.(animalID).Alert.(dataType).S = [];
+        Results_PowerSpectrum.(animalID).Alert.(dataType).f = [];
+        Results_PowerSpectrum.(animalID).Alert.(dataType).sErr = [];
     end
     %% analyze power spectra during periods of Asleep
     zz = 1;
@@ -185,8 +185,8 @@ for aa = 1:length(dataTypes)
     asleepData = [];
     for bb = 1:size(procDataFileIDs,1)
         procDataFileID = procDataFileIDs(bb,:);
-        [~,fileDate,asleepDataFileID] = GetFileInfo_IOS(procDataFileID);
-        strDay = ConvertDate_IOS(fileDate);
+        [~,fileDate,asleepDataFileID] = GetFileInfo_JNeurosci2022(procDataFileID);
+        strDay = ConvertDate_JNeurosci2022(fileDate);
         scoringLabels = [];
         for cc = 1:length(ScoringResults.fileIDs)
             if strcmp(asleepDataFileID,ScoringResults.fileIDs{cc,1}) == true
@@ -194,7 +194,7 @@ for aa = 1:length(dataTypes)
             end
         end
         % check labels to match arousal state
-        if sum(strcmp(scoringLabels,'Not Sleep')) < 36   % 36 bins (180 total) or 3 minutes of awake
+        if sum(strcmp(scoringLabels,'Not Sleep')) < 36   % 36 bins (180 total) or 3 minutes of alert
             load(procDataFileID,'-mat')
             if strcmp(ProcData.data.Pupil.diameterCheck,'y') == true
                 try
@@ -255,8 +255,8 @@ for aa = 1:length(dataTypes)
     allData = [];
     for bb = 1:size(procDataFileIDs,1)
         procDataFileID = procDataFileIDs(bb,:);
-        [~,fileDate,~] = GetFileInfo_IOS(procDataFileID);
-        strDay = ConvertDate_IOS(fileDate);
+        [~,fileDate,~] = GetFileInfo_JNeurosci2022(procDataFileID);
+        strDay = ConvertDate_JNeurosci2022(fileDate);
         load(procDataFileID,'-mat')
         if strcmp(ProcData.data.Pupil.diameterCheck,'y') == true
             try
@@ -312,7 +312,7 @@ for aa = 1:length(dataTypes)
     end
     %% analyze power spectra during periods of NREM
     % pull data from SleepData.mat structure
-    [nremData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.Pupil.(dataType).data,SleepData.(modelType).NREM.data.Pupil.fileIDs,SleepData.(modelType).NREM.data.Pupil.binTimes);
+    [nremData,~,~] = RemoveStimSleepData_JNeurosci2022(animalID,SleepData.(modelType).NREM.data.Pupil.(dataType).data,SleepData.(modelType).NREM.data.Pupil.fileIDs,SleepData.(modelType).NREM.data.Pupil.binTimes);
     if isempty(nremData) == false
         % detrend and truncate data to minimum length to match events
         for dd = 1:length(nremData)
@@ -342,7 +342,7 @@ for aa = 1:length(dataTypes)
     %% analyze power spectra during periods of REM
     % pull data from SleepData.mat structure
     if isempty(SleepData.(modelType).REM.data.Pupil) == false
-        [remData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.Pupil.(dataType).data,SleepData.(modelType).REM.data.Pupil.fileIDs,SleepData.(modelType).REM.data.Pupil.binTimes);
+        [remData,~,~] = RemoveStimSleepData_JNeurosci2022(animalID,SleepData.(modelType).REM.data.Pupil.(dataType).data,SleepData.(modelType).REM.data.Pupil.fileIDs,SleepData.(modelType).REM.data.Pupil.binTimes);
     else
         remData = [];
     end

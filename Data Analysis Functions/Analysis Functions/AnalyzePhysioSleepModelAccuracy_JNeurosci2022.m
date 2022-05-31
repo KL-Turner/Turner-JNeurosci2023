@@ -3,15 +3,14 @@ function [Results_PhysioSleepModel] = AnalyzePhysioSleepModelAccuracy_JNeurosci2
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: train/validate machine learning classifier using previously published physiological parameters
+% Purpose: train/validate machine learning classifier using previously published physiological parameters
 %________________________________________________________________________________________________________________________
 
-%% go to proper folders and load files/structures for model training
+% go to animal's data location
 dataLocation = [rootFolder delim 'Data' delim animalID delim 'Bilateral Imaging'];
 cd(dataLocation)
-% Resting Baselines structure
+% find and load RestingBaselines structure
 baselineFileStruct = dir('*_RestingBaselines.mat');
 baselineDataFiles = {baselineFileStruct.name}';
 baselineDataFileID = char(baselineDataFiles);
@@ -20,7 +19,7 @@ load(baselineDataFileID)
 cd([rootFolder delim])
 dataLocation = [rootFolder delim 'Data' delim animalID delim 'Training Data'];
 cd(dataLocation)
-% ProcData file IDs
+% character list of ProcData file IDs
 procDataFileStruct = dir('*_ProcData.mat');
 procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
@@ -144,7 +143,7 @@ numTrees = 128;
 RF_MDL = TreeBagger(numTrees,Xodd,Yodd,'Method','Classification','Surrogate','all','OOBPrediction','on','ClassNames',{'Awake','Asleep'});
 % determine the misclassification probability (for classification trees) for out-of-bag observations in the training data
 RF_OOBerror = oobError(RF_MDL,'Mode','Ensemble');
-disp(['Random Forest out-of-bag error: ' num2str(RF_OOBerror*100) '%']); disp(' ')
+disp(['Random Forest out-of-bag error: ' num2str(RF_OOBerror)]); disp(' ')
 % use the model to generate a set of scores for the even set of data
 [XoddLabels,~] = predict(RF_MDL,Xodd);
 [XevenLabels,~] = predict(RF_MDL,Xeven);

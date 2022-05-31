@@ -3,12 +3,11 @@ function [Results_StimulusBlinks] = AnalyzeStimulusBlinks_JNeurosci2022(animalID
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose:
+% Purpose: Analyze the probability of an animal blinking after a whisker stimulus
 %________________________________________________________________________________________________________________________
 
-%% only run analysis for valid animal IDs
+% go to animal's data location
 dataLocation = [rootFolder delim 'Data' delim animalID delim 'Bilateral Imaging'];
 cd(dataLocation)
 % procdata file IDs
@@ -25,13 +24,16 @@ for aa = 1:size(procDataFileIDs,1)
     procDataFileID = procDataFileIDs(aa,:);
     load(procDataFileID)
     samplingRate = ProcData.notes.dsFs;
-    try
-        solenoids = ProcData.data.solenoids.LPadSol;
-    catch
+    if isfield(ProcData.data,'stimulations') == true
         solenoids = ProcData.data.stimulations.LPadSol;
+    elseif isfield(ProcData.data,'solenoids') == true
+        solenoids = ProcData.data.solenoids.LPadSol;
     end
+    % only look at files with whisker stimulation
     if isempty(solenoids) == false
+        % only run on data with accurate diameter tracking
         if strcmp(ProcData.data.Pupil.diameterCheck,'y') == true
+            % extract blink index
             if isfield(ProcData.data.Pupil,'shiftedBlinks') == true
                 blinks = ProcData.data.Pupil.shiftedBlinks;
             elseif isempty(ProcData.data.Pupil.blinkInds) == false
@@ -41,6 +43,7 @@ for aa = 1:size(procDataFileIDs,1)
             end
             bb = 1;
             verifiedBlinks = [];
+            % only keep manually verified blinks
             for cc = 1:length(blinks)
                 if strcmp(ProcData.data.Pupil.blinkCheck{1,cc},'y') == true
                     verifiedBlinks(1,bb) = blinks(1,cc);
@@ -48,15 +51,13 @@ for aa = 1:size(procDataFileIDs,1)
                 end
             end
             % stimulation times
-            try
-                stimTimes = cat(2,ProcData.data.stimulations.LPadSol,ProcData.data.stimulations.RPadSol);
+            if isfield(ProcData.data,'stimulations') == true
+                stimTimes = cat(2,ProcData.data.stimulations.LPadSol,ProcData.data.stimulations.RPadSol,ProcData.data.stimulations.AudSol);
                 stimSamples = sort(round(stimTimes)*samplingRate,'ascend');
-            catch
-                stimTimes = cat(2,ProcData.data.solenoids.LPadSol,ProcData.data.solenoids.RPadSol);
+            elseif isfield(ProcData.data,'solenoids') == true
+                stimTimes = cat(2,ProcData.data.solenoids.LPadSol,ProcData.data.solenoids.RPadSol,ProcData.data.solenoids.AudSol);
                 stimSamples = sort(round(stimTimes)*samplingRate,'ascend');
-            end        
-            linkThresh = 0.5;   % seconds, Link events < 0.5 seconds apart
-            breakThresh = 0;   % seconds changed by atw on 2/6/18 from 0.07
+            end
             binWhiskerAngle = [0,ProcData.data.binWhiskerAngle,0];
             binWhiskers = binWhiskerAngle;
             for tt = 1:length(stimSamples)
@@ -72,7 +73,7 @@ for aa = 1:size(procDataFileIDs,1)
                     data.stimIndex(zz,1) = stimSample;
                     data.blinkIndex{zz,1} = blinkGroup;
                     zz = zz + 1;
-                end   
+                end
             end
             qq = 1;
             stimBlinks = [];
@@ -175,7 +176,6 @@ for aa = 1:length(data.stimIndex)
     end
 end
 Results_StimulusBlinks.(animalID).binProbability = [cc/mm,dd/mm,ee/mm,ff/mm,gg/mm,hh/mm,ii/mm,jj/mm,kk/mm,ll/mm];
-%%
 % blink location after stim
 cc = 1; dd = 1; ee = 1; ff = 1; gg = 1; hh = 1; ii = 1; jj = 1; kk = 1; ll = 1; mm = 1;
 for aa = 1:length(data.stimIndex)

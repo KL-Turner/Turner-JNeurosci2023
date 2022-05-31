@@ -4,11 +4,11 @@ function [decData,decFileIDs,decDurations,decEventTimes] = RemoveInvalidData_JNe
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
-%   Purpose: Remove resting events from the various fields that aren't in the manual selection
+% Purpose: Remove resting events from the various fields that aren't in the manual selection
 %________________________________________________________________________________________________________________________
 
-trialDuration_sec = 900;   % sec
-offset = 0.5;   % sec
+trialDuration_sec = 900; % sec
+offset = 0.5; % sec
 x = 1;
 for a = 1:size(data,1)
     fileID = fileIDs{a,1};
@@ -27,7 +27,7 @@ for a = 1:size(data,1)
     if startTime >= manualStartTime && endTime <= manualEndTime
         if startTime >= offset && endTime <= (trialDuration_sec - offset)
             if iscell(data) == true
-                decData{x,1} = data{a,1}; %#ok<*AGROW>
+                decData{x,1} = data{a,1};
             else
                 decData(x,:) = data(a,:);
             end

@@ -24,9 +24,10 @@ for a = 1:size(procDataFileIDs,1)
     load(procDataFileID)
     [~,fileDate,~] = GetFileInfo_JNeurosci2022(procDataFileID);
     strDay = ConvertDate_JNeurosci2022(fileDate);
-    if strcmp(imagingType,'bilateral') == true || strcmp(imagingType,'gcamp') == true
-        cbvFields = {'LH','adjLH','RH','adjRH'};
-    elseif strcmp(imagingType,'single') == true
+    if strcmpi(imagingType,'bilateral') == true
+    elseif strcmpi(imagingType,'GCaMP') == true
+        cbvFields = {'LH','RH','frontalLH','frontalRH'};
+    elseif strcmpi(imagingType,'single') == true
         cbvFields = {'Barrels','adjBarrels'};
     end
     for b = 1:length(cbvFields)

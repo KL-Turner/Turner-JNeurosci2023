@@ -3,9 +3,8 @@ function [Results_BlinkResponses] = AnalyzeBlinkResponses_JNeurosci2022(animalID
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Analyze behavioral, neural, and hemodynamic responses to blinking and create a triggered average
+% Purpose: Analyze behavioral, neural, and hemodynamic responses to blinking and create a triggered average
 %________________________________________________________________________________________________________________________
 
 % cd to animal folder/data location
@@ -16,7 +15,7 @@ baselineDataFileStruct = dir('*_RestingBaselines.mat');
 baselineDataFile = {baselineDataFileStruct.name}';
 baselineDataFileID = char(baselineDataFile);
 load(baselineDataFileID,'-mat')
-% list of ProcData file IDs
+% character list of ProcData file IDs
 procDataFileStruct = dir('*_ProcData.mat');
 procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
@@ -26,9 +25,11 @@ scoringResultsFile = {scoringResultsFileStruct.name}';
 scoringResultsFileID = char(scoringResultsFile);
 load(scoringResultsFileID,'-mat')
 % lowpass filter and sampling rates
+trialDuration = 900; % sec
 samplingRate = 30; % Hz
 specSamplingRate = 10; % Hz
 edgeTime = 10; % sec
+binTime = 5; % sec
 blinkStates = {'Awake','Asleep'};
 [z,p,k] = butter(4,10/(samplingRate/2),'low');
 [sos,g] = zp2sos(z,p,k);
@@ -106,11 +107,11 @@ for aa = 1:size(procDataFileIDs,1)
             for yy = 1:length(stimSamples)
                 stimSample = stimSamples(1,yy);
                 if (blinkSample >= stimSample) == true
-                    if (blinkSample <= stimSample + samplingRate*5) == true
+                    if (blinkSample <= stimSample + samplingRate*binTime) == true
                         sampleCheck = false;
                     end
                 elseif (blinkSample <= stimSample) == true
-                    if (blinkSample >= stimSample - samplingRate*5) == true
+                    if (blinkSample >= stimSample - samplingRate*binTime) == true
                         sampleCheck = false;
                     end
                 end
@@ -141,14 +142,14 @@ for aa = 1:size(procDataFileIDs,1)
             for dd = 1:length(condensedBlinkTimes)
                 blink = condensedBlinkTimes(1,dd);
                 % can only keep blinks that occur within the window of a trial for +/- 10 seconds
-                if (blink/samplingRate) >= 11 && (blink/samplingRate) <= 889
+                if (blink/samplingRate) >= edgeTime + 1 && (blink/samplingRate) <= (trialDuration - edgeTime - 1)
                     for zz = 1:length(ScoringResults.fileIDs)
                         % find sleep scores associated with this file ID
                         if strcmp(ScoringResults.fileIDs{zz,1},fileID) == true
                             labels = ScoringResults.labels{zz,1};
                         end
                     end
-                    blinkArousalBin = ceil((blink/samplingRate)/5);
+                    blinkArousalBin = ceil((blink/samplingRate)/binTime);
                     blinkScore = labels(blinkArousalBin - 1,1);
                     if strcmp(blinkScore,'Not Sleep') == true
                         blinkState = 'Awake';

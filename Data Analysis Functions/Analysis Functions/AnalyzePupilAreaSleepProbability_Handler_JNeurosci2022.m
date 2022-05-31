@@ -4,7 +4,7 @@ function [] = AnalyzePupilAreaSleepProbability_Handler_JNeurosci2022(rootFolder,
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
-% Purpose:
+% Purpose: Handler function for AnalyzePupilAreaSleepProbability_JNeurosci2022.mat
 %________________________________________________________________________________________________________________________
 
 % create or load results structure
@@ -19,7 +19,7 @@ elseif runFromStart == false
     end
 end
 folderList = dir('Data');
-folderList = folderList(~startsWith({folderList.name}, '.'));
+folderList = folderList(~startsWith({folderList.name},'.'));
 animalIDs = {folderList.name};
 % run analysis for each animal in the group
 if isempty(Results_SleepProbability) == true

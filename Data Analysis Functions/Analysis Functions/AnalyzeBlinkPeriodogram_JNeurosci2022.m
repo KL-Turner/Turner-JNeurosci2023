@@ -1,23 +1,22 @@
-function [Results_BlinkPeriodogram] = AnalyzeBlinkPeriodogram_Pupil(animalID,rootFolder,delim,Results_BlinkPeriodogram)
+function [Results_BlinkPeriodogram] = AnalyzeBlinkPeriodogram_JNeurosci2022(animalID,rootFolder,delim,Results_BlinkPeriodogram)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Analyze the spectral power of hemodynamic [HbT] and neural signals (IOS)
+% Purpose: Prepare data/Analyze the Lomb-Scargle periodogram and power spectrum of binarized blinking
 %________________________________________________________________________________________________________________________
 
-%% only run analysis for valid animal IDs
+% go to animal's data folder
 dataLocation = [rootFolder delim 'Data' delim animalID delim 'Bilateral Imaging'];
 cd(dataLocation)
 % character list of all ProcData file IDs
 procDataFileStruct = dir('*_ProcData.mat');
 procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
-%% analyze periodogram during periods of all data
-[~,dateList,~] = GetFileInfo_IOS(procDataFileIDs);
-[uniqueDays,dayIndex] = GetUniqueDays_IOS(dateList);
+% analyze periodogram during periods of all data
+[~,dateList,~] = GetFileInfo_JNeurosci2022(procDataFileIDs);
+[uniqueDays,dayIndex] = GetUniqueDays_JNeurosci2022(dateList);
 for aa = 1:length(dayIndex)
     if aa < length(dayIndex)
         dayProcDataFileIDs{aa,1} = procDataFileIDs(dayIndex(aa,1):dayIndex(aa + 1) - 1,:);
@@ -25,29 +24,29 @@ for aa = 1:length(dayIndex)
         dayProcDataFileIDs{aa,1} = procDataFileIDs(dayIndex(aa,1):end,:);
     end
 end
-%%
+%
 trialDuration = 15;
 samplingRate = 30;
 for aa = 1:length(uniqueDays)
-    uniqueDay = ConvertDate_IOS(uniqueDays{aa,1});
+    uniqueDay = ConvertDate_JNeurosci2022(uniqueDays{aa,1});
     procDataFileList = dayProcDataFileIDs{aa,1};
     for gg = 2:size(procDataFileList,1)
         leadFileID = procDataFileList(gg - 1,:);
         lagFileID = procDataFileList(gg,:);
-        [~,~,leadFileInfo] = GetFileInfo_IOS(leadFileID);
-        [~,~,lagFileInfo] = GetFileInfo_IOS(lagFileID);
-        leadFileStr = ConvertDateTime_IOS(leadFileInfo);
-        lagFileStr = ConvertDateTime_IOS(lagFileInfo);
+        [~,~,leadFileInfo] = GetFileInfo_JNeurosci2022(leadFileID);
+        [~,~,lagFileInfo] = GetFileInfo_JNeurosci2022(lagFileID);
+        leadFileStr = ConvertDateTime_JNeurosci2022(leadFileInfo);
+        lagFileStr = ConvertDateTime_JNeurosci2022(lagFileInfo);
         leadFileTime = datevec(leadFileStr);
         lagFileTime = datevec(lagFileStr);
         timeDifference = (etime(lagFileTime,leadFileTime) - (trialDuration*60))*samplingRate;   % seconds
         timePadSamples.(uniqueDay)(gg - 1,1) = timeDifference;
     end
 end
-%%
+%
 fullBlinkMat = [];
 for bb = 1:size(dayProcDataFileIDs,1)
-    uniqueDay = ConvertDate_IOS(uniqueDays{bb,1});
+    uniqueDay = ConvertDate_JNeurosci2022(uniqueDays{bb,1});
     procDataFileList = dayProcDataFileIDs{bb,1};
     catBlinkArray = [];
     matBlink = [];
@@ -111,10 +110,10 @@ for bb = 1:size(dayProcDataFileIDs,1)
     fullBlinkMat = cat(1,fullBlinkMat,matBlink);
 end
 fullBlinkMat = fullBlinkMat';
-%%
+%
 animalMax = 1;
 for aa = 1:length(uniqueDays)
-    uniqueDay = ConvertDate_IOS(uniqueDays{aa,1});
+    uniqueDay = ConvertDate_JNeurosci2022(uniqueDays{aa,1});
     dayMax = length(fullBlinkArray.(uniqueDay));
     if dayMax >= animalMax
         animalMax = dayMax;
@@ -122,7 +121,7 @@ for aa = 1:length(uniqueDays)
 end
 maxSamples = 5*60*60*samplingRate;
 for aa = 1:length(uniqueDays)
-    uniqueDay = ConvertDate_IOS(uniqueDays{aa,1});
+    uniqueDay = ConvertDate_JNeurosci2022(uniqueDays{aa,1});
     dayLength = length(fullBlinkArray.(uniqueDay));
     sampleDifference = maxSamples - dayLength;
     if sampleDifference >= 0
@@ -131,13 +130,13 @@ for aa = 1:length(uniqueDays)
         finalBlinkArray.(uniqueDay) = fullBlinkArray.(uniqueDay)(1:maxSamples);
     end
 end
-%%
+%
 bb = 1;
 plombBlinkArrays = [];
 fs = 30;
 dsFs = 2;
 for aa = 1:length(uniqueDays)
-    uniqueDay = ConvertDate_IOS(uniqueDays{aa,1});
+    uniqueDay = ConvertDate_JNeurosci2022(uniqueDays{aa,1});
     if sum(finalBlinkArray.(uniqueDay),'omitnan') >= 50
         tempArray = finalBlinkArray.(uniqueDay);
         numBins = length(tempArray)/(fs/dsFs);
@@ -161,7 +160,7 @@ for aa = 1:length(uniqueDays)
         bb = bb + 1;
     end
 end
-%%
+%
 bb = 1; procBlinkMat = [];
 for aa = 1:size(fullBlinkMat,2)
     if sum(isnan(fullBlinkMat(:,aa))) == 0
@@ -171,7 +170,7 @@ for aa = 1:size(fullBlinkMat,2)
         end
     end
 end
-%% periodogram
+% periodogram
 if isempty(plombBlinkArrays) == false
     % save results
     Results_BlinkPeriodogram.(animalID).blinkArray = plombBlinkArrays;
@@ -179,7 +178,7 @@ else
     % save results
     Results_BlinkPeriodogram.(animalID).blinkArray = [];
 end
-%%
+%
 if isempty(procBlinkMat) == false
     % parameters for mtspectrumc - information available in function
     params.tapers = [10,19];   % Tapers [n, 2n - 1]
@@ -200,7 +199,7 @@ else
     Results_BlinkPeriodogram.(animalID).f = [];
     Results_BlinkPeriodogram.(animalID).sErr = [];
 end
-%% save data
+% save data
 cd([rootFolder delim])
 save('Results_BlinkPeriodogram.mat','Results_BlinkPeriodogram')
 

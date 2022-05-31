@@ -9,7 +9,6 @@ function [] = AddSleepParameters_JNeurosci2022(procDataFileIDs,RestingBaselines,
 
 for aa = 1:size(procDataFileIDs,1)
     procDataFileID = procDataFileIDs(aa,:);
-    disp(['Adding sleep scoring parameters to ' procDataFileID '... (' num2str(aa) '/' num2str(size(procDataFileIDs,1)) ')']); disp(' ')
     [~,fileDate,~] = GetFileInfo_JNeurosci2022(procDataFileID);
     strDay = ConvertDate_JNeurosci2022(fileDate);
     load(procDataFileID)
@@ -361,7 +360,7 @@ for aa = 1:size(procDataFileIDs,1)
     binForceSensor = ProcData.data.binForceSensor;
     whiskerAngle = ProcData.data.whiskerAngle;
     whiskerAcceleration = diff(whiskerAngle,2);
-    % find the number of whiskerBins due to frame drops.
+    % find the number of whisker bins due to frame drops.
     whiskerBinNumber = 180;
     % divide the signal into five second bins and put them in a cell array
     tempWhiskerStruct = cell(whiskerBinNumber,1);

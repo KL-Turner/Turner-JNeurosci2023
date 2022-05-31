@@ -18,7 +18,7 @@ function [] = PupilCoreProcessing_JNeurosci2022()
 
 %% load the script's necessary variables and data structures.
 % clear the workspace variables and command windyow.
-zap;
+% zap;
 % character list of all ProcData files
 procDataFileStruct = dir('*_ProcData.mat');
 procDataFiles = {procDataFileStruct.name}';

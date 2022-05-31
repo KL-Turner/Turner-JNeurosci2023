@@ -94,7 +94,7 @@ axis image
 axis off
 % save figure
 if saveFigs == true
-    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'Figure Panels' delim];
+    dirpath = [rootFolder delim 'Figure Panels' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
@@ -113,13 +113,13 @@ if saveFigs == true
     disp('Arousal state times, percentages, data per animal, pupil threshold for tracking')
     disp('======================================================================================================================')
     disp('----------------------------------------------------------------------------------------------------------------------')
-    disp(['Pupil threshold: ' num2str(meanThreshold) ' +/- ' num2str(stdThreshold) ' StDev from mean (n = ' num2str(length(indStDev)) ') mice']); disp(' ')
-    disp([num2str(totalTime) ' total hours with a mean of ' num2str(meanHoursPerMouse) ' +/-' num2str(stdHoursPerMouse) ' per mouse (n = ' num2str(length(totalHours)) ') mice']); disp(' ')
-    disp([num2str(totalGoodTime) ' hours with good diameter tracking, with a mean of ' num2str(meanGoodHoursPerMouse) ' +/-' num2str(stdGoodHoursPerMouse) ' per mouse (n = ' num2str(length(goodHours)) ') mice']); disp(' ')
-    disp(['This corresponds to ' num2str(meanUsablePerc) ' +/- ' num2str(stdUsablePerc) '% of each animal''s total data set (n = ' num2str(length(usablePerc)) ') mice']); disp(' ')
-    disp(['Awake percentage: ' num2str(meanAwakePercPerMouse) ' +/- ' num2str(stdAwakePercPerMouse) '% (n = ' num2str(length(awakePerc)) ') mice']); disp(' ')
-    disp(['NREM percentage: ' num2str(meanNremPercPerMouse) ' +/- ' num2str(stdNremPercPerMouse) '% (n = ' num2str(length(nremPerc)) ') mice']); disp(' ')
-    disp(['REM percentage: ' num2str(meanRemPercPerMouse) ' +/- ' num2str(stdRemPercPerMouse) '% (n = ' num2str(length(remPerc)) ') mice']); disp(' ')
+    disp(['Pupil threshold: ' num2str(meanThreshold) ' ± ' num2str(stdThreshold) ' StDev from mean (n = ' num2str(length(indStDev)) ') mice']); disp(' ')
+    disp([num2str(totalTime) ' total hours with a mean of ' num2str(meanHoursPerMouse) ' ±' num2str(stdHoursPerMouse) ' per mouse (n = ' num2str(length(totalHours)) ') mice']); disp(' ')
+    disp([num2str(totalGoodTime) ' hours with good diameter tracking, with a mean of ' num2str(meanGoodHoursPerMouse) ' ±' num2str(stdGoodHoursPerMouse) ' per mouse (n = ' num2str(length(goodHours)) ') mice']); disp(' ')
+    disp(['This corresponds to ' num2str(meanUsablePerc) ' ± ' num2str(stdUsablePerc) '% of each animal''s total data set (n = ' num2str(length(usablePerc)) ') mice']); disp(' ')
+    disp(['Awake percentage: ' num2str(meanAwakePercPerMouse) ' ± ' num2str(stdAwakePercPerMouse) '% (n = ' num2str(length(awakePerc)) ') mice']); disp(' ')
+    disp(['NREM percentage: ' num2str(meanNremPercPerMouse) ' ± ' num2str(stdNremPercPerMouse) '% (n = ' num2str(length(nremPerc)) ') mice']); disp(' ')
+    disp(['REM percentage: ' num2str(meanRemPercPerMouse) ' ± ' num2str(stdRemPercPerMouse) '% (n = ' num2str(length(remPerc)) ') mice']); disp(' ')
     disp('----------------------------------------------------------------------------------------------------------------------')
     diary off
 end
@@ -170,7 +170,7 @@ axis image
 axis off
 % save figure
 if saveFigs == true
-    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'Figure Panels' delim];
+    dirpath = [rootFolder delim 'Figure Panels' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
@@ -249,7 +249,7 @@ ax6Pos(3:4) = ax3Pos(3:4);
 set(ax6,'position',ax6Pos);
 % save figure
 if saveFigs == true
-    dirpath = [rootFolder delim 'Summary Figures and Structures' delim 'Figure Panels' delim];
+    dirpath = [rootFolder delim 'Figure Panels' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end

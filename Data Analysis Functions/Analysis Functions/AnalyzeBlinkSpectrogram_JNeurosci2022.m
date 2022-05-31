@@ -3,12 +3,11 @@ function [Results_BlinkSpectrogram] = AnalyzeBlinkSpectrogram_JNeurosci2022(anim
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose:
+% Purpose: Analyze the power during time leading/lagging periods of blinking
 %________________________________________________________________________________________________________________________
 
-%% only run analysis for valid animal IDs
+% go to animal's data location
 dataLocation = [rootFolder delim 'Data' delim animalID delim 'Bilateral Imaging'];
 cd(dataLocation)
 % find and load RestingBaselines.mat struct
@@ -28,6 +27,7 @@ load(scoringResultsFileID,'-mat')
 samplingRate = 30; % lowpass filter
 blinkStates = {'Awake','Asleep','All'};
 edgeTime = 35; % sec
+binTime = 5; % sec
 for aa = 1:length(blinkStates)
     blinkState = blinkStates{1,aa};
     data.(blinkState).LH_HbT = [];
@@ -39,7 +39,9 @@ for aa = 1:size(procDataFileIDs,1)
     procDataFileID = procDataFileIDs(aa,:);
     [animalID,~,fileID] = GetFileInfo_JNeurosci2022(procDataFileID);
     load(procDataFileID)
+    % only run on data with accurate diameter tracking
     if strcmp(ProcData.data.Pupil.diameterCheck,'y') == true
+        % extract blink index
         if isfield(ProcData.data.Pupil,'shiftedBlinks') == true
             blinks = ProcData.data.Pupil.shiftedBlinks;
         elseif isempty(ProcData.data.Pupil.blinkInds) == false
@@ -49,6 +51,7 @@ for aa = 1:size(procDataFileIDs,1)
         end
         bb = 1;
         verifiedBlinks = [];
+        % only keep manually verified blinks
         for cc = 1:length(blinks)
             if strcmp(ProcData.data.Pupil.blinkCheck{1,cc},'y') == true
                 verifiedBlinks(1,bb) = blinks(1,cc);
@@ -56,30 +59,38 @@ for aa = 1:size(procDataFileIDs,1)
             end
         end
         % stimulation times
-        try
+        if isfield(ProcData.data,'stimulations') == true
             stimTimes = cat(2,ProcData.data.stimulations.LPadSol,ProcData.data.stimulations.RPadSol,ProcData.data.stimulations.AudSol);
             stimSamples = sort(round(stimTimes)*samplingRate,'ascend');
-        catch
+        elseif isfield(ProcData.data,'solenoids') == true
             stimTimes = cat(2,ProcData.data.solenoids.LPadSol,ProcData.data.solenoids.RPadSol,ProcData.data.solenoids.AudSol);
             stimSamples = sort(round(stimTimes)*samplingRate,'ascend');
         end
         qq = 1;
         blinkEvents = [];
+        % verify that each blink is 5 seconds away from a puff window
         for xx = 1:length(verifiedBlinks)
             blinkSample = verifiedBlinks(1,xx);
             sampleCheck = true;
             for yy = 1:length(stimSamples)
                 stimSample = stimSamples(1,yy);
-                if blinkSample >= stimSample && blinkSample <= stimSample + samplingRate*5
-                    sampleCheck = false;
+                if (blinkSample >= stimSample) == true
+                    if (blinkSample <= stimSample + samplingRate*binTime) == true
+                        sampleCheck = false;
+                    end
+                elseif (blinkSample <= stimSample) == true
+                    if (blinkSample >= stimSample - samplingRate*binTime) == true
+                        sampleCheck = false;
+                    end
                 end
             end
+            % keep blinks that have been screened to occur outside of stimulation window
             if sampleCheck == true
                 blinkEvents(1,qq) = blinkSample;
                 qq = qq + 1;
             end
         end
-        % condense blinks
+        % condense blinks that occur with 1 second of each other
         condensedBlinkTimes = [];
         if isempty(blinkEvents) == false
             cc = 1;

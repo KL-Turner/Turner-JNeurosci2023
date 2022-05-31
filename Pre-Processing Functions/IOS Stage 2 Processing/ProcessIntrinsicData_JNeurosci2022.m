@@ -9,12 +9,12 @@ function [] = ProcessIntrinsicData_JNeurosci2022(animalID,imagingType,lensMag,ra
 % Purpose: Base function to run the functions necessary for IOS data extraction from drawn ROIs over the images
 %________________________________________________________________________________________________________________________
 
-if strcmp(imagingType,'bilateral') == true
+if strcmpi(imagingType,'Bilateral') == true
     ROInames = {'LH','RH','Cement'};
-elseif strcmp(imagingType,'single') == true
+elseif strcmpi(imagingType,'Single') == true
     ROInames = {'Barrels','Cement'};
-elseif strcmp(imagingType,'gcamp') == true
-    ROInames = {'LH','RH','Cement'};
+elseif strcmpi(imagingType,'GCaMP') == true
+    ROInames = {'LH','RH','frontalLH','frontalRH','Cement'};
 end
 % create/load pre-existing ROI file with the coordinates
 ROIFileDir = dir('*_ROIs.mat');
@@ -28,7 +28,7 @@ end
 % check whether or not each ROI already exists
 [ROIs] = CheckROIDates_JNeurosci2022(animalID,ROIs,ROInames,imagingType,lensMag);
 % extract CBV data from each ROI for each RawData file in the directory that hasn't been processed yet.
-if strcmp(imagingType,'true') == false
+if strcmpi(imagingType,'GCaMP') == true
     ExtractGCaMPData_JNeurosci2022(ROIs,ROInames,rawDataFileIDs,procDataFileIDs)
 else
     ExtractCBVData_JNeurosci2022(ROIs,ROInames,rawDataFileIDs)
@@ -43,7 +43,7 @@ for a = 1:size(procDataFileIDs,1)
     [~,fileDate,~] = GetFileInfo_JNeurosci2022(rawDataFileID);
     strDay = ConvertDate_JNeurosci2022(fileDate);
     for b = 1:length(ROInames)
-        if strcmp(imagingType,'gcamp') == true
+        if strcmpi(imagingType,'GCaMP') == true
             ProcData.data.CBV.(ROInames{1,b}) = RawData.data.CBV.([ROInames{1,b} '_' strDay]);
             ProcData.data.GCaMP7s.(ROInames{1,b}) = RawData.data.GCaMP7s.([ROInames{1,b} '_' strDay]);
             ProcData.data.Deoxy.(ROInames{1,b}) = RawData.data.Deoxy.([ROInames{1,b} '_' strDay]);

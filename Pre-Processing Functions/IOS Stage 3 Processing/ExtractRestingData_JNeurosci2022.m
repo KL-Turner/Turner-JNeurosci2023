@@ -17,8 +17,10 @@ end
 for a = 1:length(dataTypes)
     dataType = dataTypes(a);
     if strcmpi(dataType,'CBV') == true || strcmp(dataType,'CBV_HbT') == true || strcmp(dataType,'GCaMP7s') == true || strcmp(dataType,'Deoxy') == true
-        if strcmpi(imagingType,'bilateral') == true || strcmpi(imagingType,'GCaMP') == true
+        if strcmpi(imagingType,'bilateral') == true
             subDataTypes = {'LH','adjLH','RH','adjRH'};
+        elseif strcmpi(imagingType,'GCaMP') == true
+            subDataTypes = {'LH','RH','frontalLH','frontalRH'};
         elseif strcmpi(imagingType,'single') == true
             subDataTypes = {'Barrels','adjBarrels'};
         end

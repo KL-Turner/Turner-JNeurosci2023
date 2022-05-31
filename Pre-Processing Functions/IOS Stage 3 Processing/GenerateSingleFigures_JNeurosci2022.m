@@ -39,7 +39,7 @@ catch
     OptoLED = [];
 end
 % CBV data
-if strcmp(imagingType,'bilateral') == true || strcmpi(imagingType,'GCaMP') == true
+if strcmpi(imagingType,'bilateral') == true
     if strcmp(hemoType,'reflectance') == true
         LH_CBV = ProcData.data.CBV.adjLH;
         normLH_CBV = (LH_CBV - RestingBaselines.(baselineType).CBV.adjLH.(strDay))./(RestingBaselines.(baselineType).CBV.adjLH.(strDay));
@@ -53,7 +53,21 @@ if strcmp(imagingType,'bilateral') == true || strcmpi(imagingType,'GCaMP') == tr
         RH_HbT = ProcData.data.CBV_HbT.adjRH;
         filtRH_HbT = filtfilt(sos2,g2,RH_HbT);
     end
-elseif strcmp(imagingType,'single') == true
+elseif strcmpi(imagingType,'GCaMP') == true
+    if strcmp(hemoType,'reflectance') == true
+        LH_CBV = ProcData.data.CBV.LH;
+        normLH_CBV = (LH_CBV - RestingBaselines.(baselineType).CBV.LH.(strDay))./(RestingBaselines.(baselineType).CBV.LH.(strDay));
+        filtLH_CBV = (filtfilt(sos2,g2,normLH_CBV))*100;
+        RH_CBV = ProcData.data.CBV.RH;
+        normRH_CBV = (RH_CBV - RestingBaselines.(baselineType).CBV.RH.(strDay))./(RestingBaselines.(baselineType).CBV.RH.(strDay));
+        filtRH_CBV = (filtfilt(sos2,g2,normRH_CBV))*100;
+    elseif strcmp(hemoType,'HbT') == true
+        LH_HbT = ProcData.data.CBV_HbT.LH;
+        filtLH_HbT = filtfilt(sos2,g2,LH_HbT);
+        RH_HbT = ProcData.data.CBV_HbT.RH;
+        filtRH_HbT = filtfilt(sos2,g2,RH_HbT);
+    end
+elseif strcmpi(imagingType,'single') == true
     if strcmp(hemoType,'reflectance') == true
         barrels_CBV = ProcData.data.CBV.adjBarrels;
         normBarrels_CBV = (barrels_CBV - RestingBaselines.(baselineType).CBV.adjBarrels.(strDay))./(RestingBaselines.(baselineType).CBV.adjBarrels.(strDay));

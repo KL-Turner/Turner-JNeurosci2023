@@ -4,7 +4,7 @@ function [] = AnalyzePowerSpectrum_Handler_JNeurosci2022(rootFolder,delim,runFro
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
-% Purpose: 
+% Purpose: Handler function for AnalyzePowerSpectrum_JNeurosci2022.mat
 %________________________________________________________________________________________________________________________
 
 % create or load results structure
@@ -21,7 +21,7 @@ end
 % determine waitbar length
 waitBarLength = 0;
 folderList = dir('Data');
-folderList = folderList(~startsWith({folderList.name}, '.'));
+folderList = folderList(~startsWith({folderList.name},'.'));
 animalIDs = {folderList.name};
 waitBarLength = waitBarLength + length(animalIDs);
 % run analysis for each animal in the group

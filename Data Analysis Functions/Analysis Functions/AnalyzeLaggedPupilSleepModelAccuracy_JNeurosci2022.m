@@ -1,14 +1,13 @@
-function [Results_PupilSleepModel] = AnalyzeLaggedPupilSleepModelAccuracy_JNeurosci2022(animalID,rootFolder,delim,Results_PupilSleepModel)
+function [Results_LaggedPupilSleepModel] = AnalyzeLaggedPupilSleepModelAccuracy_JNeurosci2022(animalID,rootFolder,delim,Results_LaggedPupilSleepModel)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: train/validate machine learning classifier using solely the pupil diameter - lagged comparison
+% Purpose: train/validate machine learning classifier using solely the pupil diameter - lagged comparison
 %________________________________________________________________________________________________________________________
 
-% go to proper folders and load files/structures for model training
+% go to animal's data location
 dataLocation = [rootFolder delim 'Data' delim animalID delim 'Training Data'];
 cd(dataLocation)
 % character list of all ProcData files
@@ -31,7 +30,7 @@ for qq = 1:length(lags)
     joinedTableEven = [];
     switch lag
         case 'fifteen'
-            % load each updated training set and concatenate the data into table
+            % load each updated training set and concatenate the data into a table
             cc = 1;
             for bb = 1:size(pupilTrainingDataFileIDs,1)
                 trainingTableFileID = pupilTrainingDataFileIDs(bb,:);
@@ -249,19 +248,19 @@ for qq = 1:length(lags)
     [XoddLabels,~] = predict(SVM_MDL,Xodd);
     [XevenLabels,~] = predict(SVM_MDL,Xeven.zDiameter);
     % save labels for later confusion matrix
-    Results_PupilSleepModel.(animalID).(lag).SVM.mdl = SVM_MDL;
-    Results_PupilSleepModel.(animalID).(lag).SVM.zBoundary = -SVM_MDL.Bias/SVM_MDL.Beta;
-    Results_PupilSleepModel.(animalID).(lag).SVM.loss = loss;
-    Results_PupilSleepModel.(animalID).(lag).SVM.Xodd = Xodd;
-    Results_PupilSleepModel.(animalID).(lag).SVM.Yodd = Yodd;
-    Results_PupilSleepModel.(animalID).(lag).SVM.Xeven = Xeven;
-    Results_PupilSleepModel.(animalID).(lag).SVM.Yeven = Yeven;
-    Results_PupilSleepModel.(animalID).(lag).SVM.trainYlabels = Yodd.behavState;
-    Results_PupilSleepModel.(animalID).(lag).SVM.trainXlabels = XoddLabels;
-    Results_PupilSleepModel.(animalID).(lag).SVM.testYlabels = Yeven.behavState;
-    Results_PupilSleepModel.(animalID).(lag).SVM.testXlabels = XevenLabels;
+    Results_LaggedPupilSleepModel.(animalID).(lag).SVM.mdl = SVM_MDL;
+    Results_LaggedPupilSleepModel.(animalID).(lag).SVM.zBoundary = -SVM_MDL.Bias/SVM_MDL.Beta;
+    Results_LaggedPupilSleepModel.(animalID).(lag).SVM.loss = loss;
+    Results_LaggedPupilSleepModel.(animalID).(lag).SVM.Xodd = Xodd;
+    Results_LaggedPupilSleepModel.(animalID).(lag).SVM.Yodd = Yodd;
+    Results_LaggedPupilSleepModel.(animalID).(lag).SVM.Xeven = Xeven;
+    Results_LaggedPupilSleepModel.(animalID).(lag).SVM.Yeven = Yeven;
+    Results_LaggedPupilSleepModel.(animalID).(lag).SVM.trainYlabels = Yodd.behavState;
+    Results_LaggedPupilSleepModel.(animalID).(lag).SVM.trainXlabels = XoddLabels;
+    Results_LaggedPupilSleepModel.(animalID).(lag).SVM.testYlabels = Yeven.behavState;
+    Results_LaggedPupilSleepModel.(animalID).(lag).SVM.testXlabels = XevenLabels;
 end
 % save data
 cd([rootFolder delim])
-save('Results_PupilSleepModel.mat','Results_PupilSleepModel','-v7.3')
+save('Results_LaggedPupilSleepModel.mat','Results_LaggedPupilSleepModel','-v7.3')
 end

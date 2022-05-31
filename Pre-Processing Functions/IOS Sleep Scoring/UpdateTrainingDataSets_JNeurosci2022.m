@@ -13,7 +13,6 @@ for a = 1:size(procDataFileIDs,1)
     trainingDataSetID = [procDataFileID(1:end - 12) 'TrainingData.mat'];
     load(modelDataSetID)
     load(trainingDataSetID)
-    disp(['Updating training data set for ' trainingDataSetID '...' ]); disp(' ')
     % update training data decisions with most recent predictor table
     paramsTable.behavState = trainingTable.behavState;
     trainingTable = paramsTable;

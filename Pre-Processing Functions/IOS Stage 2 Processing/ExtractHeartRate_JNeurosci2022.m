@@ -13,14 +13,16 @@ for a = 1:size(procDataFiles,1)
     procDataFile = procDataFiles(a,:);
     disp(['Extracting heart rate from ProcData file ' num2str(a) ' of ' num2str(size(procDataFiles,1)) '...']); disp(' ')
     load(procDataFile)
-    if strcmp(imagingType,'bilateral') == true || strcmpi(imagingType,'gcamp') == true
+    if strcmpi(imagingType,'bilateral') == true
         % pull out the left and right window heart rate. they should be essentiall6 identical
         [~,~,~,LH_HR] = FindHeartRate_JNeurosci2022(ProcData.data.CBV.LH,ProcData.notes.CBVCamSamplingRate);
         [~,~,~,RH_HR] = FindHeartRate_JNeurosci2022(ProcData.data.CBV.RH,ProcData.notes.CBVCamSamplingRate);
         % average the two signals from the left and right windows
         HR = (LH_HR + RH_HR)/2;
-    elseif strcmp(imagingType,'single') == true
+    elseif strcmpi(imagingType,'single') == true
         [~,~,~,HR] = FindHeartRate_JNeurosci2022(ProcData.data.CBV.Barrels,ProcData.notes.CBVCamSamplingRate);
+    elseif strcmpi(imagingType,'GCaMP') == true
+        HR = zeros(1,ProcData.notes.trialDuration_sec*ProcData.notes.dsFs);
     end
     % patch the missing data at the beginning and end of the signal
     patchedHR = horzcat(HR(1),HR,HR(end),HR(end));

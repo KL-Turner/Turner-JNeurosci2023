@@ -1,14 +1,13 @@
-function [Results_PupilGammaRelationship] = AnalyzePupilGammaRelationship_Pupil(animalID,rootFolder,delim,Results_PupilGammaRelationship)
+function [Results_PupilGammaRelationship] = AnalyzePupilGammaRelationship_JNeurosci2022(animalID,rootFolder,delim,Results_PupilGammaRelationship)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Analyze the relationship between gamma-band power and hemodynamics [Gamma] (IOS)
+% Purpose: Analyze the relationship between gamma-band power and pupil diameter
 %________________________________________________________________________________________________________________________
 
-%% function parameters
+% go to animal's data location
 dataLocation = [rootFolder delim 'Data' delim animalID delim 'Bilateral Imaging'];
 cd(dataLocation)
 % find and load manual baseline event information

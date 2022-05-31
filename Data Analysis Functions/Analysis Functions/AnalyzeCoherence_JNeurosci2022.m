@@ -3,19 +3,19 @@ function [Results_Coherence] = AnalyzeCoherence_JNeurosci2022(animalID,rootFolde
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
-%________________________________________________________________________________________________________________________
 %
-%   Purpose: Analyze the spectral coherence between neural-hemodynamic [HbT] signals (IOS)
+% Purpose: Analyze the spectral coherence between neural-hemodynamic signals and pupil diameter
 %________________________________________________________________________________________________________________________
 
-%% function parameters
-dataTypes = {'mmArea','mmDiameter','zArea','zDiameter'};
+% function parameters
+% dataTypes = {'mmArea','mmDiameter','zArea','zDiameter'};
+dataTypes = {'zDiameter'};
 hemDataTypes = {'LH_HbT','RH_HbT','LH_gammaBandPower','RH_gammaBandPower'};
 modelType = 'Forest';
 params.minTime.Rest = 10;
 params.minTime.NREM = 30;
 params.minTime.REM = 60;
-%% only run analysis for valid animal IDs
+% go to animal's data location
 dataLocation = [rootFolder delim 'Data' delim animalID delim 'Bilateral Imaging'];
 cd(dataLocation)
 % character list of all ProcData file IDs
@@ -37,12 +37,12 @@ baselineDataFileStruct = dir('*_RestingBaselines.mat');
 baselineDataFile = {baselineDataFileStruct.name}';
 baselineDataFileID = char(baselineDataFile);
 load(baselineDataFileID,'-mat')
-% find and load AsleepData.mat struct
+% find and load SleepData.mat struct
 sleepDataFileStruct = dir('*_SleepData.mat');
 sleepDataFile = {sleepDataFileStruct.name}';
 sleepDataFileID = char(sleepDataFile);
 load(sleepDataFileID,'-mat')
-%
+% find and load ScoringResults.mat struct
 scoringResultsFileStruct = dir('*Forest_ScoringResults.mat');
 scoringResultsFile = {scoringResultsFileStruct.name}';
 scoringResultsFileID = char(scoringResultsFile);
@@ -63,8 +63,8 @@ for zzz = 1:length(hemDataTypes)
         dataType = dataTypes{1,aa};
         %% analyze neural-hemo coherence during periods of rest
         % pull data from RestData.mat structure
-        [restLogical] = FilterEvents_IOS(RestData.Pupil.(dataType),RestCriteria);
-        [puffLogical] = FilterEvents_IOS(RestData.Pupil.(dataType),RestPuffCriteria);
+        [restLogical] = FilterEvents_JNeurosci2022(RestData.Pupil.(dataType),RestCriteria);
+        [puffLogical] = FilterEvents_JNeurosci2022(RestData.Pupil.(dataType),RestPuffCriteria);
         combRestLogical = logical(restLogical.*puffLogical);
         restFileIDs = RestData.Pupil.(dataType).fileIDs(combRestLogical,:);
         restEventTimes = RestData.Pupil.(dataType).eventTimes(combRestLogical,:);
@@ -72,8 +72,8 @@ for zzz = 1:length(hemDataTypes)
         HbT_restData = RestData.Pupil.(hemDataType).data(combRestLogical,:);
         Pupil_restData = RestData.Pupil.(dataType).data(combRestLogical,:);
         % keep only the data that occurs within the manually-approved awake regions
-        [HbT_finalRestData,~,~,~] = RemoveInvalidData_IOS(HbT_restData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
-        [Pupil_FinalRestData,~,~,~] = RemoveInvalidData_IOS(Pupil_restData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
+        [HbT_finalRestData,~,~,~] = RemoveInvalidData_JNeurosci2022(HbT_restData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
+        [Pupil_FinalRestData,~,~,~] = RemoveInvalidData_JNeurosci2022(Pupil_restData,restFileIDs,restDurations,restEventTimes,ManualDecisions);
         clear HbT_procRestData Pupil_procRestData
         % filter, detrend, and truncate data to minimum length to match events
         for bb = 1:length(HbT_finalRestData)
@@ -81,7 +81,7 @@ for zzz = 1:length(hemDataTypes)
                 restChunkSampleDiff = params.minTime.Rest*samplingRate - length(HbT_finalRestData{bb,1});
                 HbT_restPad = (ones(1,restChunkSampleDiff))*HbT_finalRestData{bb,1}(end);
                 Pupil_restPad = (ones(1,restChunkSampleDiff))*Pupil_FinalRestData{bb,1}(end);
-                HbT_procRestData{bb,1} = horzcat(HbT_finalRestData{bb,1},HbT_restPad); %#ok<*AGROW>
+                HbT_procRestData{bb,1} = horzcat(HbT_finalRestData{bb,1},HbT_restPad);
                 Pupil_procRestData{bb,1} = horzcat(Pupil_FinalRestData{bb,1},Pupil_restPad);
                 HbT_procRestData{bb,1} = detrend(HbT_procRestData{bb,1},'constant');
                 Pupil_procRestData{bb,1} = detrend(Pupil_procRestData{bb,1},'constant');
@@ -115,20 +115,20 @@ for zzz = 1:length(hemDataTypes)
         Results_Coherence.(animalID).Rest.(dataType).(hemDataType).cErr = cErr_RestData;
         %% analyze neural-hemo coherence during periods of alert
         zz = 1;
-        clear HbT_awakeData Pupil_awakeData HbT_procAwakeData Pupil_procAwakeData
-        HbT_awakeData = []; Pupil_awakeData = [];
+        clear HbT_alertData Pupil_alertData HbT_procAlertData Pupil_procAlertData
+        HbT_alertData = []; Pupil_alertData = [];
         for bb = 1:size(procDataFileIDs,1)
             procDataFileID = procDataFileIDs(bb,:);
-            [~,fileDate,awakeDataFileID] = GetFileInfo_IOS(procDataFileID);
-            strDay = ConvertDate_IOS(fileDate);
+            [~,fileDate,alertDataFileID] = GetFileInfo_JNeurosci2022(procDataFileID);
+            strDay = ConvertDate_JNeurosci2022(fileDate);
             scoringLabels = [];
             for cc = 1:length(ScoringResults.fileIDs)
-                if strcmp(awakeDataFileID,ScoringResults.fileIDs{cc,1}) == true
+                if strcmp(alertDataFileID,ScoringResults.fileIDs{cc,1}) == true
                     scoringLabels = ScoringResults.labels{cc,1};
                 end
             end
             % check labels to match arousal state
-            if sum(strcmp(scoringLabels,'Not Sleep')) > 144   % 36 bins (180 total) or 3 minutes of asleep
+            if sum(strcmp(scoringLabels,'Not Sleep')) > 144 % 36 bins (180 total) or 3 minutes of asleep
                 load(procDataFileID,'-mat')
                 % don't include trials with stimulation
                 if strcmp(ProcData.data.Pupil.diameterCheck,'y') == true
@@ -140,15 +140,15 @@ for zzz = 1:length(hemDataTypes)
                     if isempty(puffs) == true
                         if sum(isnan(ProcData.data.Pupil.(dataType))) == 0
                             if strcmp(hemDataType,'LH_HbT') == true
-                                HbT_awakeData{zz,1} = ProcData.data.CBV_HbT.adjLH;
+                                HbT_alertData{zz,1} = ProcData.data.CBV_HbT.adjLH;
                             elseif strcmp(hemDataType,'RH_HbT') == true
-                                HbT_awakeData{zz,1} = ProcData.data.CBV_HbT.adjRH;
+                                HbT_alertData{zz,1} = ProcData.data.CBV_HbT.adjRH;
                             elseif strcmp(hemDataType,'LH_gammaBandPower') == true
-                                HbT_awakeData{zz,1} = (ProcData.data.cortical_RH.gammaBandPower - RestingBaselines.manualSelection.cortical_LH.gammaBandPower.(strDay).mean)./RestingBaselines.manualSelection.cortical_LH.gammaBandPower.(strDay).mean;
+                                HbT_alertData{zz,1} = (ProcData.data.cortical_RH.gammaBandPower - RestingBaselines.manualSelection.cortical_LH.gammaBandPower.(strDay).mean)./RestingBaselines.manualSelection.cortical_LH.gammaBandPower.(strDay).mean;
                             elseif strcmp(hemDataType,'RH_gammaBandPower') == true
-                                HbT_awakeData{zz,1} = (ProcData.data.cortical_RH.gammaBandPower - RestingBaselines.manualSelection.cortical_RH.gammaBandPower.(strDay).mean)./RestingBaselines.manualSelection.cortical_RH.gammaBandPower.(strDay).mean;
+                                HbT_alertData{zz,1} = (ProcData.data.cortical_RH.gammaBandPower - RestingBaselines.manualSelection.cortical_RH.gammaBandPower.(strDay).mean)./RestingBaselines.manualSelection.cortical_RH.gammaBandPower.(strDay).mean;
                             end
-                            Pupil_awakeData{zz,1} = ProcData.data.Pupil.(dataType);
+                            Pupil_alertData{zz,1} = ProcData.data.Pupil.(dataType);
                             zz = zz + 1;
                         end
                     end
@@ -156,41 +156,41 @@ for zzz = 1:length(hemDataTypes)
             end
         end
         % filter and detrend data
-        if isempty(HbT_awakeData) == false
-            for bb = 1:length(HbT_awakeData)
-                HbT_procAwakeData{bb,1} = detrend(HbT_awakeData{bb,1},'constant');
-                Pupil_procAwakeData{bb,1} = detrend(Pupil_awakeData{bb,1},'constant');
+        if isempty(HbT_alertData) == false
+            for bb = 1:length(HbT_alertData)
+                HbT_procAlertData{bb,1} = detrend(HbT_alertData{bb,1},'constant');
+                Pupil_procAlertData{bb,1} = detrend(Pupil_alertData{bb,1},'constant');
             end
             % input data as time (1st dimension, vertical) by trials (2nd dimension, horizontunstimy)
-            HbT_awakeDataMat = zeros(length(HbT_procAwakeData{1,1}),length(HbT_procAwakeData));
-            Pupil_awakeDataMat = zeros(length(Pupil_procAwakeData{1,1}),length(Pupil_procAwakeData));
-            for cc = 1:length(HbT_procAwakeData)
-                HbT_awakeDataMat(:,cc) = HbT_procAwakeData{cc,1};
-                Pupil_awakeDataMat(:,cc) = Pupil_procAwakeData{cc,1};
+            HbT_alertDataMat = zeros(length(HbT_procAlertData{1,1}),length(HbT_procAlertData));
+            Pupil_alertDataMat = zeros(length(Pupil_procAlertData{1,1}),length(Pupil_procAlertData));
+            for cc = 1:length(HbT_procAlertData)
+                HbT_alertDataMat(:,cc) = HbT_procAlertData{cc,1};
+                Pupil_alertDataMat(:,cc) = Pupil_procAlertData{cc,1};
             end
             % calculate the coherence between desired signals
             params.tapers = [10,19]; % Tapers [n, 2n - 1]
-            [C_AwakeData,~,~,~,~,f_AwakeData,confC_AwakeData,~,cErr_AwakeData] = coherencyc(HbT_awakeDataMat,Pupil_awakeDataMat,params);
+            [C_AlertData,~,~,~,~,f_AlertData,confC_AlertData,~,cErr_AlertData] = coherencyc(HbT_alertDataMat,Pupil_alertDataMat,params);
             % save results
-            Results_Coherence.(animalID).Awake.(dataType).(hemDataType).C = C_AwakeData;
-            Results_Coherence.(animalID).Awake.(dataType).(hemDataType).f = f_AwakeData;
-            Results_Coherence.(animalID).Awake.(dataType).(hemDataType).confC = confC_AwakeData;
-            Results_Coherence.(animalID).Awake.(dataType).(hemDataType).cErr = cErr_AwakeData;
+            Results_Coherence.(animalID).Alert.(dataType).(hemDataType).C = C_AlertData;
+            Results_Coherence.(animalID).Alert.(dataType).(hemDataType).f = f_AlertData;
+            Results_Coherence.(animalID).Alert.(dataType).(hemDataType).confC = confC_AlertData;
+            Results_Coherence.(animalID).Alert.(dataType).(hemDataType).cErr = cErr_AlertData;
         else
             % save results
-            Results_Coherence.(animalID).Awake.(dataType).(hemDataType).C = [];
-            Results_Coherence.(animalID).Awake.(dataType).(hemDataType).f = [];
-            Results_Coherence.(animalID).Awake.(dataType).(hemDataType).confC = [];
-            Results_Coherence.(animalID).Awake.(dataType).(hemDataType).cErr = [];
+            Results_Coherence.(animalID).Alert.(dataType).(hemDataType).C = [];
+            Results_Coherence.(animalID).Alert.(dataType).(hemDataType).f = [];
+            Results_Coherence.(animalID).Alert.(dataType).(hemDataType).confC = [];
+            Results_Coherence.(animalID).Alert.(dataType).(hemDataType).cErr = [];
         end
-        %% analyze neural-hemo coherence during periods of aasleep
+        % analyze neural-hemo coherence during periods of aasleep
         zz = 1;
         clear HbT_asleepData Pupil_asleepData HbT_procAsleepData Pupil_procAsleepData
         HbT_asleepData = []; Pupil_asleepData = [];
         for bb = 1:size(procDataFileIDs,1)
             procDataFileID = procDataFileIDs(bb,:);
-            [~,fileDate,asleepDataFileID] = GetFileInfo_IOS(procDataFileID);
-            strDay = ConvertDate_IOS(fileDate);
+            [~,fileDate,asleepDataFileID] = GetFileInfo_JNeurosci2022(procDataFileID);
+            strDay = ConvertDate_JNeurosci2022(fileDate);
             scoringLabels = [];
             for cc = 1:length(ScoringResults.fileIDs)
                 if strcmp(asleepDataFileID,ScoringResults.fileIDs{cc,1}) == true
@@ -198,7 +198,7 @@ for zzz = 1:length(hemDataTypes)
                 end
             end
             % check labels to match arousal state
-            if sum(strcmp(scoringLabels,'Not Sleep')) < 36   % 36 bins (180 total) or 3 minutes of awake
+            if sum(strcmp(scoringLabels,'Not Sleep')) < 36 % 36 bins (180 total) or 3 minutes of alert
                 load(procDataFileID,'-mat')
                 if strcmp(ProcData.data.Pupil.diameterCheck,'y') == true
                     try
@@ -253,14 +253,14 @@ for zzz = 1:length(hemDataTypes)
             Results_Coherence.(animalID).Asleep.(dataType).(hemDataType).confC = [];
             Results_Coherence.(animalID).Asleep.(dataType).(hemDataType).cErr = [];
         end
-        %% analyze neural-hemo coherence during periods of all data
+        % analyze neural-hemo coherence during periods of all data
         zz = 1;
         clear HbT_allData Pupil_allData HbT_allData Pupil_allData
         HbT_allData = []; Pupil_allData = [];
         for bb = 1:size(procDataFileIDs,1)
             procDataFileID = procDataFileIDs(bb,:);
-            [~,fileDate,~] = GetFileInfo_IOS(procDataFileID);
-            strDay = ConvertDate_IOS(fileDate);
+            [~,fileDate,~] = GetFileInfo_JNeurosci2022(procDataFileID);
+            strDay = ConvertDate_JNeurosci2022(fileDate);
             load(procDataFileID,'-mat')
             if strcmp(ProcData.data.Pupil.diameterCheck,'y') == true
                 try
@@ -314,11 +314,11 @@ for zzz = 1:length(hemDataTypes)
             Results_Coherence.(animalID).All.(dataType).(hemDataType).confC = [];
             Results_Coherence.(animalID).All.(dataType).(hemDataType).cErr = [];
         end
-        %% analyze neural-hemo coherence during periods of NREM
+        % analyze neural-hemo coherence during periods of NREM
         % pull data from AsleepData.mat structure
         if isempty(SleepData.(modelType).NREM.data.Pupil) == false
-            [HbT_nremData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.Pupil.(hemDataType).data,SleepData.(modelType).NREM.data.Pupil.fileIDs,SleepData.(modelType).NREM.data.Pupil.binTimes);
-            [Pupil_nremData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).NREM.data.Pupil.(dataType).data,SleepData.(modelType).NREM.data.Pupil.fileIDs,SleepData.(modelType).NREM.data.Pupil.binTimes);
+            [HbT_nremData,~,~] = RemoveStimSleepData_JNeurosci2022(animalID,SleepData.(modelType).NREM.data.Pupil.(hemDataType).data,SleepData.(modelType).NREM.data.Pupil.fileIDs,SleepData.(modelType).NREM.data.Pupil.binTimes);
+            [Pupil_nremData,~,~] = RemoveStimSleepData_JNeurosci2022(animalID,SleepData.(modelType).NREM.data.Pupil.(dataType).data,SleepData.(modelType).NREM.data.Pupil.fileIDs,SleepData.(modelType).NREM.data.Pupil.binTimes);
         else
             HbT_nremData = [];
             Pupil_nremData = [];
@@ -354,11 +354,11 @@ for zzz = 1:length(hemDataTypes)
             Results_Coherence.(animalID).NREM.(dataType).(hemDataType).confC = [];
             Results_Coherence.(animalID).NREM.(dataType).(hemDataType).cErr = [];
         end
-        %% analyze neural-hemo coherence during periods of REM
+        % analyze neural-hemo coherence during periods of REM
         % pull data from AsleepData.mat structure
         if isempty(SleepData.(modelType).REM.data.Pupil) == false
-            [HbT_remData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.Pupil.(hemDataType).data,SleepData.(modelType).REM.data.Pupil.fileIDs,SleepData.(modelType).REM.data.Pupil.binTimes);
-            [Pupil_remData,~,~] = RemoveStimSleepData_IOS(animalID,SleepData.(modelType).REM.data.Pupil.(dataType).data,SleepData.(modelType).REM.data.Pupil.fileIDs,SleepData.(modelType).REM.data.Pupil.binTimes);
+            [HbT_remData,~,~] = RemoveStimSleepData_JNeurosci2022(animalID,SleepData.(modelType).REM.data.Pupil.(hemDataType).data,SleepData.(modelType).REM.data.Pupil.fileIDs,SleepData.(modelType).REM.data.Pupil.binTimes);
+            [Pupil_remData,~,~] = RemoveStimSleepData_JNeurosci2022(animalID,SleepData.(modelType).REM.data.Pupil.(dataType).data,SleepData.(modelType).REM.data.Pupil.fileIDs,SleepData.(modelType).REM.data.Pupil.binTimes);
         else
             HbT_remData = [];
             Pupil_remData = [];
