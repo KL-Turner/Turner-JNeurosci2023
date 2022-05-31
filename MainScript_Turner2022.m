@@ -11,8 +11,6 @@ function [] = MainScript_Turner2022()
 % Functions optained from 3rd party are located in the folder "Shared Functions"
 %________________________________________________________________________________________________________________________
 
-zap;
-multiWaitbar('CloseAll');
 % verify code repository and data are in the current directory/added path
 currentFolder = pwd;
 addpath(genpath(currentFolder));
@@ -26,6 +24,8 @@ else
 end
 % add root folder to Matlab's working directory
 addpath(genpath(rootFolder))
+zap;
+multiWaitbar('CloseAll');
 % analysis subfunctions
 runAnalysis = false;
 if runAnalysis == true
