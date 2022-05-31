@@ -7,7 +7,7 @@ This document outlines the steps necessary to generate the figures for the manus
 ---
 The code in this repository generates all main figures, supplemental information, and statistics.
 
-Begin by downloading the entire code repository by clicking the green **Code** button at the top of the page and selecting **Download ZIP** - alternatively, you can clone the github repository. Once downloaded, unzip the code's folder and add it to MATLAB's file path or change the current directory to the folder's location in MATLAB.  
+Begin by downloading the entire code repository by clicking the green **Code** button at the top of the page and selecting **Download ZIP** - alternatively, you can clone the github repository. Once downloaded, unzip the code's folder by right clicking and selecting "Extract all". Add the extracted folder to MATLAB's file path by changing the current directory to the folder's location in MATLAB.  
 
 Pre-processed data can be downloaded from the following location:
 * Data repository location: https://bit.ly/3wXUOSS
