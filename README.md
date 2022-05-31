@@ -7,11 +7,14 @@ This document outlines the steps necessary to generate the figures for the manus
 ---
 The code in this repository generates all main figures, supplemental information, and statistics.
 
-Begin by downloading the entire code repository and the data from the following locations:
-* Code repository location: https://github.com/KL-Turner/Turner-Manuscript2022
+Begin by downloading the entire code repository by clicking the green **Code** button at the top of the page and selecting **Download ZIP** - alternatively, you can clone the github repository. Once downloaded, unzip the code's folder and add it to MATLAB's file path or change the current directory to the folder's location in MATLAB.  
+
+Pre-processed data can be downloaded from the following location:
 * Data repository location: https://bit.ly/3wXUOSS
 
-The OneDrive link contains several pre-analyzed structures that can be used to immediately generate the figures without re-analyzing any data. Download the entire *Pre-processed data for figures* folder (~5.0 GB) as well as this entire github code repository. Add all file contents of the pre-processed data folder file to the MATLAB file path by dragging it into the folder containing the code repository. Change to this directory in MATLAB, open the MATLAB function **MainScript_Manuscript2022.m** and run.
+This OneDrive link contains several pre-analyzed structures that can be used to immediately generate the figures without re-analyzing any data. Download the entire *Pre-processed data for figures* folder (~5.0 GB). Unzip the folder once downloaded, and drag all file contents of the pre-processed data folder to the unzipped folder containing the code repository. Change to this directory in MATLAB, open the MATLAB function **MainScript_Manuscript2022.m** and click the green **run** play button.
+
+The figures will then take a few minutes to generate.
 
 **Software/System Requirements:** Code was written and tested with MATLAB 2019b-2022a. Running **MainScript_eLife2020.m** took < 5 minutes to run on a 2021 Macbook Pro (edit - 2.6 Ghz 6-Core Intel i7 with 16 Gb 2400 MHz DDR4 RAM, Radeon Pro 560X GPU).
 
