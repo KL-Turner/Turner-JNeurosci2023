@@ -8,7 +8,7 @@ function [] = Fig2_JNeurosci2022(rootFolder,saveFigs,delim)
 %________________________________________________________________________________________________________________________
 
 %% stimulus and whisking evoked pupil changes
-resultsStruct = 'Results_Evoked';
+resultsStruct = 'Results_Evoked.mat';
 load(resultsStruct);
 dataTypes = {'zDiameter'};
 timeVector = (0:12*30)/30 - 2;
@@ -116,7 +116,7 @@ zDiameterTable.zDiameter = cat(1,data.Diameter.Rest.zDiameter,data.Diameter.Whis
 zDiameterFitFormula = 'zDiameter ~ 1 + Behavior + (1|Mouse)';
 zDiameterStats = fitglme(zDiameterTable,zDiameterFitFormula);
 %% pupil power spectrum
-resultsStruct = 'Results_PowerSpectrum';
+resultsStruct = 'Results_PowerSpectrum.mat';
 load(resultsStruct);
 animalIDs = fieldnames(Results_PowerSpectrum);
 behavFields = {'Rest','NREM','REM','Alert','Asleep','All'};
@@ -156,7 +156,7 @@ for aa = 1:length(behavFields)
     end
 end
 %% pupil pre whitened power spectrum
-resultsStruct = 'Results_PreWhitenedPowerSpectrum';
+resultsStruct = 'Results_PreWhitenedPowerSpectrum.mat';
 load(resultsStruct);
 animalIDs = fieldnames(Results_PreWhitenedPowerSpectrum);
 behavFields = {'Rest','NREM','REM','Alert','Asleep','All'};
@@ -196,7 +196,7 @@ for aa = 1:length(behavFields)
     end
 end
 %% pupil HbT/gamma-band coherence
-resultsStruct = 'Results_Coherence';
+resultsStruct = 'Results_Coherence.mat';
 load(resultsStruct);
 animalIDs = fieldnames(Results_Coherence);
 behavFields = {'Rest','NREM','REM','Alert','Asleep','All'};
@@ -340,7 +340,7 @@ gammaC035Table.gammaC035 = cat(1,data.Coherr.Rest.zDiameter.gammaC035,data.Coher
 gammaC035FitFormula = 'gammaC035 ~ 1 + Behavior + (1|Mouse)';
 gammaC035Stats = fitglme(gammaC035Table,gammaC035FitFormula);
 %% pupil HbT/gamma cross correlation
-resultsStruct = 'Results_CrossCorrelation';
+resultsStruct = 'Results_CrossCorrelation.mat';
 load(resultsStruct);
 animalIDs = fieldnames(Results_CrossCorrelation);
 behavFields = {'Rest','NREM','REM','Alert','Asleep','All'};

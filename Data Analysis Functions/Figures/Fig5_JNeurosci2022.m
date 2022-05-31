@@ -8,7 +8,7 @@ function [AnalysisResults] = Fig5_JNeurosci2022(rootFolder,saveFigs,delim,Analys
 %________________________________________________________________________________________________________________________
 
 %% Pupil-HbT relationship
-resultsStruct = 'Results_PupilHbTRelationship';
+resultsStruct = 'Results_PupilHbTRelationship.mat';
 load(resultsStruct);
 animalIDs = fieldnames(Results_PupilHbTRelationship);
 behavFields = {'Awake','NREM','REM'};
@@ -27,7 +27,7 @@ for aa = 1:length(animalIDs)
     end
 end
 %% Pupil-Gamma relationship
-resultsStruct = 'Results_PupilGammaRelationship';
+resultsStruct = 'Results_PupilGammaRelationship.mat';
 load(resultsStruct);
 animalIDs = fieldnames(Results_PupilGammaRelationship);
 behavFields = {'Awake','NREM','REM'};
@@ -46,7 +46,7 @@ for aa = 1:length(animalIDs)
     end
 end
 %% Sleep probability based on pupil mm diameter
-resultsStruct = 'Results_SleepProbability';
+resultsStruct = 'Results_SleepProbability.mat';
 load(resultsStruct);
 diameterAllCatMeans = Results_SleepProbability.diameterCatMeans;
 awakeProbPerc = Results_SleepProbability.awakeProbPerc./100;
@@ -54,7 +54,7 @@ nremProbPerc = Results_SleepProbability.nremProbPerc./100;
 remProbPerc = Results_SleepProbability.remProbPerc./100;
 asleepProbPerc = Results_SleepProbability.asleepProbPerc./100;
 %% Sleep model accuracy based on pupil zDiameter alone
-resultsStructB = 'Results_PupilSleepModel';
+resultsStructB = 'Results_PupilSleepModel.mat';
 load(resultsStructB);
 animalIDs = fieldnames(Results_PupilSleepModel);
 data.pupil.holdXlabels = []; data.pupil.holdYlabels = [];
@@ -84,7 +84,7 @@ data.pupil.stdZBoundary = std(data.pupil.zBoundary,0,1);
 data.pupil.meanMBoundary = mean(data.pupil.mBoundary,1);
 data.pupil.stdMBoundary = std(data.pupil.mBoundary,0,1);
 %% Sleep model accuracy based on physiology
-resultsStructB = 'Results_PhysioSleepModel';
+resultsStructB = 'Results_PhysioSleepModel.mat';
 load(resultsStructB);
 animalIDs = fieldnames(Results_PhysioSleepModel);
 data.physio.holdXlabels = []; data.physio.holdYlabels = [];

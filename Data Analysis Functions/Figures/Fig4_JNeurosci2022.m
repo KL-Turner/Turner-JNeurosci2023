@@ -8,7 +8,7 @@ function [] = Fig4_JNeurosci2022(rootFolder,saveFigs,delim)
 %________________________________________________________________________________________________________________________
 
 %% blink coherogram
-resultsStruct = 'Results_BlinkCoherogram';
+resultsStruct = 'Results_BlinkCoherogram.mat';
 load(resultsStruct);
 animalIDs = fieldnames(Results_BlinkCoherogram);
 animalIDs(ismember(animalIDs,'T189')) = [];
@@ -97,7 +97,7 @@ end
 [AsleepHbTCoherStats.h,AsleepHbTCoherStats.p,AsleepHbTCoherStats.ci,AsleepHbTCoherStats.stats] = ttest2(data.Coherogram.HbT.Asleep.leadC021,data.Coherogram.HbT.Asleep.lagC021);
 [AsleepGammaCoherStats.h,AsleepGammaCoherStats.p,AsleepGammaCoherStats.ci,AsleepGammaCoherStats.stats] = ttest2(data.Coherogram.gamma.Asleep.leadC021,data.Coherogram.gamma.Asleep.lagC021);
 %% blink spectrogram
-resultsStruct = 'Results_BlinkSpectrogram';
+resultsStruct = 'Results_BlinkSpectrogram.mat';
 load(resultsStruct);
 animalIDs = fieldnames(Results_BlinkSpectrogram);
 animalIDs(ismember(animalIDs,'T189')) = [];

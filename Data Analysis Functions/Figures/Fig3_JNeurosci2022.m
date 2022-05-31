@@ -8,7 +8,7 @@ function [] = Fig3_JNeurosci2022(rootFolder,saveFigs,delim)
 %________________________________________________________________________________________________________________________
 
 %% blink periodogram
-resultsStruct = 'Results_BlinkPeriodogram';
+resultsStruct = 'Results_BlinkPeriodogram.mat';
 load(resultsStruct);
 animalIDs = fieldnames(Results_BlinkPeriodogram);
 for aa = 1:length(animalIDs) - 1
@@ -23,7 +23,7 @@ data.pxx = Results_BlinkPeriodogram.results.pxx;
 data.meanPxx = mean(data.pxx,2,'omitnan');
 data.meanF2 = data.f2;
 %% blinks associated with wisker stimulation
-resultsStruct = 'Results_StimulusBlinks';
+resultsStruct = 'Results_StimulusBlinks.mat';
 load(resultsStruct);
 animalIDs = fieldnames(Results_StimulusBlinks);
 % pre-allocate data structure
@@ -48,7 +48,7 @@ data.stdBinProb = std(data.binProb,0,1)./sqrt(size(data.binProb,1));
 data.meanIndBinProb = mean(data.indBinProb,1);
 data.stdIndBinProb = std(data.indBinProb,0,1);
 %% blink triggered averages
-resultsStruct = 'Results_BlinkResponses';
+resultsStruct = 'Results_BlinkResponses.mat';
 load(resultsStruct);
 animalIDs = fieldnames(Results_BlinkResponses);
 timeVector = (0:20*30)/30 - 10;
@@ -132,7 +132,7 @@ for bb = 1:length(blinkStates)
     data.(blinkState).meanHip_highWhisk = mean(data.(blinkState).hip_highWhisk,3).*100;
 end
 %% arousal transitions associated with blinking
-resultsStruct = 'Results_BlinkTransition';
+resultsStruct = 'Results_BlinkTransition.mat';
 load(resultsStruct);
 animalIDs = fieldnames(Results_BlinkTransition);
 % pre-allocate
@@ -151,7 +151,7 @@ awakeProbability = smooth(mean(catAwakeMat,1));
 nremProbability = smooth(mean(catNremMat,1));
 remProbability = smooth(mean(catRemMat,1));
 %% interblink interval and blink duration
-resultsStruct = 'Results_InterBlinkInterval';
+resultsStruct = 'Results_InterBlinkInterval.mat';
 load(resultsStruct);
 animalIDs = fieldnames(Results_InterBlinkInterval);
 data.interblink = []; data.blinkDuration = []; data.allInterBlink = []; data.allBlinkDuration = [];
