@@ -231,8 +231,8 @@ xline(0.2,'color',colors('black'),'LineWidth',2)
 axis tight
 ylabel('Coherence')
 xlabel('Freq (Hz)')
-title('Gamma lead/lag coherence')
-legend([s1,s2],'lead blink','lag blink')
+title('Awake gamma pre/post blink coherence')
+legend([s1,s2],'pre blink','post blink')
 axis square
 xlim([1/10,3])
 ylim([0,0.5])
@@ -253,7 +253,7 @@ e2.Color = 'black';
 e2.MarkerSize = 10;
 e2.CapSize = 10;
 ylabel('Coherence')
-title('Gamma coherence from 0-0.2 Hz')
+title('Awake gamma coherence from 0-0.2 Hz')
 set(gca,'xtick',[])
 set(gca,'xticklabel',[])
 axis square
@@ -273,7 +273,7 @@ loglog(data.Spectrogram.gamma.Awake.meanLagF,data.Spectrogram.gamma.Awake.meanLa
 xline(0.2,'color',colors('black'),'LineWidth',2)
 ylabel('Power (a.u.)')
 xlabel('Freq (Hz)')
-title('Gamma lead/lag power')
+title('Awake gamma pre/post blink power')
 axis square
 axis tight
 xlim([1/10,3])
@@ -289,7 +289,7 @@ e1.CapSize = 10;
 scatter(ones(1,length(data.Spectrogram.gamma.Awake.lagS021))*2,data.Spectrogram.gamma.Awake.lagS021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('caribbean blue'),'jitter','on','jitterAmount',0.25);
 scatter(2,data.Spectrogram.gamma.Awake.meanLagS021,100,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
 ylabel('Power (a.u.)')
-title('Gamma power from 0-0.2 Hz')
+title('Awake gamma power from 0-0.2 Hz')
 set(gca,'xtick',[])
 set(gca,'xticklabel',[])
 axis square
@@ -302,7 +302,7 @@ ax5 = subplot(4,5,5);
 scatter(diffPower.gamma.Awake,diffCoher.gamma.Awake,75,'MarkerEdgeColor',colors('caribbean green'),'MarkerFaceColor',colors('caribbean blue'))
 xlabel('\DeltaPower')
 ylabel('\DeltaCoherence')
-title('Gamma lead/lag blink')
+title('Awake gamma pre/post blink difference')
 axis square
 set(gca,'box','off')
 set(gca,'xscale','log')
@@ -320,8 +320,8 @@ xline(0.2,'color',colors('black'),'LineWidth',2)
 axis tight
 ylabel('Coherence')
 xlabel('Freq (Hz)')
-title('Gamma lead/lag coherence')
-legend([s1,s2],'lead blink','lag blink')
+title('Awake HbT pre/post blink coherence')
+legend([s1,s2],'pre blink','post blink')
 axis square
 xlim([1/10,3])
 ylim([0.7,1])
@@ -342,7 +342,7 @@ e2.Color = 'black';
 e2.MarkerSize = 10;
 e2.CapSize = 10;
 ylabel('Coherence')
-title('Gamma coherence from 0-0.2 Hz')
+title('Awake HbT coherence from 0-0.2 Hz')
 set(gca,'xtick',[])
 set(gca,'xticklabel',[])
 axis square
@@ -362,7 +362,7 @@ loglog(data.Spectrogram.HbT.Awake.meanLagF,data.Spectrogram.HbT.Awake.meanLagS -
 xline(0.2,'color',colors('black'),'LineWidth',2)
 ylabel('Power (a.u.)')
 xlabel('Freq (Hz)')
-title('Gamma lead/lag power')
+title('Awake HbT pre/post blink power')
 axis square
 axis tight
 xlim([1/10,3])
@@ -378,7 +378,7 @@ e1.CapSize = 10;
 scatter(ones(1,length(data.Spectrogram.HbT.Awake.lagS021))*2,data.Spectrogram.HbT.Awake.lagS021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('deep carrot orange'),'jitter','on','jitterAmount',0.25);
 scatter(2,data.Spectrogram.HbT.Awake.meanLagS021,100,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
 ylabel('Power (a.u.)')
-title('Gamma power from 0-0.2 Hz')
+title('Awake HbT power from 0-0.2 Hz')
 set(gca,'xtick',[])
 set(gca,'xticklabel',[])
 axis square
@@ -392,7 +392,7 @@ ax10 = subplot(4,5,10);
 scatter(diffPower.HbT.Awake,diffCoher.HbT.Awake,75,'MarkerEdgeColor',colors('candy apple red'),'MarkerFaceColor',colors('deep carrot orange'))
 xlabel('\DeltaPower')
 ylabel('\DeltaCoherence')
-title('Gamma lead/lag blink')
+title('Awake HbT pre/post blink difference')
 axis square
 set(gca,'box','off')
 set(gca,'xscale','log')
@@ -410,8 +410,8 @@ xline(0.2,'color',colors('black'),'LineWidth',2)
 axis tight
 ylabel('Coherence')
 xlabel('Freq (Hz)')
-title('Gamma lead/lag coherence')
-legend([s1,s2],'lead blink','lag blink')
+title('Asleep gamma pre/post blink coherence')
+legend([s1,s2],'pre blink','post blink')
 axis square
 xlim([1/10,3])
 ylim([0,0.55])
@@ -432,7 +432,7 @@ e2.Color = 'black';
 e2.MarkerSize = 10;
 e2.CapSize = 10;
 ylabel('Coherence')
-title('Gamma coherence from 0-0.2 Hz')
+title('Asleep gamma coherence from 0-0.2 Hz')
 set(gca,'xtick',[])
 set(gca,'xticklabel',[])
 axis square
@@ -452,7 +452,7 @@ loglog(data.Spectrogram.gamma.Asleep.meanLagF,data.Spectrogram.gamma.Asleep.mean
 xline(0.2,'color',colors('black'),'LineWidth',2)
 ylabel('Power (a.u.)')
 xlabel('Freq (Hz)')
-title('Gamma lead/lag power')
+title('Asleep gamma pre/post blink power')
 axis square
 axis tight
 xlim([1/10,3])
@@ -468,7 +468,7 @@ e1.CapSize = 10;
 scatter(ones(1,length(data.Spectrogram.gamma.Asleep.lagS021))*2,data.Spectrogram.gamma.Asleep.lagS021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('caribbean blue'),'jitter','on','jitterAmount',0.25);
 scatter(2,data.Spectrogram.gamma.Asleep.meanLagS021,100,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
 ylabel('Power (a.u.)')
-title('Gamma power from 0-0.2 Hz')
+title('Asleep gamma power from 0-0.2 Hz')
 set(gca,'xtick',[])
 set(gca,'xticklabel',[])
 axis square
@@ -481,7 +481,7 @@ ax5 = subplot(4,5,15);
 scatter(diffPower.gamma.Asleep,diffCoher.gamma.Asleep,75,'MarkerEdgeColor',colors('caribbean green'),'MarkerFaceColor',colors('caribbean blue'))
 xlabel('\DeltaPower')
 ylabel('\DeltaCoherence')
-title('Gamma lead/lag blink')
+title('Asleep gamma pre/post blink difference')
 axis square
 set(gca,'box','off')
 set(gca,'xscale','log')
@@ -499,8 +499,8 @@ xline(0.2,'color',colors('black'),'LineWidth',2)
 axis tight
 ylabel('Coherence')
 xlabel('Freq (Hz)')
-title('Gamma lead/lag coherence')
-legend([s1,s2],'lead blink','lag blink')
+title('Asleep HbT pre/post blink coherence')
+legend([s1,s2],'pre blink','post blink')
 axis square
 xlim([1/10,3])
 ylim([0.6,1])
@@ -521,7 +521,7 @@ e2.Color = 'black';
 e2.MarkerSize = 10;
 e2.CapSize = 10;
 ylabel('Coherence')
-title('Gamma coherence from 0-0.2 Hz')
+title('Asleep HbT coherence from 0-0.2 Hz')
 set(gca,'xtick',[])
 set(gca,'xticklabel',[])
 axis square
@@ -541,7 +541,7 @@ loglog(data.Spectrogram.HbT.Asleep.meanLagF,data.Spectrogram.HbT.Asleep.meanLagS
 xline(0.2,'color',colors('black'),'LineWidth',2)
 ylabel('Power (a.u.)')
 xlabel('Freq (Hz)')
-title('Gamma lead/lag power')
+title('Asleep HbT pre/post blink power')
 axis square
 axis tight
 xlim([1/10,3])
@@ -557,7 +557,7 @@ e1.CapSize = 10;
 scatter(ones(1,length(data.Spectrogram.HbT.Asleep.lagS021))*2,data.Spectrogram.HbT.Asleep.lagS021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('deep carrot orange'),'jitter','on','jitterAmount',0.25);
 scatter(2,data.Spectrogram.HbT.Asleep.meanLagS021,100,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
 ylabel('Power (a.u.)')
-title('Gamma power from 0-0.2 Hz')
+title('Asleep HbT power from 0-0.2 Hz')
 set(gca,'xtick',[])
 set(gca,'xticklabel',[])
 axis square
@@ -571,7 +571,7 @@ ax10 = subplot(4,5,20);
 scatter(diffPower.HbT.Asleep,diffCoher.HbT.Asleep,75,'MarkerEdgeColor',colors('candy apple red'),'MarkerFaceColor',colors('deep carrot orange'))
 xlabel('\DeltaPower')
 ylabel('\DeltaCoherence')
-title('Gamma lead/lag blink')
+title('Asleep HbT pre/post blink difference')
 axis square
 set(gca,'box','off')
 set(gca,'xscale','log')

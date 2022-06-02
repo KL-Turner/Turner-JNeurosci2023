@@ -485,14 +485,14 @@ b1 = bar(((1:length(catTrueAwake))*binTime)/60/60,catTrueAwake,'FaceColor',color
 hold on
 b2 = bar(((1:length(catTrueNREM))*binTime)/60/60,catTrueNREM,'FaceColor',colors('cyan'),'BarWidth',1);
 b3 = bar(((1:length(catTrueREM))*binTime)/60/60,catTrueREM,'FaceColor',colors('candy apple red'),'BarWidth',1);
-title('True predictions');
+title('Manually scored predictions');
 legend([b1,b2,b3],'Awake','NREM','REM')
 set(gca,'box','off')
 subplot(10,1,2)
 b1 = bar((1:length(catTrueAwake))*binTime,catTrueAwake,'FaceColor',colors('black'),'BarWidth',1);
 hold on
 b2 = bar((1:length(catTrueAsleep))*binTime,catTrueAsleep,'FaceColor',colors('royal purple'),'BarWidth',1);
-title('True predictions');
+title('Manually scored predictions');
 legend([b1,b2],'Awake','Asleep')
 set(gca,'box','off')
 axis off
@@ -500,14 +500,14 @@ subplot(10,1,3)
 bar((1:length(catPhysioAwake))*binTime,catPhysioAwake,'FaceColor',colors('black'),'BarWidth',1);
 hold on
 bar((1:length(catPhysioAsleep))*binTime,catPhysioAsleep,'FaceColor',colors('royal purple'),'BarWidth',1);
-title('Physio predictions');
+title('Physio model predictions');
 set(gca,'box','off')
 axis off
 subplot(10,1,4)
 bar((1:length(catPupilAwake))*binTime,catPupilAwake,'FaceColor',colors('black'),'BarWidth',1);
 hold on
 bar((1:length(catPupilAsleep))*binTime,catPupilAsleep,'FaceColor',colors('royal purple'),'BarWidth',1);
-title('Pupil predictions');
+title('Pupil model predictions');
 set(gca,'box','off')
 axis off
 subplot(10,1,5)
@@ -515,7 +515,7 @@ b1 = bar((1:length(trueAwake))*binTime,trueAwake,'FaceColor',colors('black'),'Ba
 hold on
 b2 = bar((1:length(trueNREM))*binTime,trueNREM,'FaceColor',colors('cyan'),'BarWidth',1);
 b3 = bar((1:length(trueREM))*binTime,trueREM,'FaceColor',colors('candy apple red'),'BarWidth',1);
-title('True predictions');
+title('Manually scored predictions');
 legend([b1,b2,b3],'Awake','NREM','REM')
 set(gca,'box','off')
 axis off
@@ -524,7 +524,7 @@ b1 = bar((1:length(trueAwake))*binTime,trueAwake,'FaceColor',colors('black'),'Ba
 hold on
 b2 = bar((1:length(trueNREM))*binTime,trueNREM,'FaceColor',colors('cyan'),'BarWidth',1);
 b3 = bar((1:length(trueREM))*binTime,trueREM,'FaceColor',colors('candy apple red'),'BarWidth',1);
-title('True predictions');
+title('Manually scored predictions');
 legend([b1,b2,b3],'Awake','NREM','REM')
 xlim([0,450])
 set(gca,'box','off')
@@ -533,7 +533,7 @@ subplot(10,1,7)
 b1 = bar((1:length(trueAwake))*binTime,trueAwake,'FaceColor',colors('black'),'BarWidth',1);
 hold on
 b2 = bar((1:length(trueAsleep))*binTime,trueAsleep,'FaceColor',colors('royal purple'),'BarWidth',1);
-title('True predictions');
+title('Manually scored predictions');
 legend([b1,b2],'Awake','Asleep')
 xlim([0,450])
 set(gca,'box','off')
@@ -542,7 +542,7 @@ subplot(10,1,8)
 bar((1:length(physioPredAwake))*binTime,physioPredAwake,'FaceColor',colors('black'),'BarWidth',1);
 hold on
 bar((1:length(physioPredAsleep))*binTime,physioPredAsleep,'FaceColor',colors('royal purple'),'BarWidth',1);
-title('Physio predictions');
+title('Physio model predictions');
 xlim([0,450])
 set(gca,'box','off')
 axis off
@@ -550,7 +550,7 @@ subplot(10,1,9)
 bar((1:length(pupilPredAwake))*binTime,pupilPredAwake,'FaceColor',colors('black'),'BarWidth',1);
 hold on
 bar((1:length(pupilPredAsleep))*binTime,pupilPredAsleep,'FaceColor',colors('royal purple'),'BarWidth',1);
-title('Pupil predictions');
+title('Pupil model predictions');
 xlim([0,450])
 set(gca,'box','off')
 axis off
@@ -572,9 +572,9 @@ if saveFigs == true
     set(Fig5C,'PaperPositionMode','auto');
     print('-vector','-dpdf','-fillpage',[dirpath 'Fig5C_Turner2022'])
 end
-%%
+%% SVM decision scatter
 Fig5D = figure('Name','Figure Panel 5 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
-subplot(2,3,1);
+subplot(1,4,1);
 gscatter(Xodd.zDiameter,randn(length(Xodd.zDiameter),1),Yodd.behavState,[colors('black');colors('royal purple')]);
 hold on;
 xline(exampleBoundary,'color',colors('custom green'),'LineWidth',2)
@@ -584,25 +584,8 @@ legend('Awake','Asleep','Decision boundary','Location','NorthEast')
 axis square
 set(gca,'YTickLabel',[]);
 set(gca,'box','off')
-%%
-subplot(2,3,2)
-scatter(ones(1,length(data.pupil.zBoundary))*1,data.pupil.zBoundary,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('custom green'),'jitter','on','jitterAmount',0.25);
-hold on
-e1 = errorbar(1,data.pupil.meanZBoundary,data.pupil.stdZBoundary,'d','MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'));
-e1.Color = 'black';
-e1.MarkerSize = 10;
-e1.CapSize = 10;
-title('SVM pupil hyperplane (z-units)')
-ylabel('Asleep diameter (z-units)')
-set(gca,'xtick',[])
-set(gca,'xticklabel',[])
-axis square
-xlim([0,2])
-% ylim([0,0.2])
-set(gca,'box','off')
-ax6.TickLength = [0.03,0.03];
-%%
-subplot(2,3,3)
+%% SVM boundary
+subplot(1,4,2)
 scatter(ones(1,length(data.pupil.mBoundary))*1,data.pupil.mBoundary,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('custom green'),'jitter','on','jitterAmount',0.25);
 hold on
 e1 = errorbar(1,data.pupil.meanMBoundary,data.pupil.stdMBoundary,'d','MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'));
@@ -610,7 +593,7 @@ e1.Color = colors('black');
 e1.MarkerSize = 10;
 e1.CapSize = 10;
 title('SVM pupil hyperplane (mm)')
-ylabel('Asleep diameter (mm)')
+ylabel('Decision (mm)')
 set(gca,'xtick',[])
 set(gca,'xticklabel',[])
 axis square
@@ -618,7 +601,7 @@ xlim([0,2])
 set(gca,'box','off')
 ax6.TickLength = [0.03,0.03];
 %% ROC
-subplot(2,2,3)
+subplot(1,4,3)
 for aa = 1:length(data.pupil.rocX)
     hold on
     plot(data.pupil.rocX{aa,1},data.pupil.rocY{aa,1},'color',colors('black'))
@@ -631,7 +614,7 @@ xlim([-0.05,1])
 ylim([0,1.05])
 axis square
 %% ROC AUC
-subplot(2,2,4)
+subplot(1,4,4)
 scatter(ones(1,length(data.pupil.rocAUC))*1,data.pupil.rocAUC,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('battleship grey'),'jitter','on','jitterAmount',0.25);
 hold on
 e1 = errorbar(1,data.pupil.rocMeanAUC,data.pupil.rocStdAUC,'d','MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'));

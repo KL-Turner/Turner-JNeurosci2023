@@ -191,6 +191,7 @@ ylabel('Probability')
 legend(x1,'Whisker puff')
 set(gca,'box','off')
 xlim([-0.25,5]);
+ylim([0,0.45])
 axis square
 ax2.TickLength = [0.03,0.03];
 %% blink transitions
@@ -520,7 +521,7 @@ if saveFigs == true
     set(Fig3C,'PaperPositionMode','auto');
     print('-vector','-dpdf','-bestfit',[dirpath 'Fig3C_Turner2022'])
     % text diary
-    diaryFile = [dirpath 'Fig2_Text.txt'];
+    diaryFile = [dirpath 'Fig3_Text.txt'];
     if exist(diaryFile,'file') == 2
         delete(diaryFile)
     end
