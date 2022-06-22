@@ -114,8 +114,8 @@ if strcmpi(imagingType,'GCaMP') == true
         procDataFileID = procDataFileIDs(bb,:);
         [figHandle] = GenerateSingleFigures_GCaMP_Turner2022(procDataFileID,RestingBaselines,saveFigs,hemoType,'somatosensory');
         close(figHandle)
-        [figHandle] = GenerateSingleFigures_GCaMP_Turner2022(procDataFileID,RestingBaselines,saveFigs,hemoType,'frontal');
-        close(figHandle)
+%         [figHandle] = GenerateSingleFigures_GCaMP_Turner2022(procDataFileID,RestingBaselines,saveFigs,hemoType,'frontal');
+%         close(figHandle)
     end
 else
     for bb = 1:size(procDataFileIDs,1)

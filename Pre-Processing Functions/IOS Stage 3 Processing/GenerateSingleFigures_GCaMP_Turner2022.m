@@ -10,8 +10,8 @@ function [figHandle,ax1,ax2,ax3,ax4,ax5,ax6] = GenerateSingleFigures_GCaMP_Turne
 
 % load file and gather information
 load(procDataFileID)
-[animalID,fileDate,fileID] = GetFileInfo_IOS(procDataFileID);
-strDay = ConvertDate_IOS(fileDate);
+[animalID,fileDate,fileID] = GetFileInfo_Turner2022(procDataFileID);
+strDay = ConvertDate_Turner2022(fileDate);
 % setup butterworth filter coefficients for a 1 Hz and 10 Hz lowpass based on the sampling rate
 [z1,p1,k1] = butter(4,10/(ProcData.notes.dsFs/2),'low');
 [sos1,g1] = zp2sos(z1,p1,k1);

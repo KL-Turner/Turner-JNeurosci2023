@@ -175,11 +175,15 @@ p3 = plot((1:length(filteredWhiskerAngle))/ProcData.notes.dsFs,-filteredWhiskerA
 ylabel('Angle (deg)')
 xlim([0,ProcData.notes.trialDuration_sec])
 ylim([-20,60])
-yyaxis right
-p4 = plot((1:length(heartRate)),heartRate,'color',colors('dark sea green'),'LineWidth',1);
-ylabel('Heart Rate (Hz)')
-ylim([6,15])
-legend([p3,p4],'whisker angle','heart rate')
+if strcmp(imagingType,'GCaMP') == false
+    yyaxis right
+    p4 = plot((1:length(heartRate)),heartRate,'color',colors('dark sea green'),'LineWidth',1);
+    ylabel('Heart Rate (Hz)')
+    ylim([6,15])
+    legend([p3,p4],'whisker angle','heart rate')
+else
+    legend(p3,'whisker angle')
+end
 set(gca,'TickLength',[0,0])
 set(gca,'Xticklabel',[])
 set(gca,'box','off')

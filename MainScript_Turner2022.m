@@ -57,7 +57,7 @@ if runAnalysis == true
 end
 % main figures
 disp('Loading analysis results and generating figures...'); disp(' ')
-saveFigs = false;
+saveFigs = true;
 Fig5_Turner2022(rootFolder,saveFigs,delim)
 Fig4_Turner2022(rootFolder,saveFigs,delim)
 Fig3_Turner2022(rootFolder,saveFigs,delim)
