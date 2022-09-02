@@ -123,7 +123,7 @@ for bb = 1:length(firstFileOfDay)
         [eyeROI] = roipoly(workingImg);
         % model the distribution of pixel intensities as a gaussian to estimate/isolate the population of pupil pixels
         pupilHistEdges = 1:1:256; % camera data is unsigned 8bit integers. Ignore 0 values
-        threshSet = 4.5; % StD beyond mean intensity to binarize image for pupil tracking
+        threshSet = 2; % StD beyond mean intensity to binarize image for pupil tracking
         medFiltParams = [5,5]; % [x,y] dimensions for 2d median filter of images
         filtImg = medfilt2(workingImg,medFiltParams); % median filter image
         threshImg = uint8(double(filtImg).*eyeROI); % only look at pixel values in ROI
@@ -373,7 +373,7 @@ for cc = 1:size(procDataFileIDs,1)
                                                 keepMask(keepRegions(keepNum).PixelList(pixNum,2),keepRegions(keepNum).PixelList(pixNum,1)) = 1; % remap kept regions in to image frame
                                             end
                                         end
-                                        fuseMask=bwconvhull(keepMask); % use convex hull operation to enclose regions previously within pupil
+                                        fuseMask = bwconvhull(keepMask); % use convex hull operation to enclose regions previously within pupil
                                         fusedCorrect = regionprops(fuseMask,'FilledArea','Image','FilledImage','Centroid','MajorAxisLength','MinorAxisLength','PixelList'); % measure new corrected pupil volume properties
                                         if length(fusedCorrect) > 1
                                             fusedCorrect = fusedCorrect(1);

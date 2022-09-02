@@ -9,18 +9,18 @@ function [] = AnalyzePupilExample2_Handler_Turner2022(rootFolder,delim,runFromSt
 
 % create or load results structure
 if runFromStart == true
-    Results_Example = [];
+    Results_Example2 = [];
 elseif runFromStart == false
     % load existing results structure, if it exists
     if exist('Results_Example2.mat','file') == 2
         load('Results_Example2.mat','-mat')
     else
-        Results_Example = [];
+        Results_Example2 = [];
     end
 end
 % run analysis for each animal in the group
-if isempty(Results_Example) == true
-    AnalyzePupilExample2_Turner2022(rootFolder,delim,Results_Example);
+if isempty(Results_Example2) == true
+    AnalyzePupilExample2_Turner2022(rootFolder,delim,Results_Example2);
 end
 
 end

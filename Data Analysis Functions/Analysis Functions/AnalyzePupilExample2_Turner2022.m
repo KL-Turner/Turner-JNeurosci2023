@@ -7,7 +7,7 @@ function [Results_Example2] = AnalyzePupilExample2_Turner2022(rootFolder,delim,R
 % Purpose: Process example file for representative animal - pupil tracking, figure, movie, etc.
 %________________________________________________________________________________________________________________________
 
-filePath = [rootFolder delim 'Data' delim 'T141' delim 'Bilateral Imaging'];
+filePath = [rootFolder delim 'Data' delim 'T123' delim 'Bilateral Imaging'];
 cd(filePath)
 exampleProcDataFileID = 'T123_200304_14_32_00_ProcData.mat';
 load(exampleProcDataFileID,'-mat')

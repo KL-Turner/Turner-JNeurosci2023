@@ -19,7 +19,7 @@ NREMsleepTime = 30; % seconds
 REMsleepTime = 60; % seconds
 SleepData.Forest.NREM.data.Pupil = [];
 SleepData.Forest.REM.data.Pupil = [];
-dataTypes = {'pupilArea','diameter','mmArea','mmDiameter','zArea','zDiameter','LH_HbT','RH_HbT','LH_gammaBandPower','RH_gammaBandPower'};
+dataTypes = {'pupilArea','diameter','mmArea','mmDiameter','zArea','zDiameter','eyeMotion','LH_HbT','RH_HbT','LH_gammaBandPower','RH_gammaBandPower'};
 %% create NREM sleep scored data structure.
 % identify sleep epochs and place in SleepEventData.mat structure
 sleepBins = NREMsleepTime/5;
