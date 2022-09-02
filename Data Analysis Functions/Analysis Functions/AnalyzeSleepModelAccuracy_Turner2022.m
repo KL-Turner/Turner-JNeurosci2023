@@ -45,8 +45,8 @@ for bb = 1:size(pupilTrainingDataFileIDs,1)
     pupilJoinedTable = vertcat(pupilJoinedTable,pupilTrainingTable);
     trainingTableFileID = trainingDataFileIDs(bb,:);
     load(trainingTableFileID)
-    physioJoinedTable = vertcat(physioJoinedTable,pupilTrainingTable);
-    combinedJoinedTable = vertcat(combinedJoinedTable,horzcat(physioJoinedTable(:,1:end - 1),pupilJoinedTable));
+    physioJoinedTable = vertcat(physioJoinedTable,trainingTable);
+    combinedJoinedTable = vertcat(combinedJoinedTable,horzcat(trainingTable(:,1:end - 1),pupilTrainingTable));
 end
 shuffleSeed = randperm(size(pupilJoinedTable,1));
 iterations = 1;
@@ -91,7 +91,7 @@ for aa = 1:iterations
     CM.Title = {'Pupil RF',['total accuracy: ' num2str(modelAccuracy) ' (%)']};
     close(RF_confMat)
     if modelAccuracy > bestAccuracy
-        bestAccuracy = modelAccurcy;
+        bestAccuracy = modelAccuracy;
         bestMDL = RF_MDL;
     end
 end
@@ -144,7 +144,7 @@ for aa = 1:iterations
     CM.Title = {'physio RF',['total accuracy: ' num2str(modelAccuracy) ' (%)']};
     close(RF_confMat)
     if modelAccuracy > bestAccuracy
-        bestAccuracy = modelAccurcy;
+        bestAccuracy = modelAccuracy;
         bestMDL = RF_MDL;
     end
 end
@@ -197,7 +197,7 @@ for aa = 1:iterations
     CM.Title = {'combined RF',['total accuracy: ' num2str(modelAccuracy) ' (%)']};
     close(RF_confMat)
     if modelAccuracy > bestAccuracy
-        bestAccuracy = modelAccurcy;
+        bestAccuracy = modelAccuracy;
         bestMDL = RF_MDL;
     end
 end
