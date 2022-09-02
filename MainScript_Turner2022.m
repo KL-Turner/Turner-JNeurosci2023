@@ -29,7 +29,7 @@ multiWaitbar('CloseAll');
 % analysis subfunctions
 runAnalysis = true;
 if runAnalysis == true
-    AnalyzeSleepModelAccuracy_Handler_Turner2022(rootFolder,delim,false)
+    AnalyzeSleepModelAccuracy_Handler_Turner2022(rootFolder,delim,true)
     %     AnalyzePupilExample_Handler_Turner2022(rootFolder,delim,false)
     %     AnalyzePupilExample2_Handler_Turner2022(rootFolder,delim,false)
     %     AnalyzePupilThreshold_Handler_Turner2022(rootFolder,delim,false)
