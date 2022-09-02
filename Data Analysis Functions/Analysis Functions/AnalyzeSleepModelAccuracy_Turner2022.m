@@ -1,4 +1,4 @@
-function [Results_PupilSleepModel,Results_PhysioSleepModel,Results_CombinedSleepModel] = AnalyzeSleepModelAccuracy_Turner2022(animalID,rootFolder,delim,Results_PupilSleepModel,Results_PhysioSleepModel,Results_CombinedlSleepModel)
+function [Results_PupilSleepModel,Results_PhysioSleepModel,Results_CombinedSleepModel] = AnalyzeSleepModelAccuracy_Turner2022(animalID,rootFolder,delim,Results_PupilSleepModel,Results_PhysioSleepModel,Results_CombinedSleepModel)
 %________________________________________________________________________________________________________________________
 % Written by Kevin L. Turner
 % The Pennsylvania State University, Dept. of Biomedical Engineering
@@ -22,13 +22,13 @@ procDataFileStruct = dir('*_ProcData.mat');
 procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
 % % prepare pupil training data by updating parameters
-% AddPupilSleepParameters_Turner2022(procDataFileIDs,RestingBaselines)
-% CreatePupilModelDataSet_Turner2022(procDataFileIDs)
-% UpdatePupilTrainingDataSet_Turner2022(procDataFileIDs)
+AddPupilSleepParameters_Turner2022(procDataFileIDs,RestingBaselines)
+CreatePupilModelDataSet_Turner2022(procDataFileIDs)
+UpdatePupilTrainingDataSet_Turner2022(procDataFileIDs)
 % % prepare physio training data by updating parameters
-% AddSleepParameters_Turner2022(procDataFileIDs,RestingBaselines,'manualSelection')
-% CreateModelDataSet_Turner2022(procDataFileIDs)
-% UpdateTrainingDataSets_Turner2022(procDataFileIDs)
+AddSleepParameters_Turner2022(procDataFileIDs,RestingBaselines,'manualSelection')
+CreateModelDataSet_Turner2022(procDataFileIDs)
+UpdateTrainingDataSets_Turner2022(procDataFileIDs)
 % training data file IDs
 pupilTrainingDataFileStruct = dir('*_PupilTrainingData.mat');
 pupilTrainingDataFiles = {pupilTrainingDataFileStruct.name}';
@@ -40,12 +40,15 @@ end
 % load each updated training set and concatenate the data into table
 pupilJoinedTable = []; physioJoinedTable = []; combinedJoinedTable = [];
 for bb = 1:size(pupilTrainingDataFileIDs,1)
+    % pupil table
     pupilTrainingTableFileID = pupilTrainingDataFileIDs(bb,:);
     load(pupilTrainingTableFileID)
     pupilJoinedTable = vertcat(pupilJoinedTable,pupilTrainingTable);
+    % physio table
     trainingTableFileID = trainingDataFileIDs(bb,:);
     load(trainingTableFileID)
     physioJoinedTable = vertcat(physioJoinedTable,trainingTable);
+    % combined table
     combinedJoinedTable = vertcat(combinedJoinedTable,horzcat(trainingTable(:,1:end - 1),pupilTrainingTable));
 end
 shuffleSeed = randperm(size(pupilJoinedTable,1));
