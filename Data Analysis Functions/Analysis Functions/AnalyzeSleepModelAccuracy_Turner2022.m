@@ -21,11 +21,11 @@ cd(dataLocation)
 procDataFileStruct = dir('*_ProcData.mat');
 procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
-% % prepare pupil training data by updating parameters
+% prepare pupil training data by updating parameters
 AddPupilSleepParameters_Turner2022(procDataFileIDs,RestingBaselines)
 CreatePupilModelDataSet_Turner2022(procDataFileIDs)
 UpdatePupilTrainingDataSet_Turner2022(procDataFileIDs)
-% % prepare physio training data by updating parameters
+% prepare physio training data by updating parameters
 AddSleepParameters_Turner2022(procDataFileIDs,RestingBaselines,'manualSelection')
 CreateModelDataSet_Turner2022(procDataFileIDs)
 UpdateTrainingDataSets_Turner2022(procDataFileIDs)
@@ -51,12 +51,14 @@ for bb = 1:size(pupilTrainingDataFileIDs,1)
     % combined table
     combinedJoinedTable = vertcat(combinedJoinedTable,horzcat(trainingTable(:,1:end - 1),pupilTrainingTable));
 end
-shuffleSeed = randperm(size(pupilJoinedTable,1));
-iterations = 1;
+shuffleSeedA = randperm(size(pupilJoinedTable,1));
+P = 0.70 ;
+iterations = 100;
 numTrees = 128;
+paroptions = statset('UseParallel',true);
 %% pupil model - separate the manual scores into 3 groups based on arousal classification
 pupilJoinedAwakeTable = []; pupilJoinedNREMTable = []; pupilJoinedREMTable = [];
-pupilRandomTable = pupilJoinedTable(shuffleSeed,:);
+pupilRandomTable = pupilJoinedTable(shuffleSeedA,:);
 for aa = 1:size(pupilRandomTable,1)
     if strcmp(pupilRandomTable.behavState{aa,1},'Not Sleep') == true
         pupilJoinedAwakeTable = vertcat(pupilJoinedAwakeTable,pupilRandomTable(aa,:));
@@ -66,10 +68,18 @@ for aa = 1:size(pupilRandomTable,1)
         pupilJoinedREMTable = vertcat(pupilJoinedREMTable,pupilRandomTable(aa,:));
     end
 end
-pupilJoinedTableOdd = vertcat(pupilJoinedAwakeTable(1:2:end,:),pupilJoinedNREMTable(1:2:end,:),pupilJoinedREMTable(1:2:end,:));
-pupilTrainingTable = pupilJoinedTableOdd(randperm(size(pupilJoinedTableOdd,1)),:);
-pupilJoinedTableEven = vertcat(pupilJoinedAwakeTable(2:2:end,:),pupilJoinedNREMTable(2:2:end,:),pupilJoinedREMTable(2:2:end,:));
-pupilTestingTable = pupilJoinedTableEven(randperm(size(pupilJoinedTableEven,1)),:);
+% shuffle training table
+pupilTrainingTable = vertcat(pupilJoinedAwakeTable(1:round(P*size(pupilJoinedAwakeTable,1)),:), ...
+    pupilJoinedNREMTable(1:round(P*size(pupilJoinedNREMTable,1)),:),...
+    pupilJoinedREMTable(1:round(P*size(pupilJoinedREMTable,1)),:));
+shuffleSeedB = randperm(size(pupilTrainingTable,1));
+pupilTrainingTable = pupilTrainingTable(shuffleSeedB,:);
+% shuffle testing table
+pupilTestingTable = vertcat(pupilJoinedAwakeTable(round(P*size(pupilJoinedAwakeTable,1) + 1:end),:), ...
+    pupilJoinedNREMTable(round(P*size(pupilJoinedNREMTable,1) + 1:end),:),...
+    pupilJoinedREMTable(round(P*size(pupilJoinedREMTable,1) + 1:end),:));
+shuffleSeedC = randperm(size(pupilTestingTable,1));
+pupilTestingTable = pupilTestingTable(shuffleSeedC,:);
 % train on odd data
 pupilXtraining = pupilTrainingTable(:,1:end - 1);
 pupilYtraining = pupilTrainingTable(:,end);
@@ -79,7 +89,7 @@ pupilYtesting = pupilTestingTable(:,end);
 % random forest
 bestAccuracy = 0;
 for aa = 1:iterations
-    RF_MDL = TreeBagger(numTrees,pupilXtraining,pupilYtraining,'Method','Classification','Surrogate','all','OOBPrediction','on','ClassNames',{'Not Sleep','NREM Sleep','REM Sleep'});
+    RF_MDL = TreeBagger(numTrees,pupilXtraining,pupilYtraining,'Method','Classification','Surrogate','all','OOBPrediction','on','ClassNames',{'Not Sleep','NREM Sleep','REM Sleep'},'Options',paroptions);
     % use the model to generate a set of predictions
     [pupilTestingPredictions,~] = predict(RF_MDL,pupilXtesting);
     % confusion chart
@@ -89,6 +99,11 @@ for aa = 1:iterations
     CM.RowSummary = 'row-normalized';
     CM.Title = [animalID ' Testing Data'];
     confVals = CM.NormalizedValues;
+    % totalScoresA = sum(confVals([7,8,9]));
+    % modelAccuracyA = (sum(confVals(9)/totalScoresA))*100;
+    % totalScoresB = sum(confVals([3,6,9]));
+    % modelAccuracyB = (sum(confVals(9)/totalScoresB))*100;
+    % modelAccuracy = (modelAccuracyA + modelAccuracyB)/2;
     totalScores = sum(confVals(:));
     modelAccuracy = (sum(confVals([1,5,9])/totalScores))*100;
     CM.Title = {'Pupil RF',['total accuracy: ' num2str(modelAccuracy) ' (%)']};
@@ -109,7 +124,7 @@ Results_PupilSleepModel.(animalID).pupil.trueTestingLabels = pupilYtesting.behav
 Results_PupilSleepModel.(animalID).pupil.predictedTestingLabels = pupilTestingPredictions;
 %% physio model - separate the manual scores into 3 groups based on arousal classification
 physioJoinedAwakeTable = []; physioJoinedNREMTable = []; physioJoinedREMTable = [];
-physioRandomTable = physioJoinedTable(shuffleSeed,:);
+physioRandomTable = physioJoinedTable(shuffleSeedA,:);
 for aa = 1:size(physioRandomTable,1)
     if strcmp(physioRandomTable.behavState{aa,1},'Not Sleep') == true
         physioJoinedAwakeTable = vertcat(physioJoinedAwakeTable,physioRandomTable(aa,:));
@@ -119,10 +134,14 @@ for aa = 1:size(physioRandomTable,1)
         physioJoinedREMTable = vertcat(physioJoinedREMTable,physioRandomTable(aa,:));
     end
 end
-physioJoinedTableOdd = vertcat(physioJoinedAwakeTable(1:2:end,:),physioJoinedNREMTable(1:2:end,:),physioJoinedREMTable(1:2:end,:));
-physioTrainingTable = physioJoinedTableOdd(randperm(size(physioJoinedTableOdd,1)),:);
-physioJoinedTableEven = vertcat(physioJoinedAwakeTable(2:2:end,:),physioJoinedNREMTable(2:2:end,:),physioJoinedREMTable(2:2:end,:));
-physioTestingTable = physioJoinedTableEven(randperm(size(physioJoinedTableEven,1)),:);
+physioTrainingTable = vertcat(physioJoinedAwakeTable(1:round(P*size(physioJoinedAwakeTable,1)),:), ...
+    physioJoinedNREMTable(1:round(P*size(physioJoinedNREMTable,1)),:),...
+    physioJoinedREMTable(1:round(P*size(physioJoinedREMTable,1)),:));
+physioTrainingTable = physioTrainingTable(shuffleSeedB,:);
+physioTestingTable = vertcat(physioJoinedAwakeTable(round(P*size(physioJoinedAwakeTable,1) + 1:end),:), ...
+    physioJoinedNREMTable(round(P*size(physioJoinedNREMTable,1) + 1:end),:),...
+    physioJoinedREMTable(round(P*size(physioJoinedREMTable,1) + 1:end),:));
+physioTestingTable = physioTestingTable(shuffleSeedC,:);
 % train on odd data
 physioXtraining = physioTrainingTable(:,1:end - 1);
 physioYtraining = physioTrainingTable(:,end);
@@ -132,7 +151,7 @@ physioYtesting = physioTestingTable(:,end);
 % random forest
 bestAccuracy = 0;
 for aa = 1:iterations
-    RF_MDL = TreeBagger(numTrees,physioXtraining,physioYtraining,'Method','Classification','Surrogate','all','OOBPrediction','on','ClassNames',{'Not Sleep','NREM Sleep','REM Sleep'});
+    RF_MDL = TreeBagger(numTrees,physioXtraining,physioYtraining,'Method','Classification','Surrogate','all','OOBPrediction','on','ClassNames',{'Not Sleep','NREM Sleep','REM Sleep'},'Options',paroptions);
     % use the model to generate a set of predictions
     [physioTestingPredictions,~] = predict(RF_MDL,physioXtesting);
     % confusion chart
@@ -142,9 +161,14 @@ for aa = 1:iterations
     CM.RowSummary = 'row-normalized';
     CM.Title = [animalID ' Testing Data'];
     confVals = CM.NormalizedValues;
+    % totalScoresA = sum(confVals([7,8,9]));
+    % modelAccuracyA = (sum(confVals(9)/totalScoresA))*100;
+    % totalScoresB = sum(confVals([3,6,9]));
+    % modelAccuracyB = (sum(confVals(9)/totalScoresB))*100;
+    % modelAccuracy = (modelAccuracyA + modelAccuracyB)/2;
     totalScores = sum(confVals(:));
     modelAccuracy = (sum(confVals([1,5,9])/totalScores))*100;
-    CM.Title = {'physio RF',['total accuracy: ' num2str(modelAccuracy) ' (%)']};
+    CM.Title = {'Physio RF',['total accuracy: ' num2str(modelAccuracy) ' (%)']};
     close(RF_confMat)
     if modelAccuracy > bestAccuracy
         bestAccuracy = modelAccuracy;
@@ -162,7 +186,7 @@ Results_PhysioSleepModel.(animalID).physio.trueTestingLabels = physioYtesting.be
 Results_PhysioSleepModel.(animalID).physio.predictedTestingLabels = physioTestingPredictions;
 %% combined model - separate the manual scores into 3 groups based on arousal classification
 combinedJoinedAwakeTable = []; combinedJoinedNREMTable = []; combinedJoinedREMTable = [];
-combinedRandomTable = combinedJoinedTable(shuffleSeed,:);
+combinedRandomTable = combinedJoinedTable(shuffleSeedA,:);
 for aa = 1:size(combinedRandomTable,1)
     if strcmp(combinedRandomTable.behavState{aa,1},'Not Sleep') == true
         combinedJoinedAwakeTable = vertcat(combinedJoinedAwakeTable,combinedRandomTable(aa,:));
@@ -172,10 +196,14 @@ for aa = 1:size(combinedRandomTable,1)
         combinedJoinedREMTable = vertcat(combinedJoinedREMTable,combinedRandomTable(aa,:));
     end
 end
-combinedJoinedTableOdd = vertcat(combinedJoinedAwakeTable(1:2:end,:),combinedJoinedNREMTable(1:2:end,:),combinedJoinedREMTable(1:2:end,:));
-combinedTrainingTable = combinedJoinedTableOdd(randperm(size(combinedJoinedTableOdd,1)),:);
-combinedJoinedTableEven = vertcat(combinedJoinedAwakeTable(2:2:end,:),combinedJoinedNREMTable(2:2:end,:),combinedJoinedREMTable(2:2:end,:));
-combinedTestingTable = combinedJoinedTableEven(randperm(size(combinedJoinedTableEven,1)),:);
+combinedTrainingTable = vertcat(combinedJoinedAwakeTable(1:round(P*size(combinedJoinedAwakeTable,1)),:), ...
+    combinedJoinedNREMTable(1:round(P*size(combinedJoinedNREMTable,1)),:),...
+    combinedJoinedREMTable(1:round(P*size(combinedJoinedREMTable,1)),:));
+combinedTrainingTable = combinedTrainingTable(shuffleSeedB,:);
+combinedTestingTable = vertcat(combinedJoinedAwakeTable(round(P*size(combinedJoinedAwakeTable,1) + 1:end),:), ...
+    combinedJoinedNREMTable(round(P*size(combinedJoinedNREMTable,1) + 1:end),:),...
+    combinedJoinedREMTable(round(P*size(combinedJoinedREMTable,1) + 1:end),:));
+combinedTestingTable = combinedTestingTable(shuffleSeedC,:);
 % train on odd data
 combinedXtraining = combinedTrainingTable(:,1:end - 1);
 combinedYtraining = combinedTrainingTable(:,end);
@@ -185,7 +213,7 @@ combinedYtesting = combinedTestingTable(:,end);
 % random forest
 bestAccuracy = 0;
 for aa = 1:iterations
-    RF_MDL = TreeBagger(numTrees,combinedXtraining,combinedYtraining,'Method','Classification','Surrogate','all','OOBPrediction','on','ClassNames',{'Not Sleep','NREM Sleep','REM Sleep'});
+    RF_MDL = TreeBagger(numTrees,combinedXtraining,combinedYtraining,'Method','Classification','Surrogate','all','OOBPrediction','on','ClassNames',{'Not Sleep','NREM Sleep','REM Sleep'},'Options',paroptions);
     % use the model to generate a set of predictions
     [combinedTestingPredictions,~] = predict(RF_MDL,combinedXtesting);
     % confusion chart
@@ -195,9 +223,14 @@ for aa = 1:iterations
     CM.RowSummary = 'row-normalized';
     CM.Title = [animalID ' Testing Data'];
     confVals = CM.NormalizedValues;
+    % totalScoresA = sum(confVals([7,8,9]));
+    % modelAccuracyA = (sum(confVals(9)/totalScoresA))*100;
+    % totalScoresB = sum(confVals([3,6,9]));
+    % modelAccuracyB = (sum(confVals(9)/totalScoresB))*100;
+    % modelAccuracy = (modelAccuracyA + modelAccuracyB)/2;
     totalScores = sum(confVals(:));
     modelAccuracy = (sum(confVals([1,5,9])/totalScores))*100;
-    CM.Title = {'combined RF',['total accuracy: ' num2str(modelAccuracy) ' (%)']};
+    CM.Title = {'Combined RF',['total accuracy: ' num2str(modelAccuracy) ' (%)']};
     close(RF_confMat)
     if modelAccuracy > bestAccuracy
         bestAccuracy = modelAccuracy;

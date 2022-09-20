@@ -23,7 +23,7 @@ zap;
 procDataFileStruct = dir('*_ProcData.mat');
 procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
-[animalID,~,~] = GetFileInfo_Turner2022(procDataFileIDs(1,:));
+% [animalID,~,~] = GetFileInfo_Turner2022(procDataFileIDs(1,:));
 % %% track pupil area and blink detetction
 % RunPupilTracker_Turner2022(procDataFileIDs)
 % %% patch pupil area
@@ -52,10 +52,10 @@ procDataFileIDs = char(procDataFiles);
 %     ConvertPupilAreaToDiameter_Turner2022(procDataFileIDs(ee,:))
 % end
 % %% add pupil area to RestData.mat
-dataTypes = {'pupilArea','diameter','mmArea','mmDiameter','patchCentroidX','patchCentroidY'};
-ExtractPupilRestingData_Turner2022(procDataFileIDs,dataTypes);
+% dataTypes = {'pupilArea','diameter','mmArea','mmDiameter','patchCentroidX','patchCentroidY'};
+% ExtractPupilRestingData_Turner2022(procDataFileIDs,dataTypes);
 %% add pupil baseline to Restingbaselines.mat
-[RestingBaselines] = AddPupilRestingBaseline_Turner2022();
+% [RestingBaselines] = AddPupilRestingBaseline_Turner2022();
 % %% zScore pupil data
 % for ff = 1:size(procDataFileIDs,1)
 %     disp(['Z-scoring pupil data of file ' num2str(ff) '/' num2str(size(procDataFileIDs,1))]); disp(' ')
@@ -72,6 +72,11 @@ ExtractPupilRestingData_Turner2022(procDataFileIDs,dataTypes);
 % save([animalID '_RestData.mat'],'RestData','-v7.3')
 % [EventData] = NormBehavioralDataStruct_Turner2022(EventData,RestingBaselines,'manualSelection');
 % save([animalID '_EventData.mat'],'EventData','-v7.3')
-% %% add pupil data to SleepData.mat
-% AddPupilSleepParameters_Turner2022(procDataFileIDs)
-% UpdatePupilSleepData_Turner2022(procDataFileIDs)
+%% add pupil data to SleepData.mat
+% load resting baseline file
+baselineDataFileStruct = dir('*_RestingBaselines.mat');
+baselineDataFiles = {baselineDataFileStruct.name}';
+baselineDataFileID = char(baselineDataFiles);
+load(baselineDataFileID)
+AddPupilSleepParameters_Turner2022(procDataFileIDs,RestingBaselines)
+UpdatePupilSleepData_Turner2022(procDataFileIDs)

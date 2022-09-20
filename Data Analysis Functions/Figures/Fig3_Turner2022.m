@@ -7,21 +7,8 @@ function [] = Fig3_Turner2022(rootFolder,saveFigs,delim)
 % Purpose: Generate figures and supporting information for Figure Panel 3
 %________________________________________________________________________________________________________________________
 
-%% blink periodogram
-resultsStruct = 'Results_BlinkPeriodogram.mat';
-load(resultsStruct);
-animalIDs = fieldnames(Results_BlinkPeriodogram);
-for aa = 1:length(animalIDs) - 1
-    animalID = animalIDs{aa,1};
-    data.f1(aa,:) = Results_BlinkPeriodogram.(animalID).f;
-    data.S(aa,:) = Results_BlinkPeriodogram.(animalID).S;
-end
-data.meanf1 = mean(data.f1,1);
-data.meanS = mean(data.S,1);
-data.f2 = Results_BlinkPeriodogram.results.f;
-data.pxx = Results_BlinkPeriodogram.results.pxx;
-data.meanPxx = mean(data.pxx,2,'omitnan');
-data.meanF2 = data.f2;
+dataLocation = [rootFolder delim 'Analysis Structures'];
+cd(dataLocation)
 %% blinks associated with wisker stimulation
 resultsStruct = 'Results_StimulusBlinks.mat';
 load(resultsStruct);
@@ -167,39 +154,69 @@ data.stdInterblink = std(data.interblink,0,1);
 %% figures
 Fig3A = figure('Name','Figure Panel 3 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
 %% histogram of interblink interval
-ax1 = subplot(2,4,1);
+ax1 = subplot(2,3,1);
 [~,edges] = histcounts(log10(data.allInterBlink));
 histogram(data.allInterBlink,10.^edges,'Normalization','probability','EdgeColor',colors('vegas gold'),'FaceColor','k')
 set(gca,'xscale','log')
-xlabel('Interblink duration (s)')
+xlabel('Interblink interval (IBI) (s)')
 ylabel('Probability')
-title('Interblink interval')
+title('Interblink interval histogram')
 axis square
 set(gca,'box','off')
 ax1.TickLength = [0.03,0.03];
+%% mean interblink interval
+ax5 = subplot(2,3,2);
+scatter(ones(1,length(data.interblink))*1,data.interblink,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('vegas gold'),'jitter','on','jitterAmount',0.25);
+hold on
+e1 = errorbar(1,data.meanInterblink,data.stdInterblink,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e1.Color = 'black';
+e1.MarkerSize = 10;
+e1.CapSize = 10;
+ylabel('Mean IBI (s)')
+title('Interblink interval')
+set(gca,'xtick',[])
+set(gca,'xticklabel',[])
+axis square
+xlim([0,2])
+set(gca,'box','off')
+ax5.TickLength = [0.03,0.03];
 %% blinking post-stimulus
-ax2 = subplot(2,4,2);
+ax2 = subplot(2,3,3);
 stimTimeVec = 0.5:0.5:5;
 plot(stimTimeVec,data.meanBinProb,'color',colors('magenta'),'LineWidth',2)
 hold on;
 plot(stimTimeVec,data.meanBinProb + data.stdBinProb,'color',colors('magenta')','LineWidth',0.5)
 plot(stimTimeVec,data.meanBinProb - data.stdBinProb,'color',colors('magenta')','LineWidth',0.5)
-x1 = xline(0,'color',colors('custom green'),'LineWidth',2);
 title('blink location post-stimulus')
 xlabel('Post-stim time (s)')
 ylabel('Probability')
-legend(x1,'Whisker puff')
 set(gca,'box','off')
-xlim([-0.25,5]);
+xlim([0.5,5]);
 ylim([0,0.45])
 axis square
 ax2.TickLength = [0.03,0.03];
+%% percentage blinks post-puff
+ax6 = subplot(2,3,4);
+scatter(ones(1,length(data.stimPerc))*1,data.stimPerc,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('magenta'),'jitter','on','jitterAmount',0.25);
+hold on
+e1 = errorbar(1,data.meanStimPerc,data.stdStimPerc,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e1.Color = 'black';
+e1.MarkerSize = 10;
+e1.CapSize = 10;
+ylabel('Percentage (%)')
+title('Probabilty of blinking after a whisker puff')
+set(gca,'xtick',[])
+set(gca,'xticklabel',[])
+axis square
+xlim([0,2])
+set(gca,'box','off')
+ax6.TickLength = [0.03,0.03];
 %% blink transitions
-ax3 = subplot(2,4,3);
+ax3 = subplot(2,3,5);
 p1 = plot(awakeProbability,'color',colors('black'),'LineWidth',2);
 hold on
-p2 = plot(nremProbability,'color',colors('caribbean blue'),'LineWidth',2);
-p3 = plot(remProbability,'color',colors('caribbean green'),'LineWidth',2);
+p2 = plot(nremProbability,'color',colors('cyan'),'LineWidth',2);
+p3 = plot(remProbability,'color',colors('candy apple red'),'LineWidth',2);
 x1 = xline(7,'color',colors('magenta'),'LineWidth',2);
 title('Peri-blink state probability')
 xlabel('Peri-blink time (s)')
@@ -213,7 +230,7 @@ axis square
 set(gca,'box','off')
 ax3.TickLength = [0.03,0.03];
 %% whisking before/after a blink
-ax4 = subplot(2,4,4);
+ax4 = subplot(2,3,6);
 p1 = plot(timeVector,data.Awake.meanWhisk,'color',colors('black'),'LineWidth',2);
 hold on
 plot(timeVector,data.Awake.meanWhisk + data.Awake.stdWhisk,'color',colors('black'),'LineWidth',0.5)
@@ -229,41 +246,9 @@ legend([p1,p2,x1],'Awake','Asleep','Blink','Location','NorthEast')
 set(gca,'box','off')
 axis square
 ax4.TickLength = [0.03,0.03];
-%% mean interblink interval
-ax5 = subplot(2,4,5);
-scatter(ones(1,length(data.interblink))*1,data.interblink,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('vegas gold'),'jitter','on','jitterAmount',0.25);
-hold on
-e1 = errorbar(1,data.meanInterblink,data.stdInterblink,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e1.Color = 'black';
-e1.MarkerSize = 10;
-e1.CapSize = 10;
-ylabel('Interblink duration (s)')
-title('Interblink interval')
-set(gca,'xtick',[])
-set(gca,'xticklabel',[])
-axis square
-xlim([0,2])
-set(gca,'box','off')
-ax5.TickLength = [0.03,0.03];
-%% percentage blinks post-puff
-ax6 = subplot(2,4,6);
-scatter(ones(1,length(data.stimPerc))*1,data.stimPerc,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('magenta'),'jitter','on','jitterAmount',0.25);
-hold on
-e1 = errorbar(1,data.meanStimPerc,data.stdStimPerc,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
-e1.Color = 'black';
-e1.MarkerSize = 10;
-e1.CapSize = 10;
-ylabel('Percentage (%)')
-title('Probabilty of blinking after a whisker puff')
-set(gca,'xtick',[])
-set(gca,'xticklabel',[])
-axis square
-xlim([0,2])
-set(gca,'box','off')
-ax6.TickLength = [0.03,0.03];
 %% save figure(s)
 if saveFigs == true
-    dirpath = [rootFolder delim 'Figure Panels' delim];
+    dirpath = [rootFolder delim 'MATLAB Figures' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
@@ -388,7 +373,7 @@ ax8Pos(3:4) = ax5Pos(3:4);
 set(ax8,'position',ax8Pos);
 %% save figure(s)
 if saveFigs == true
-    dirpath = [rootFolder delim 'Figure Panels' delim];
+    dirpath = [rootFolder delim 'MATLAB Figures' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
@@ -513,7 +498,7 @@ ax8Pos(3:4) = ax5Pos(3:4);
 set(ax8,'position',ax8Pos);
 %% save figure(s)
 if saveFigs == true
-    dirpath = [rootFolder delim 'Figure Panels' delim];
+    dirpath = [rootFolder delim 'MATLAB Figures' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
@@ -543,5 +528,5 @@ if saveFigs == true
     disp('----------------------------------------------------------------------------------------------------------------------')
     diary off
 end
-
+cd(rootFolder)
 end

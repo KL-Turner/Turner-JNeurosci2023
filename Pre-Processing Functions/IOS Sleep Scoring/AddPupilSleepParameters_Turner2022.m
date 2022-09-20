@@ -41,6 +41,7 @@ for a = 1:size(procDataFileIDs,1)
                     end
                 end
                 data.(dataType).data = distanceTraveled*ProcData.data.Pupil.mmPerPixel;
+                ProcData.data.Pupil.distanceTraveled = distanceTraveled*ProcData.data.Pupil.mmPerPixel;
             elseif strcmp(dataType,'centroidX') == true
                 try
                     data.(dataType).data = filtfilt(sos,g,ProcData.data.Pupil.patchCentroidX - RestingBaselines.manualSelection.Pupil.patchCentroidX.(strDay).mean);

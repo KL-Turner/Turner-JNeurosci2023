@@ -7,6 +7,8 @@ function [AnalysisResults] = Fig5_Turner2022(rootFolder,saveFigs,delim,AnalysisR
 %   Purpose: Generate figures and supporting information for Figure Panel 5
 %________________________________________________________________________________________________________________________
 
+dataLocation = [rootFolder delim 'Analysis Structures'];
+cd(dataLocation)
 %% Pupil-HbT relationship
 resultsStruct = 'Results_PupilHbTRelationship.mat';
 load(resultsStruct);
@@ -52,157 +54,6 @@ diameterAllCatMeans = Results_SleepProbability.diameterCatMeans;
 awakeProbPerc = Results_SleepProbability.awakeProbPerc./100;
 nremProbPerc = Results_SleepProbability.nremProbPerc./100;
 remProbPerc = Results_SleepProbability.remProbPerc./100;
-asleepProbPerc = Results_SleepProbability.asleepProbPerc./100;
-%% Sleep model accuracy based on pupil zDiameter alone
-resultsStructB = 'Results_PupilSleepModel.mat';
-load(resultsStructB);
-animalIDs = fieldnames(Results_PupilSleepModel);
-data.pupil.holdXlabels = []; data.pupil.holdYlabels = [];
-for dd = 1:length(animalIDs)
-    animalID = animalIDs{dd,1};
-    if strcmp(animalID,'T141') == true
-        Xodd = Results_PupilSleepModel.(animalID).SVM.Xodd;
-        Yodd = Results_PupilSleepModel.(animalID).SVM.Yodd;
-        exampleBoundary = Results_PupilSleepModel.(animalID).SVM.zBoundary;
-    end
-    data.pupil.rocX{dd,1} = Results_PupilSleepModel.(animalID).SVM.rocX';
-    data.pupil.rocY{dd,1} = Results_PupilSleepModel.(animalID).SVM.rocY';
-    data.pupil.rocAUC(dd,1) = Results_PupilSleepModel.(animalID).SVM.rocAUC;
-    data.pupil.rocOPTROCPT{dd,1} = Results_PupilSleepModel.(animalID).SVM.rocOPTROCPT;
-    data.pupil.loss(dd,:) = Results_PupilSleepModel.(animalID).SVM.loss;
-    data.pupil.zBoundary(dd,1) = Results_PupilSleepModel.(animalID).SVM.zBoundary;
-    data.pupil.mBoundary(dd,1) = Results_PupilSleepModel.(animalID).SVM.mmBoundary;
-    data.pupil.holdXlabels = cat(1,data.pupil.holdXlabels,Results_PupilSleepModel.(animalID).SVM.testXlabels);
-    data.pupil.holdYlabels = cat(1,data.pupil.holdYlabels,Results_PupilSleepModel.(animalID).SVM.testYlabels);
-end
-data.pupil.rocMeanAUC = mean(data.pupil.rocAUC,1);
-data.pupil.rocStdAUC = std(data.pupil.rocAUC,0,1);
-data.pupil.meanLoss = mean(data.pupil.loss,1);
-data.pupil.stdLoss = std(data.pupil.loss,0,1);
-data.pupil.meanZBoundary = mean(data.pupil.zBoundary,1);
-data.pupil.stdZBoundary = std(data.pupil.zBoundary,0,1);
-data.pupil.meanMBoundary = mean(data.pupil.mBoundary,1);
-data.pupil.stdMBoundary = std(data.pupil.mBoundary,0,1);
-%% Sleep model accuracy based on physiology
-resultsStructB = 'Results_PhysioSleepModel.mat';
-load(resultsStructB);
-animalIDs = fieldnames(Results_PhysioSleepModel);
-data.physio.holdXlabels = []; data.physio.holdYlabels = [];
-for dd = 1:length(animalIDs)
-    animalID = animalIDs{dd,1};
-    data.physio.loss(dd,1) = Results_PhysioSleepModel.(animalID).SVM.loss;
-    data.physio.holdXlabels = cat(1,data.physio.holdXlabels,Results_PhysioSleepModel.(animalID).SVM.testXlabels);
-    data.physio.holdYlabels = cat(1,data.physio.holdYlabels,Results_PhysioSleepModel.(animalID).SVM.testYlabels);
-end
-data.physio.meanLoss = mean(data.physio.loss,1);
-data.physio.stdLoss = std(data.physio.loss,0,1);
-[lossStats.h,lossStats.p,lossStats.ci,lossStats.stats] = ttest2(data.physio.loss,data.pupil.loss);
-%% pupil model coherence
-resultsStruct = 'Results_PupilModelCoherence.mat';
-load(resultsStruct);
-animalIDs = fieldnames(Results_PupilModelCoherence);
-for aa = 1:length(animalIDs)
-    animalID = animalIDs{aa,1};
-    data.Coherr.pupilf(aa,:) = Results_PupilModelCoherence.(animalID).Pupil.f;
-    data.Coherr.pupilC(aa,:) = Results_PupilModelCoherence.(animalID).Pupil.C;
-    data.Coherr.physiof(aa,:) = Results_PupilModelCoherence.(animalID).Physio.f;
-    data.Coherr.physioC(aa,:) = Results_PupilModelCoherence.(animalID).Physio.C;
-end
-data.Coherr.meanPupilf = mean(data.Coherr.pupilf,1);
-data.Coherr.meanPupilC = mean(data.Coherr.pupilC,1);
-data.Coherr.stdPupilC = std(data.Coherr.pupilC,0,1)/sqrt(size(data.Coherr.pupilC,1));
-data.Coherr.meanPhysiof = mean(data.Coherr.physiof,1);
-data.Coherr.meanPhysioC = mean(data.Coherr.physioC,1);
-data.Coherr.stdPhysioC = std(data.Coherr.physioC,0,1)/sqrt(size(data.Coherr.physioC,1));
-%% load data
-dataStructure = 'Results_Example.mat';
-load(dataStructure)
-binTime = 5; % sec
-for aa = 1:length(Results_Example.trueLabels)
-    if strcmp(Results_Example.trueLabels{aa,1},'Not Sleep') == true
-        trueAwake(aa,1) = 1;
-        trueAsleep(aa,1) = 0;
-    elseif strcmp(Results_Example.trueLabels{aa,1},'NREM Sleep') == true || strcmp(Results_Example.trueLabels{aa,1},'REM Sleep') == true
-        trueAwake(aa,1) = 0;
-        trueAsleep(aa,1) = 1;
-    end
-end
-for aa = 1:length(Results_Example.trueLabels)
-    if strcmp(Results_Example.trueLabels{aa,1},'Not Sleep') == true
-        trueNREM(aa,1) = 0;
-        trueREM(aa,1) = 0;
-    elseif strcmp(Results_Example.trueLabels{aa,1},'NREM Sleep') == true
-        trueNREM(aa,1) = 1;
-        trueREM(aa,1) = 0;
-    elseif strcmp(Results_Example.trueLabels{aa,1},'REM Sleep') == true
-        trueNREM(aa,1) = 0;
-        trueREM(aa,1) = 1;
-    end
-end
-[physioPred,~] = predict(Results_PhysioSleepModel.T141.SVM.mdl,Results_Example.physioTable);
-physioPredAwake = strcmp(physioPred,'Awake');
-physioPredAsleep = strcmp(physioPred,'Asleep');
-[pupilPred,~] = predict(Results_PupilSleepModel.T141.SVM.mdl,Results_Example.pupilTable);
-pupilPredAwake = strcmp(pupilPred,'Awake');
-pupilPredAsleep = strcmp(pupilPred,'Asleep');
-%% load data
-catTrueAwake = []; catTrueAsleep = []; catTrueNREM = []; catTrueREM = [];
-catPhysioAwake = []; catPhysioAsleep = []; catPupilAwake = []; catPupilAsleep = [];
-for qq = 1:length(Results_Example.allPhysioTables)
-    physioTable = Results_Example.allPhysioTables{qq,1};
-    physioModel = physioTable(:,1:end - 1);
-    pupilTable = Results_Example.allPupilTables{qq,1};
-    pupilModel = pupilTable(:,1);
-    trueLabels = physioTable.behavState;
-    for aa = 1:length(trueLabels)
-        if strcmp(trueLabels{aa,1},'Not Sleep') == true
-            allTrueAwake(aa,1) = 1;
-            allTrueAsleep(aa,1) = 0;
-        elseif strcmp(trueLabels{aa,1},'NREM Sleep') == true || strcmp(trueLabels{aa,1},'REM Sleep') == true
-            allTrueAwake(aa,1) = 0;
-            allTrueAsleep(aa,1) = 1;
-        end
-    end
-    for aa = 1:length(trueLabels)
-        if strcmp(trueLabels{aa,1},'Not Sleep') == true
-            allTrueNREM(aa,1) = 0;
-            allTrueREM(aa,1) = 0;
-        elseif strcmp(trueLabels{aa,1},'NREM Sleep') == true
-            allTrueNREM(aa,1) = 1;
-            allTrueREM(aa,1) = 0;
-        elseif strcmp(trueLabels{aa,1},'REM Sleep') == true
-            allTrueNREM(aa,1) = 0;
-            allTrueREM(aa,1) = 1;
-        end
-    end
-    [allPhysioPred,~] = predict(Results_PhysioSleepModel.T141.SVM.mdl,physioModel);
-    allPhysioPredAwake = strcmp(allPhysioPred,'Awake');
-    allPhysioPredAsleep = strcmp(allPhysioPred,'Asleep');
-    [allPupilPred,~] = predict(Results_PupilSleepModel.T141.SVM.mdl,pupilModel);
-    allPupilPredAwake = strcmp(allPupilPred,'Awake');
-    allPupilPredAsleep = strcmp(allPupilPred,'Asleep');
-    if qq == 1
-        catTrueAwake = allTrueAwake;
-        catTrueAsleep = allTrueAsleep;
-        catTrueNREM = allTrueNREM;
-        catTrueREM = allTrueREM;
-        catPhysioAwake = allPhysioPredAwake;
-        catPhysioAsleep = allPhysioPredAsleep;
-        catPupilAwake = allPupilPredAwake;
-        catPupilAsleep = allPupilPredAsleep;
-    else
-        delayBins = Results_Example.timePadBins{qq - 1,1};
-        timePadArray = NaN(length(delayBins),1);
-        catTrueAwake = cat(1,catTrueAwake,timePadArray,allTrueAwake);
-        catTrueAsleep = cat(1,catTrueAsleep,timePadArray,allTrueAsleep);
-        catTrueNREM = cat(1,catTrueNREM,timePadArray,allTrueNREM);
-        catTrueREM = cat(1,catTrueREM,timePadArray,allTrueREM);
-        catPhysioAwake = cat(1,catPhysioAwake,timePadArray,allPhysioPredAwake);
-        catPhysioAsleep = cat(1,catPhysioAsleep,timePadArray,allPhysioPredAsleep);
-        catPupilAwake = cat(1,catPupilAwake,timePadArray,allPupilPredAwake);
-        catPupilAsleep = cat(1,catPupilAsleep,timePadArray,allPupilPredAsleep);
-    end
-end
 %% Figure
 HbTawakeHist = figure;
 h1 = histogram2(data.HbTRel.catPupil.Awake,data.HbTRel.catHbT.Awake,'DisplayStyle','tile','ShowEmptyBins','on','XBinedges',-5:0.025:3,'YBinedges',-25:2.5:125,'Normalization','probability');
@@ -330,7 +181,7 @@ close(GammaRemHist)
 close(GammaRemRGB)
 %% save figure(s)
 if saveFigs == true
-    dirpath = [rootFolder delim 'Figure Panels' delim];
+    dirpath = [rootFolder delim 'MATLAB Figures' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
@@ -365,9 +216,68 @@ if saveFigs == true
     imwrite(h5Img,[dirpath 'Fig5_GammaNREM_Turner2022.png'])
     imwrite(h6Img,[dirpath 'Fig5_GammaREM_Turner2022.png'])
 end
+%% eye transitions between arousal states
+resultsStruct = 'Results_Transitions.mat';
+load(resultsStruct);
+animalIDs = fieldnames(Results_Transitions);
+transitions = {'AWAKEtoNREM','NREMtoAWAKE','NREMtoREM','REMtoAWAKE'};
+mmPerPixel = 0.018;
+for aa = 1:length(animalIDs)
+    animalID = animalIDs{aa,1};
+    for bb = 1:length(transitions)
+        transition = transitions{1,bb};
+        data.(transition).mmDiameter(aa,:) = mean(Results_Transitions.(animalID).(transition).mmDiameter,'omitnan');
+        data.(transition).zDiameter(aa,:) = mean(Results_Transitions.(animalID).(transition).zDiameter,'omitnan');
+        data.(transition).distanceTraveled(aa,:) = mean(Results_Transitions.(animalID).(transition).distanceTraveled,'omitnan')*mmPerPixel;
+        data.(transition).centroidX(aa,:) = mean(Results_Transitions.(animalID).(transition).centroidX,'omitnan')*mmPerPixel;
+        data.(transition).centroidY(aa,:) = mean(Results_Transitions.(animalID).(transition).centroidY,'omitnan')*mmPerPixel;
+    end
+end
+% take average for each behavioral transition
+for cc = 1:length(transitions)
+    transition = transitions{1,cc};
+    data.(transition).meanZ = mean(data.(transition).zDiameter,1,'omitnan');
+    data.(transition).stdZ = std(data.(transition).zDiameter,0,1,'omitnan');
+    data.(transition).meanMM = mean(data.(transition).mmDiameter,1,'omitnan');
+    data.(transition).stdMM = std(data.(transition).mmDiameter,0,1,'omitnan');
+    data.(transition).meanDistanceTraveled = mean(data.(transition).distanceTraveled,1,'omitnan');
+    data.(transition).stdDistanceTraveled = std(data.(transition).distanceTraveled,0,1,'omitnan');
+    data.(transition).meanCentroidX = mean(data.(transition).centroidX,1,'omitnan');
+    data.(transition).stdCentroidX = std(data.(transition).centroidX,0,1,'omitnan');
+    data.(transition).meanCentroidY = mean(data.(transition).centroidY,1,'omitnan');
+    data.(transition).stdCentroidY = std(data.(transition).centroidY,0,1,'omitnan');
+end
+T1 = -30 + (1/30):(1/30):30;
+%% eye motion
+resultsStruct = 'Results_EyeMotion.mat';
+load(resultsStruct);
+animalIDs = fieldnames(Results_Transitions);
+for aa = 1:length(animalIDs)
+    animalID = animalIDs{aa,1};
+    data.Awake(aa,:) = mean(Results_EyeMotion.(animalID).Awake);
+    data.NREM(aa,:) = mean(Results_EyeMotion.(animalID).NREM);
+    data.REM(aa,:) = mean(Results_EyeMotion.(animalID).REM);
+end
+% take average for each behavioral transition
+secPerBin = 5;
+meanAwake = mean(data.Awake/secPerBin);
+stdAwake = std(data.Awake/secPerBin,0,1);
+meanNREM = mean(data.NREM/secPerBin);
+stdNREM = std(data.NREM/secPerBin,0,1);
+meanREM = mean(data.REM/secPerBin);
+stdREM = std(data.REM/secPerBin,0,1);
+% stats
+[AwakeNREMStats.h,AwakeNREMStats.p,AwakeNREMStats.ci,AwakeNREMStats.stats] = ttest(data.Awake,data.NREM);
+[AwakeREMStats.h,AwakeREMStats.p,AwakeREMStats.ci,AwakeREMStats.stats] = ttest(data.Awake,data.REM);
+[NREMREMStats.h,NREMREMStats.p,NREMREMStats.ci,NREMREMStats.stats] = ttest(data.NREM,data.REM);
+% bonferroni correction
+comparisons = 3;
+alpha1 = 0.05/comparisons;
+alpha2 = 0.01/comparisons;
+alpha3 = 0.001/comparisons;
 %% Figure
-Fig5B = figure('Name','Figure Panel 5 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
-ax1 = subplot(2,3,1);
+Fig5 = figure('Name','Figure Panel 5 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
+ax1 = subplot(3,4,1);
 edges = -8:0.1:6.5;
 yyaxis right
 h1 = histogram(diameterAllCatMeans,edges,'Normalization','probability','EdgeColor',colors('black'),'FaceColor',colors('black'));
@@ -377,11 +287,10 @@ p1 = plot(edges,sgolayfilt(medfilt1(awakeProbPerc,10,'truncate'),3,17),'-','colo
 hold on
 p2 = plot(edges,sgolayfilt(medfilt1(nremProbPerc,10,'truncate'),3,17),'-','color',colors('cyan'),'LineWidth',2);
 p3 = plot(edges,sgolayfilt(medfilt1(remProbPerc,10,'truncate'),3,17),'-','color',colors('candy apple red'),'LineWidth',2);
-p4 = plot(edges,sgolayfilt(medfilt1(asleepProbPerc,10,'truncate'),3,17),'-','color',colors('royal purple'),'LineWidth',2);
 ylabel({'Arousal-state probability (%)'})
 xlim([-8,6.5])
 ylim([0,1])
-legend([p1,p2,p3,p4,h1],'Awake','NREM','REM','Asleep','\DeltaArea','Location','NorthEast')
+legend([p1,p2,p3,h1],'Awake','NREM','REM','\DeltaArea','Location','NorthEast')
 title('Diameter vs. arousal state')
 xlabel('Diameter (z-units)')
 axis square
@@ -390,9 +299,9 @@ set(gca,'TickLength',[0.03,0.03]);
 set(h1,'facealpha',0.2);
 ax1.TickLength = [0.03,0.03];
 ax1.YAxis(1).Color = colors('black');
-ax1.YAxis(2).Color = colors('dark candy apple red');
+ax1.YAxis(2).Color = colors('battleship grey');
 %% Gamma
-subplot(2,3,2)
+subplot(3,4,2)
 gammaPupilImg = imread('GammaPupilStack.png'); % needs made by combining images in ImageJ (Z project min)
 imshow(gammaPupilImg)
 axis off
@@ -400,244 +309,152 @@ title('Pupil-Gamma')
 xlabel('Diameter (z-units)')
 ylabel('\DeltaP/P (%)')
 %% HbT
-subplot(2,3,3)
+subplot(3,4,3)
 HbTPupilImg = imread('HbTPupilStack.png'); % needs made by combining images in ImageJ (Z project min)
 imshow(HbTPupilImg)
 axis off
 title('Pupil-HbT')
 xlabel('Diameter (z-units)')
 ylabel('\Delta[HbT] (\muM)')
-%% sleep model confusion matrix
-subplot(2,4,5)
-cm = confusionchart(data.physio.holdYlabels,data.physio.holdXlabels);
-cm.ColumnSummary = 'column-normalized';
-cm.RowSummary = 'row-normalized';
-confVals = cm.NormalizedValues;
-totalScores = sum(confVals(:));
-modelAccuracy = round((sum(confVals([1,4])/totalScores))*100,1);
-cm.Title = {'Physio SVM',['total accuracy: ' num2str(modelAccuracy) ' (%)']};
-%% sleep model confusion matrix
-subplot(2,4,6)
-cm = confusionchart(data.pupil.holdYlabels,data.pupil.holdXlabels);
-cm.ColumnSummary = 'column-normalized';
-cm.RowSummary = 'row-normalized';
-confVals = cm.NormalizedValues;
-totalScores = sum(confVals(:));
-modelAccuracy = round((sum(confVals([1,4])/totalScores))*100,1);
-cm.Title = {'Pupil SVM',['total accuracy: ' num2str(modelAccuracy) ' (%)']};
-%% sleep model 10-fold loss
-ax6 = subplot(2,4,7);
-s1 = scatter(ones(1,length(data.physio.loss))*1,data.physio.loss,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'),'jitter','on','jitterAmount',0.25);
+%% Eye motion
+subplot(3,4,4)
+s1 = scatter(ones(1,length(data.Awake))*1,data.Awake/secPerBin,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('black'),'jitter','on','jitterAmount',0.25);
 hold on
-e1 = errorbar(1,data.physio.meanLoss,data.physio.stdLoss,'d','MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'));
+e1 = errorbar(1,meanAwake,stdAwake,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e1.Color = 'black';
 e1.MarkerSize = 10;
 e1.CapSize = 10;
-s2 = scatter(ones(1,length(data.pupil.loss))*2,data.pupil.loss,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('sapphire'),'jitter','on','jitterAmount',0.25);
+s2 = scatter(ones(1,length(data.NREM))*2,data.NREM/secPerBin,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('cyan'),'jitter','on','jitterAmount',0.25);
 hold on
-e2 = errorbar(2,data.pupil.meanLoss,data.pupil.stdLoss,'d','MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'));
+e2 = errorbar(2,meanNREM,stdNREM,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e2.Color = 'black';
 e2.MarkerSize = 10;
 e2.CapSize = 10;
-title('10-fold cross validation')
-ylabel('Loss (mean squared error)')
-legend([s1,s2],'Physio mdl','Pupil mdl','Location','NorthWest')
+s3 = scatter(ones(1,length(data.REM))*3,data.REM/secPerBin,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('candy apple red'),'jitter','on','jitterAmount',0.25);
+hold on
+e3 = errorbar(3,meanREM,stdREM,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
+e3.Color = 'black';
+e3.MarkerSize = 10;
+e3.CapSize = 10;
+title('Eye motion')
+ylabel('Mean |velocity| (mm/sec)')
+legend([s1,s2,s3],'Awake','NREM','REM')
 set(gca,'xtick',[])
 set(gca,'xticklabel',[])
 axis square
-xlim([0,3])
-ylim([0,0.2])
+xlim([0,4])
 set(gca,'box','off')
-ax6.TickLength = [0.03,0.03];
-%% model coherence
-subplot(2,4,8);
-s1 = semilogx(data.Coherr.meanPhysiof,data.Coherr.meanPhysioC,'color',colors('black'),'LineWidth',2);
+%% z-unit figure
+ax1 = subplot(3,4,5);
+plot(T1,data.AWAKEtoNREM.meanZ,'-','color',colors('black'),'LineWidth',2);
 hold on
-semilogx(data.Coherr.meanPhysiof,data.Coherr.meanPhysioC + data.Coherr.stdPhysioC,'color',colors('black'),'LineWidth',0.5);
-semilogx(data.Coherr.meanPhysiof,data.Coherr.meanPhysioC - data.Coherr.stdPhysioC,'color',colors('black'),'LineWidth',0.5);
-s2 = semilogx(data.Coherr.meanPupilf,data.Coherr.meanPupilC,'color',colors('sapphire'),'LineWidth',2);
-semilogx(data.Coherr.meanPupilf,data.Coherr.meanPupilC + data.Coherr.stdPupilC,'color',colors('sapphire'),'LineWidth',0.5);
-semilogx(data.Coherr.meanPupilf,data.Coherr.meanPupilC - data.Coherr.stdPupilC,'color',colors('sapphire'),'LineWidth',0.5);
-x1 = xline(1/30,'color',[0,0.4,0]);
-x2 = xline(1/60,'color','m');
-title('Model accuracy coherence')
-ylabel('Coherence')
-xlabel('Freq (Hz)')
-legend([s1,s2,x1,x2],'Physio mdl','Pupil mdl','NREM req','REM req')
-axis square
-% xlim([0.003,0])
-ylim([0,1])
+plot(T1,data.AWAKEtoNREM.meanZ + data.AWAKEtoNREM.stdZ,'-','color',colors('battleship grey'),'LineWidth',0.5);
+plot(T1,data.AWAKEtoNREM.meanZ - data.AWAKEtoNREM.stdZ,'-','color',colors('battleship grey'),'LineWidth',0.5);
+xlim([-30,30])
+title('Awake to NREM')
+xlabel('Peri-transition time (s)')
+ylabel('Diameter (Z)')
 set(gca,'box','off')
+%
+ax2 = subplot(3,4,6);
+plot(T1,data.NREMtoAWAKE.meanZ,'-','color',colors('black'),'LineWidth',2);
+hold on
+plot(T1,data.NREMtoAWAKE.meanZ + data.NREMtoAWAKE.stdZ,'-','color',colors('battleship grey'),'LineWidth',0.5);
+plot(T1,data.NREMtoAWAKE.meanZ - data.NREMtoAWAKE.stdZ,'-','color',colors('battleship grey'),'LineWidth',0.5);
+xlim([-30,30])
+title('NREM to Awake')
+xlabel('Peri-transition time (s)')
+ylabel('Diameter (z-units)')
+set(gca,'box','off')
+%
+ax3 = subplot(3,4,7);
+plot(T1,data.NREMtoREM.meanZ,'-','color',colors('black'),'LineWidth',2);
+hold on
+plot(T1,data.NREMtoREM.meanZ + data.NREMtoREM.stdZ,'-','color',colors('battleship grey'),'LineWidth',0.5);
+plot(T1,data.NREMtoREM.meanZ - data.NREMtoREM.stdZ,'-','color',colors('battleship grey'),'LineWidth',0.5);
+xlim([-30,30])
+title('NREM to REM')
+xlabel('Peri-transition time (s)')
+ylabel('Diameter (z-units)')
+set(gca,'box','off')
+%
+ax4 = subplot(3,4,8);
+plot(T1,data.REMtoAWAKE.meanZ,'-','color',colors('black'),'LineWidth',2);
+hold on
+plot(T1,data.REMtoAWAKE.meanZ + data.REMtoAWAKE.stdZ,'-','color',colors('battleship grey'),'LineWidth',0.5);
+plot(T1,data.REMtoAWAKE.meanZ - data.REMtoAWAKE.stdZ,'-','color',colors('battleship grey'),'LineWidth',0.5);
+xlim([-30,30])
+title('REM to Awake')
+xlabel('Peri-transition time (s)')
+ylabel('Diameter (z-units)')
+set(gca,'box','off')
+linkaxes([ax1,ax2,ax3,ax4],'xy')
+%
+ax1 = subplot(3,4,9);
+plot(T1,data.AWAKEtoNREM.meanCentroidX,'-','color',colors('custom green'),'LineWidth',2);
+hold on
+plot(T1,data.AWAKEtoNREM.meanCentroidX + data.AWAKEtoNREM.stdCentroidX,'-','color',colors('custom green'),'LineWidth',0.5);
+plot(T1,data.AWAKEtoNREM.meanCentroidX - data.AWAKEtoNREM.stdCentroidX,'-','color',colors('custom green'),'LineWidth',0.5);
+plot(T1,data.AWAKEtoNREM.meanCentroidY,'-','color',colors('cocoa brown'),'LineWidth',2);
+plot(T1,data.AWAKEtoNREM.meanCentroidY + data.AWAKEtoNREM.stdCentroidY,'-','color',colors('cocoa brown'),'LineWidth',0.5);
+plot(T1,data.AWAKEtoNREM.meanCentroidY - data.AWAKEtoNREM.stdCentroidY,'-','color',colors('cocoa brown'),'LineWidth',0.5);
+xlim([-30,30])
+title('Awake to NREM')
+xlabel('Peri-transition time (s)')
+ylabel('Position (mm)')
+set(gca,'box','off')
+%
+ax2 = subplot(3,4,10);
+plot(T1,data.NREMtoAWAKE.meanCentroidX,'-','color',colors('custom green'),'LineWidth',2);
+hold on
+plot(T1,data.NREMtoAWAKE.meanCentroidX + data.NREMtoAWAKE.stdCentroidX,'-','color',colors('custom green'),'LineWidth',0.5);
+plot(T1,data.NREMtoAWAKE.meanCentroidX - data.NREMtoAWAKE.stdCentroidX,'-','color',colors('custom green'),'LineWidth',0.5);
+plot(T1,data.NREMtoAWAKE.meanCentroidY,'-','color',colors('cocoa brown'),'LineWidth',2);
+plot(T1,data.NREMtoAWAKE.meanCentroidY + data.NREMtoAWAKE.stdCentroidY,'-','color',colors('cocoa brown'),'LineWidth',0.5);
+plot(T1,data.NREMtoAWAKE.meanCentroidY - data.NREMtoAWAKE.stdCentroidY,'-','color',colors('cocoa brown'),'LineWidth',0.5);
+xlim([-30,30])
+title('NREM to Awake')
+xlabel('Peri-transition time (s)')
+ylabel('Position (mm)')
+set(gca,'box','off')
+%
+ax3 = subplot(3,4,11);
+plot(T1,data.NREMtoREM.meanCentroidX,'-','color',colors('custom green'),'LineWidth',2);
+hold on
+plot(T1,data.NREMtoREM.meanCentroidX + data.NREMtoREM.stdCentroidX,'-','color',colors('custom green'),'LineWidth',0.5);
+plot(T1,data.NREMtoREM.meanCentroidX - data.NREMtoREM.stdCentroidX,'-','color',colors('custom green'),'LineWidth',0.5);
+plot(T1,data.NREMtoREM.meanCentroidY,'-','color',colors('cocoa brown'),'LineWidth',2);
+plot(T1,data.NREMtoREM.meanCentroidY + data.NREMtoREM.stdCentroidY,'-','color',colors('cocoa brown'),'LineWidth',0.5);
+plot(T1,data.NREMtoREM.meanCentroidY - data.NREMtoREM.stdCentroidY,'-','color',colors('cocoa brown'),'LineWidth',0.5);
+xlim([-30,30])
+title('NREM to REM')
+xlabel('Peri-transition time (s)')
+ylabel('Position (mm)')
+set(gca,'box','off')
+%
+ax4 = subplot(3,4,12);
+plot(T1,data.REMtoAWAKE.meanCentroidX,'-','color',colors('custom green'),'LineWidth',2);
+hold on
+plot(T1,data.REMtoAWAKE.meanCentroidX + data.REMtoAWAKE.stdCentroidX,'-','color',colors('custom green'),'LineWidth',0.5);
+plot(T1,data.REMtoAWAKE.meanCentroidX - data.REMtoAWAKE.stdCentroidX,'-','color',colors('custom green'),'LineWidth',0.5);
+plot(T1,data.REMtoAWAKE.meanCentroidY,'-','color',colors('cocoa brown'),'LineWidth',2);
+plot(T1,data.REMtoAWAKE.meanCentroidY + data.REMtoAWAKE.stdCentroidY,'-','color',colors('cocoa brown'),'LineWidth',0.5);
+plot(T1,data.REMtoAWAKE.meanCentroidY - data.REMtoAWAKE.stdCentroidY,'-','color',colors('cocoa brown'),'LineWidth',0.5);
+xlim([-30,30])
+title('REM to Awake')
+xlabel('Peri-transition time (s)')
+ylabel('Position (mm)')
+set(gca,'box','off')
+linkaxes([ax1,ax2,ax3,ax4],'xy')
 %% save figure(s)
 if saveFigs == true
-    dirpath = [rootFolder delim 'Figure Panels' delim];
+    dirpath = [rootFolder delim 'MATLAB Figures' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
-    savefig(Fig5B,[dirpath 'Fig5B_Turner2022']);
-    set(Fig5B,'PaperPositionMode','auto');
+    savefig(Fig5,[dirpath 'Fig5B_Turner2022']);
+    set(Fig5,'PaperPositionMode','auto');
     print('-vector','-dpdf','-fillpage',[dirpath 'Fig5B_Turner2022'])
-end
-%% hypnogram for model comparison
-Fig5C = figure('Name','Figure Panel 5 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
-subplot(10,1,1)
-b1 = bar(((1:length(catTrueAwake))*binTime)/60/60,catTrueAwake,'FaceColor',colors('black'),'BarWidth',1);
-hold on
-b2 = bar(((1:length(catTrueNREM))*binTime)/60/60,catTrueNREM,'FaceColor',colors('cyan'),'BarWidth',1);
-b3 = bar(((1:length(catTrueREM))*binTime)/60/60,catTrueREM,'FaceColor',colors('candy apple red'),'BarWidth',1);
-title('Manually scored predictions');
-legend([b1,b2,b3],'Awake','NREM','REM')
-set(gca,'box','off')
-subplot(10,1,2)
-b1 = bar((1:length(catTrueAwake))*binTime,catTrueAwake,'FaceColor',colors('black'),'BarWidth',1);
-hold on
-b2 = bar((1:length(catTrueAsleep))*binTime,catTrueAsleep,'FaceColor',colors('royal purple'),'BarWidth',1);
-title('Manually scored predictions');
-legend([b1,b2],'Awake','Asleep')
-set(gca,'box','off')
-axis off
-subplot(10,1,3)
-bar((1:length(catPhysioAwake))*binTime,catPhysioAwake,'FaceColor',colors('black'),'BarWidth',1);
-hold on
-bar((1:length(catPhysioAsleep))*binTime,catPhysioAsleep,'FaceColor',colors('royal purple'),'BarWidth',1);
-title('Physio model predictions');
-set(gca,'box','off')
-axis off
-subplot(10,1,4)
-bar((1:length(catPupilAwake))*binTime,catPupilAwake,'FaceColor',colors('black'),'BarWidth',1);
-hold on
-bar((1:length(catPupilAsleep))*binTime,catPupilAsleep,'FaceColor',colors('royal purple'),'BarWidth',1);
-title('Pupil model predictions');
-set(gca,'box','off')
-axis off
-subplot(10,1,5)
-b1 = bar((1:length(trueAwake))*binTime,trueAwake,'FaceColor',colors('black'),'BarWidth',1);
-hold on
-b2 = bar((1:length(trueNREM))*binTime,trueNREM,'FaceColor',colors('cyan'),'BarWidth',1);
-b3 = bar((1:length(trueREM))*binTime,trueREM,'FaceColor',colors('candy apple red'),'BarWidth',1);
-title('Manually scored predictions');
-legend([b1,b2,b3],'Awake','NREM','REM')
-set(gca,'box','off')
-axis off
-subplot(10,1,6)
-b1 = bar((1:length(trueAwake))*binTime,trueAwake,'FaceColor',colors('black'),'BarWidth',1);
-hold on
-b2 = bar((1:length(trueNREM))*binTime,trueNREM,'FaceColor',colors('cyan'),'BarWidth',1);
-b3 = bar((1:length(trueREM))*binTime,trueREM,'FaceColor',colors('candy apple red'),'BarWidth',1);
-title('Manually scored predictions');
-legend([b1,b2,b3],'Awake','NREM','REM')
-xlim([0,450])
-set(gca,'box','off')
-axis off
-subplot(10,1,7)
-b1 = bar((1:length(trueAwake))*binTime,trueAwake,'FaceColor',colors('black'),'BarWidth',1);
-hold on
-b2 = bar((1:length(trueAsleep))*binTime,trueAsleep,'FaceColor',colors('royal purple'),'BarWidth',1);
-title('Manually scored predictions');
-legend([b1,b2],'Awake','Asleep')
-xlim([0,450])
-set(gca,'box','off')
-axis off
-subplot(10,1,8)
-bar((1:length(physioPredAwake))*binTime,physioPredAwake,'FaceColor',colors('black'),'BarWidth',1);
-hold on
-bar((1:length(physioPredAsleep))*binTime,physioPredAsleep,'FaceColor',colors('royal purple'),'BarWidth',1);
-title('Physio model predictions');
-xlim([0,450])
-set(gca,'box','off')
-axis off
-subplot(10,1,9)
-bar((1:length(pupilPredAwake))*binTime,pupilPredAwake,'FaceColor',colors('black'),'BarWidth',1);
-hold on
-bar((1:length(pupilPredAsleep))*binTime,pupilPredAsleep,'FaceColor',colors('royal purple'),'BarWidth',1);
-title('Pupil model predictions');
-xlim([0,450])
-set(gca,'box','off')
-axis off
-subplot(10,1,10)
-plot((1:length(Results_Example.filtPupilZDiameter))/Results_Example.dsFs,Results_Example.filtPupilZDiameter,'color',colors('black'));
-hold on;
-yline(exampleBoundary,'color',colors('custom green'),'LineWidth',2)
-ylabel('Diameter (z-units)');
-xlabel('Time (sec)')
-xlim([0,450])
-set(gca,'box','off')
-%% save figure(s)
-if saveFigs == true
-    dirpath = [rootFolder delim 'Figure Panels' delim];
-    if ~exist(dirpath,'dir')
-        mkdir(dirpath);
-    end
-    savefig(Fig5C,[dirpath 'Fig5C_Turner2022']);
-    set(Fig5C,'PaperPositionMode','auto');
-    print('-vector','-dpdf','-fillpage',[dirpath 'Fig5C_Turner2022'])
-end
-%% SVM decision scatter
-Fig5D = figure('Name','Figure Panel 5 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
-subplot(1,4,1);
-gscatter(Xodd.zDiameter,randn(length(Xodd.zDiameter),1),Yodd.behavState,[colors('black');colors('royal purple')]);
-hold on;
-xline(exampleBoundary,'color',colors('custom green'),'LineWidth',2)
-title('Single predictor, binary class SVM')
-xlabel('Diameter (z-units)')
-legend('Awake','Asleep','Decision boundary','Location','NorthEast')
-axis square
-set(gca,'YTickLabel',[]);
-set(gca,'box','off')
-%% SVM boundary
-subplot(1,4,2)
-scatter(ones(1,length(data.pupil.mBoundary))*1,data.pupil.mBoundary,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('custom green'),'jitter','on','jitterAmount',0.25);
-hold on
-e1 = errorbar(1,data.pupil.meanMBoundary,data.pupil.stdMBoundary,'d','MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'));
-e1.Color = colors('black');
-e1.MarkerSize = 10;
-e1.CapSize = 10;
-title('SVM pupil hyperplane (mm)')
-ylabel('Decision (mm)')
-set(gca,'xtick',[])
-set(gca,'xticklabel',[])
-axis square
-xlim([0,2])
-set(gca,'box','off')
-ax6.TickLength = [0.03,0.03];
-%% ROC
-subplot(1,4,3)
-for aa = 1:length(data.pupil.rocX)
-    hold on
-    plot(data.pupil.rocX{aa,1},data.pupil.rocY{aa,1},'color',colors('black'))
-    plot(data.pupil.rocOPTROCPT{aa,1}(1),data.pupil.rocOPTROCPT{aa,1}(2),'o','color',colors('turquoise'))
-end
-xlabel('False positive rate')
-ylabel('True positive rate')
-title('ROC Curve')
-xlim([-0.05,1])
-ylim([0,1.05])
-axis square
-%% ROC AUC
-subplot(1,4,4)
-scatter(ones(1,length(data.pupil.rocAUC))*1,data.pupil.rocAUC,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('battleship grey'),'jitter','on','jitterAmount',0.25);
-hold on
-e1 = errorbar(1,data.pupil.rocMeanAUC,data.pupil.rocStdAUC,'d','MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'));
-e1.Color = colors('black');
-e1.MarkerSize = 10;
-e1.CapSize = 10;
-title('ROC area under curve')
-ylabel('AUC (1 = perfect model)')
-set(gca,'xtick',[])
-set(gca,'xticklabel',[])
-axis square
-xlim([0,2])
-set(gca,'box','off')
-ax6.TickLength = [0.03,0.03];
-%% save figure(s)
-if saveFigs == true
-    dirpath = [rootFolder delim 'Figure Panels' delim];
-    if ~exist(dirpath,'dir')
-        mkdir(dirpath);
-    end
-    savefig(Fig5D,[dirpath 'Fig5D_Turner2022']);
-    set(Fig5D,'PaperPositionMode','auto');
-    print('-vector','-dpdf','-fillpage',[dirpath 'Fig5D_Turner2022'])
     % text diary
     diaryFile = [dirpath 'Fig5_Text.txt'];
     if exist(diaryFile,'file') == 2
@@ -645,50 +462,23 @@ if saveFigs == true
     end
     diary(diaryFile)
     diary on
-    % example boundary decision
     disp('======================================================================================================================')
-    disp('Example boundary decision')
-    disp('======================================================================================================================')
-    disp('----------------------------------------------------------------------------------------------------------------------')
-    disp(['Example boundary: ' num2str(exampleBoundary) ' z-units']); disp(' ')
-    disp('----------------------------------------------------------------------------------------------------------------------')
-    % Mean z-unit decision boundary
-    disp('======================================================================================================================')
-    disp('Mean z-unit decision boundary')
+    disp('Eye motion')
     disp('======================================================================================================================')
     disp('----------------------------------------------------------------------------------------------------------------------')
-    disp(['z-unit decision boundary: ' num2str(data.pupil.meanZBoundary) ' ± ' num2str(data.pupil.stdZBoundary) ' z-units (n = ' num2str(length(data.pupil.zBoundary)) ') mice']); disp(' ')
+    disp(['Awake eye motion: ' num2str(meanAwake) ' ± ' num2str(stdAwake) ' mm/sec (n = ' num2str(length(data.Awake)) ') mice']); disp(' ')
+    disp(['NREM eye motion: ' num2str(meanNREM) ' ± ' num2str(stdNREM) ' mm/sec (n = ' num2str(length(data.NREM)) ') mice']); disp(' ')
+    disp(['REM eye motion: ' num2str(meanREM) ' ± ' num2str(stdREM) ' mm/sec (n = ' num2str(length(data.REM)) ') mice']); disp(' ')
     disp('----------------------------------------------------------------------------------------------------------------------')
-    % Mean mm decision boundary
-    disp('======================================================================================================================')
-    disp('Mean mm decision boundary')
-    disp('======================================================================================================================')
-    disp('----------------------------------------------------------------------------------------------------------------------')
-    disp(['mm decision boundary: ' num2str(data.pupil.meanMBoundary) ' ± ' num2str(data.pupil.stdMBoundary) ' mm (n = ' num2str(length(data.pupil.mBoundary)) ') mice']); disp(' ')
-    disp('----------------------------------------------------------------------------------------------------------------------')
-    % Physio model loss
-    disp('======================================================================================================================')
-    disp('Physiol model loss')
+    disp('Stats')
     disp('======================================================================================================================')
     disp('----------------------------------------------------------------------------------------------------------------------')
-    disp(['Physio model loss: ' num2str(data.physio.meanLoss) ' ± ' num2str(data.physio.stdLoss) ' (n = ' num2str(length(data.physio.loss)) ') mice']); disp(' ')
-    disp('----------------------------------------------------------------------------------------------------------------------')
-    % Pupil model loss
-    disp('======================================================================================================================')
-    disp('Pupil model loss')
-    disp('======================================================================================================================')
-    disp('----------------------------------------------------------------------------------------------------------------------')
-    disp(['Pupil model loss: ' num2str(data.pupil.meanLoss) ' ± ' num2str(data.pupil.stdLoss) ' (n = ' num2str(length(data.pupil.loss)) ') mice']); disp(' ')
-    disp(['p < ' num2str(lossStats.p)]); disp(' ')    
-    disp('----------------------------------------------------------------------------------------------------------------------')
-    % Mean ROC AUC
-    disp('======================================================================================================================')
-    disp('Pupil ROC AUC')
-    disp('======================================================================================================================')
-    disp('----------------------------------------------------------------------------------------------------------------------')
-    disp(['AUC: ' num2str(data.pupil.rocMeanAUC) ' ± ' num2str(data.pupil.rocStdAUC) ' (n = ' num2str(length(data.pupil.rocAUC)) ') mice']); disp(' ')
+    disp(['Awake vs. NREM: p < ' num2str(AwakeNREMStats.p)]); disp(' ')
+    disp(['Awake vs. REM: p < ' num2str(AwakeREMStats.p)]); disp(' ')
+    disp(['NREM vs. REM: p < ' num2str(NREMREMStats.p)]); disp(' ')
+    disp(['Bonferroni corrected significance levels (3 comparisons): *p < ' num2str(alpha1) ' **p < ' num2str(alpha2) ' ***p < ' num2str(alpha3)])
     disp('----------------------------------------------------------------------------------------------------------------------')
     diary off
 end
-
+cd(rootFolder)
 end

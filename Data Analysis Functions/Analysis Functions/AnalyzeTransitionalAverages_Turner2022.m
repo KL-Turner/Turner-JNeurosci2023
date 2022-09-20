@@ -151,8 +151,19 @@ for h = 1:length(transitions)
                 filtmmDiameter = filtfilt(sos2,g2,mmDiameter(startTime*samplingRate + 1:endTime*samplingRate));
                 filtzDiameter = filtfilt(sos2,g2,zDiameter(startTime*samplingRate + 1:endTime*samplingRate));
                 data.(transition).fileDate{iqx,1} = strDay;
-                data.(transition).mmDiameter(iqx,:) = filtmmDiameter;% - mean(filtmmDiameter(1:27.5*samplingRate));
-                data.(transition).zDiameter(iqx,:) = filtzDiameter;% - mean(filtzDiameter(1:27.5*samplingRate));
+                data.(transition).mmDiameter(iqx,:) = filtmmDiameter;
+                data.(transition).zDiameter(iqx,:) = filtzDiameter;
+                [z,p,k] = butter(4,10/(samplingRate/2),'low');
+                [sos,g] = zp2sos(z,p,k);
+                try
+                    centroidX = filtfilt(sos,g,ProcData.data.Pupil.patchCentroidX - RestingBaselines.manualSelection.Pupil.patchCentroidX.(strDay).mean);
+                    centroidY = filtfilt(sos,g,ProcData.data.Pupil.patchCentroidY - RestingBaselines.manualSelection.Pupil.patchCentroidY.(strDay).mean);
+                catch
+                    centroidX = ProcData.data.Pupil.patchCentroidX - RestingBaselines.manualSelection.Pupil.patchCentroidX.(strDay).mean;
+                    centroidY = ProcData.data.Pupil.patchCentroidY - RestingBaselines.manualSelection.Pupil.patchCentroidY.(strDay).mean;
+                end
+                data.(transition).centroidX(iqx,:) = centroidX(startTime*samplingRate + 1:endTime*samplingRate);
+                data.(transition).centroidY(iqx,:) = centroidY(startTime*samplingRate + 1:endTime*samplingRate);
                 iqx = iqx + 1;
             end
         end
@@ -166,6 +177,8 @@ for d = 1:length(transitions)
     Results_Transitions.(animalID).(transition).fileDates = fileDates;
     Results_Transitions.(animalID).(transition).mmDiameter = data.(transition).mmDiameter;
     Results_Transitions.(animalID).(transition).zDiameter = data.(transition).zDiameter;
+    Results_Transitions.(animalID).(transition).centroidX = data.(transition).centroidX;
+    Results_Transitions.(animalID).(transition).centroidY = data.(transition).centroidY;
 end
 % save data
 cd([rootFolder delim])

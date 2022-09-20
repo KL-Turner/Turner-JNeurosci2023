@@ -6,6 +6,8 @@
 % Purpose: Generate supplemental pupil tracking video from representative/example animal
 %________________________________________________________________________________________________________________________
 
+dataLocation = [rootFolder delim 'Analysis Structures'];
+cd(dataLocation)
 dataStructure = 'Results_Example.mat';
 load(dataStructure)
 % movie file comparing processed with original data
@@ -43,3 +45,4 @@ for aa = 1:size(Results_Example.overlay,4)
     close(fig)
 end
 close(outputVideo)
+cd(rootFolder)

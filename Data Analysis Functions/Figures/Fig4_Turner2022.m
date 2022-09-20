@@ -7,6 +7,8 @@ function [] = Fig4_Turner2022(rootFolder,saveFigs,delim)
 %   Purpose: Generate figures and supporting information for Figure Panel 4
 %________________________________________________________________________________________________________________________
 
+dataLocation = [rootFolder delim 'Analysis Structures'];
+cd(dataLocation)
 %% blink coherogram
 resultsStruct = 'Results_BlinkCoherogram.mat';
 load(resultsStruct);
@@ -92,10 +94,10 @@ for aa = 1:length(dataTypes)
     end
 end
 % statistics
-[AwakeHbTCoherStats.h,AwakeHbTCoherStats.p,AwakeHbTCoherStats.ci,AwakeHbTCoherStats.stats] = ttest2(data.Coherogram.HbT.Awake.leadC021,data.Coherogram.HbT.Awake.lagC021);
-[AwakeGammaCoherStats.h,AwakeGammaCoherStats.p,AwakeGammaCoherStats.ci,AwakeGammaCoherStats.stats] = ttest2(data.Coherogram.gamma.Awake.leadC021,data.Coherogram.gamma.Awake.lagC021);
-[AsleepHbTCoherStats.h,AsleepHbTCoherStats.p,AsleepHbTCoherStats.ci,AsleepHbTCoherStats.stats] = ttest2(data.Coherogram.HbT.Asleep.leadC021,data.Coherogram.HbT.Asleep.lagC021);
-[AsleepGammaCoherStats.h,AsleepGammaCoherStats.p,AsleepGammaCoherStats.ci,AsleepGammaCoherStats.stats] = ttest2(data.Coherogram.gamma.Asleep.leadC021,data.Coherogram.gamma.Asleep.lagC021);
+[AwakeHbTCoherStats.h,AwakeHbTCoherStats.p,AwakeHbTCoherStats.ci,AwakeHbTCoherStats.stats] = ttest(data.Coherogram.HbT.Awake.leadC021,data.Coherogram.HbT.Awake.lagC021);
+[AwakeGammaCoherStats.h,AwakeGammaCoherStats.p,AwakeGammaCoherStats.ci,AwakeGammaCoherStats.stats] = ttest(data.Coherogram.gamma.Awake.leadC021,data.Coherogram.gamma.Awake.lagC021);
+[AsleepHbTCoherStats.h,AsleepHbTCoherStats.p,AsleepHbTCoherStats.ci,AsleepHbTCoherStats.stats] = ttest(data.Coherogram.HbT.Asleep.leadC021,data.Coherogram.HbT.Asleep.lagC021);
+[AsleepGammaCoherStats.h,AsleepGammaCoherStats.p,AsleepGammaCoherStats.ci,AsleepGammaCoherStats.stats] = ttest(data.Coherogram.gamma.Asleep.leadC021,data.Coherogram.gamma.Asleep.lagC021);
 %% blink spectrogram
 resultsStruct = 'Results_BlinkSpectrogram.mat';
 load(resultsStruct);
@@ -195,10 +197,10 @@ for aa = 1:length(dataTypes)
     end
 end
 % statistics
-[AwakeHbTPowerStats.h,AwakeHbTPowerStats.p,AwakeHbTPowerStats.ci,AwakeHbTPowerStats.stats] = ttest2(data.Spectrogram.HbT.Awake.leadS021,data.Spectrogram.HbT.Awake.lagS021);
-[AwakeGammaPowerStats.h,AwakeGammaPowerStats.p,AwakeGammaPowerStats.ci,AwakeGammaPowerStats.stats] = ttest2(data.Spectrogram.gamma.Awake.leadS021,data.Spectrogram.gamma.Awake.lagS021);
-[AsleepHbTPowerStats.h,AsleepHbTPowerStats.p,AsleepHbTPowerStats.ci,AsleepHbTPowerStats.stats] = ttest2(data.Spectrogram.HbT.Asleep.leadS021,data.Spectrogram.HbT.Asleep.lagS021);
-[AsleepGammaPowerStats.h,AsleepGammaPowerStats.p,AsleepGammaPowerStats.ci,AsleepGammaPowerStats.stats] = ttest2(data.Spectrogram.gamma.Asleep.leadS021,data.Spectrogram.gamma.Asleep.lagS021);
+[AwakeHbTPowerStats.h,AwakeHbTPowerStats.p,AwakeHbTPowerStats.ci,AwakeHbTPowerStats.stats] = ttest(data.Spectrogram.HbT.Awake.leadS021,data.Spectrogram.HbT.Awake.lagS021);
+[AwakeGammaPowerStats.h,AwakeGammaPowerStats.p,AwakeGammaPowerStats.ci,AwakeGammaPowerStats.stats] = ttest(data.Spectrogram.gamma.Awake.leadS021,data.Spectrogram.gamma.Awake.lagS021);
+[AsleepHbTPowerStats.h,AsleepHbTPowerStats.p,AsleepHbTPowerStats.ci,AsleepHbTPowerStats.stats] = ttest(data.Spectrogram.HbT.Asleep.leadS021,data.Spectrogram.HbT.Asleep.lagS021);
+[AsleepGammaPowerStats.h,AsleepGammaPowerStats.p,AsleepGammaPowerStats.ci,AsleepGammaPowerStats.stats] = ttest(data.Spectrogram.gamma.Asleep.leadS021,data.Spectrogram.gamma.Asleep.lagS021);
 %% power vs coherence differences
 for aa = 1:length(dataTypes)
     dataType = dataTypes{1,aa};
@@ -578,7 +580,7 @@ set(gca,'xscale','log')
 ax10.TickLength = [0.03,0.03];
 %% save figure(s)
 if saveFigs == true
-    dirpath = [rootFolder delim 'Figure Panels' delim];
+    dirpath = [rootFolder delim 'MATLAB Figures' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
@@ -660,5 +662,5 @@ if saveFigs == true
     disp('----------------------------------------------------------------------------------------------------------------------')
     diary off
 end
-
+cd(rootFolder)
 end

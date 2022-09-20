@@ -7,6 +7,8 @@ function [] = Fig2_Turner2022(rootFolder,saveFigs,delim)
 % Purpose: Generate figures and supporting information for Figure Panel 2
 %________________________________________________________________________________________________________________________
 
+dataLocation = [rootFolder delim 'Analysis Structures'];
+cd(dataLocation)
 %% stimulus and whisking evoked pupil changes
 resultsStruct = 'Results_Evoked.mat';
 load(resultsStruct);
@@ -99,7 +101,7 @@ for ee = 1:length(behavFields)
     data.Diameter.(behavField).meanzDiameter = mean(data.Diameter.(behavField).zDiameter,1,'omitnan');
     data.Diameter.(behavField).stdzDiameter = std(data.Diameter.(behavField).zDiameter,0,1,'omitnan');
 end
-% statistics - generalized linear mixed effects model (mm diameter)
+%% statistics - generalized linear mixed effects model (mm diameter)
 mmDiameterTableSize = cat(1,data.Diameter.Rest.mmDiameter,data.Diameter.Whisk.mmDiameter,data.Diameter.Stim.mmDiameter,data.Diameter.NREM.mmDiameter,data.Diameter.REM.mmDiameter);
 mmDiameterTable = table('Size',[size(mmDiameterTableSize,1),3],'VariableTypes',{'string','string','double'},'VariableNames',{'Mouse','Behavior','mmDiameter'});
 mmDiameterTable.Mouse = cat(1,data.Diameter.Rest.animalID,data.Diameter.Whisk.animalID,data.Diameter.Stim.animalID,data.Diameter.NREM.animalID,data.Diameter.REM.animalID);
@@ -107,7 +109,46 @@ mmDiameterTable.Behavior = cat(1,data.Diameter.Rest.behavField,data.Diameter.Whi
 mmDiameterTable.mmDiameter = cat(1,data.Diameter.Rest.mmDiameter,data.Diameter.Whisk.mmDiameter,data.Diameter.Stim.mmDiameter,data.Diameter.NREM.mmDiameter,data.Diameter.REM.mmDiameter);
 mmDiameterFitFormula = 'mmDiameter ~ 1 + Behavior + (1|Mouse)';
 mmDiameterStats = fitglme(mmDiameterTable,mmDiameterFitFormula);
-% statistics - generalized linear mixed effects model (z-units)
+
+[mm_pVal11,~,~,~] = coefTest(mmDiameterStats,[ 1  0  0  0  0 ]);
+[mm_pVal12,~,~,~] = coefTest(mmDiameterStats,[ 1 -1  0  0  0 ]);
+[mm_pVal13,~,~,~] = coefTest(mmDiameterStats,[ 1  0 -1  0  0 ]);
+[mm_pVal14,~,~,~] = coefTest(mmDiameterStats,[ 1  0  0 -1  0 ]);
+[mm_pVal15,~,~,~] = coefTest(mmDiameterStats,[ 1  0  0  0 -1 ]);
+
+[mm_pVal21,~,~,~] = coefTest(mmDiameterStats,[-1  1  0  0  0 ]);
+[mm_pVal22,~,~,~] = coefTest(mmDiameterStats,[ 0  1  0  0  0 ]);
+[mm_pVal23,~,~,~] = coefTest(mmDiameterStats,[ 0  1 -1  0  0 ]);
+[mm_pVal24,~,~,~] = coefTest(mmDiameterStats,[ 0  1  0 -1  0 ]);
+[mm_pVal25,~,~,~] = coefTest(mmDiameterStats,[ 0  1  0  0 -1 ]);
+
+[mm_pVal31,~,~,~] = coefTest(mmDiameterStats,[-1  0  1  0  0 ]);
+[mm_pVal32,~,~,~] = coefTest(mmDiameterStats,[ 0 -1  1  0  0 ]);
+[mm_pVal33,~,~,~] = coefTest(mmDiameterStats,[ 0  0  1  0  0 ]);
+[mm_pVal34,~,~,~] = coefTest(mmDiameterStats,[ 0  0  1 -1  0 ]);
+[mm_pVal35,~,~,~] = coefTest(mmDiameterStats,[ 0  0  1  0 -1 ]);
+
+[mm_pVal41,~,~,~] = coefTest(mmDiameterStats,[-1  0  0  1  0 ]);
+[mm_pVal42,~,~,~] = coefTest(mmDiameterStats,[ 0 -1  0  1  0 ]);
+[mm_pVal43,~,~,~] = coefTest(mmDiameterStats,[ 0  0 -1  1  0 ]);
+[mm_pVal44,~,~,~] = coefTest(mmDiameterStats,[ 0  0  0  1  0 ]);
+[mm_pVal45,~,~,~] = coefTest(mmDiameterStats,[ 0  0  0  1 -1 ]);
+
+[mm_pVal51,~,~,~] = coefTest(mmDiameterStats,[-1  0  0  0  1 ]);
+[mm_pVal52,~,~,~] = coefTest(mmDiameterStats,[ 0 -1  0  0  1 ]);
+[mm_pVal53,~,~,~] = coefTest(mmDiameterStats,[ 0  0 -1  0  1 ]);
+[mm_pVal54,~,~,~] = coefTest(mmDiameterStats,[ 0  0  0 -1  1 ]);
+[mm_pVal55,~,~,~] = coefTest(mmDiameterStats,[ 0  0  0  0  1 ]);
+
+mmX = [mm_pVal11,mm_pVal12,mm_pVal13,mm_pVal14,mm_pVal15;...
+    mm_pVal21,mm_pVal22,mm_pVal23,mm_pVal24,mm_pVal25;...
+    mm_pVal31,mm_pVal32,mm_pVal33,mm_pVal34,mm_pVal35;...
+    mm_pVal41,mm_pVal42,mm_pVal43,mm_pVal44,mm_pVal45;...
+    mm_pVal51,mm_pVal52,mm_pVal53,mm_pVal54,mm_pVal55];
+
+state = {'Rest';'Whisk';'Stim';'NREM';'REM'};
+mmTable = table(array2table(mmX,'VariableNames',{'Rest','Whisk','Stim','NREM','REM'}),'RowNames',state);
+%% statistics - generalized linear mixed effects model (z-units)
 zDiameterTableSize = cat(1,data.Diameter.Rest.zDiameter,data.Diameter.Whisk.zDiameter,data.Diameter.Stim.zDiameter,data.Diameter.NREM.zDiameter,data.Diameter.REM.zDiameter);
 zDiameterTable = table('Size',[size(zDiameterTableSize,1),3],'VariableTypes',{'string','string','double'},'VariableNames',{'Mouse','Behavior','zDiameter'});
 zDiameterTable.Mouse = cat(1,data.Diameter.Rest.animalID,data.Diameter.Whisk.animalID,data.Diameter.Stim.animalID,data.Diameter.NREM.animalID,data.Diameter.REM.animalID);
@@ -115,6 +156,45 @@ zDiameterTable.Behavior = cat(1,data.Diameter.Rest.behavField,data.Diameter.Whis
 zDiameterTable.zDiameter = cat(1,data.Diameter.Rest.zDiameter,data.Diameter.Whisk.zDiameter,data.Diameter.Stim.zDiameter,data.Diameter.NREM.zDiameter,data.Diameter.REM.zDiameter);
 zDiameterFitFormula = 'zDiameter ~ 1 + Behavior + (1|Mouse)';
 zDiameterStats = fitglme(zDiameterTable,zDiameterFitFormula);
+
+[z_pVal11,~,~,~] = coefTest(zDiameterStats,[ 1  0  0  0  0 ]);
+[z_pVal12,~,~,~] = coefTest(zDiameterStats,[ 1 -1  0  0  0 ]);
+[z_pVal13,~,~,~] = coefTest(zDiameterStats,[ 1  0 -1  0  0 ]);
+[z_pVal14,~,~,~] = coefTest(zDiameterStats,[ 1  0  0 -1  0 ]);
+[z_pVal15,~,~,~] = coefTest(zDiameterStats,[ 1  0  0  0 -1 ]);
+
+[z_pVal21,~,~,~] = coefTest(zDiameterStats,[-1  1  0  0  0 ]);
+[z_pVal22,~,~,~] = coefTest(zDiameterStats,[ 0  1  0  0  0 ]);
+[z_pVal23,~,~,~] = coefTest(zDiameterStats,[ 0  1 -1  0  0 ]);
+[z_pVal24,~,~,~] = coefTest(zDiameterStats,[ 0  1  0 -1  0 ]);
+[z_pVal25,~,~,~] = coefTest(zDiameterStats,[ 0  1  0  0 -1 ]);
+
+[z_pVal31,~,~,~] = coefTest(zDiameterStats,[-1  0  1  0  0 ]);
+[z_pVal32,~,~,~] = coefTest(zDiameterStats,[ 0 -1  1  0  0 ]);
+[z_pVal33,~,~,~] = coefTest(zDiameterStats,[ 0  0  1  0  0 ]);
+[z_pVal34,~,~,~] = coefTest(zDiameterStats,[ 0  0  1 -1  0 ]);
+[z_pVal35,~,~,~] = coefTest(zDiameterStats,[ 0  0  1  0 -1 ]);
+
+[z_pVal41,~,~,~] = coefTest(zDiameterStats,[-1  0  0  1  0 ]);
+[z_pVal42,~,~,~] = coefTest(zDiameterStats,[ 0 -1  0  1  0 ]);
+[z_pVal43,~,~,~] = coefTest(zDiameterStats,[ 0  0 -1  1  0 ]);
+[z_pVal44,~,~,~] = coefTest(zDiameterStats,[ 0  0  0  1  0 ]);
+[z_pVal45,~,~,~] = coefTest(zDiameterStats,[ 0  0  0  1 -1 ]);
+
+[z_pVal51,~,~,~] = coefTest(zDiameterStats,[-1  0  0  0  1 ]);
+[z_pVal52,~,~,~] = coefTest(zDiameterStats,[ 0 -1  0  0  1 ]);
+[z_pVal53,~,~,~] = coefTest(zDiameterStats,[ 0  0 -1  0  1 ]);
+[z_pVal54,~,~,~] = coefTest(zDiameterStats,[ 0  0  0 -1  1 ]);
+[z_pVal55,~,~,~] = coefTest(zDiameterStats,[ 0  0  0  0  1 ]);
+
+zX = [z_pVal11,z_pVal12,z_pVal13,z_pVal14,z_pVal15;...
+    z_pVal21,z_pVal22,z_pVal23,z_pVal24,z_pVal25;...
+    z_pVal31,z_pVal32,z_pVal33,z_pVal34,z_pVal35;...
+    z_pVal41,z_pVal42,z_pVal43,z_pVal44,z_pVal45;...
+    z_pVal51,z_pVal52,z_pVal53,z_pVal54,z_pVal55];
+
+state = {'Rest';'Whisk';'Stim';'NREM';'REM'};
+zTable = table(array2table(zX,'VariableNames',{'Rest','Whisk','Stim','NREM','REM'}),'RowNames',state);
 %% pupil power spectrum
 resultsStruct = 'Results_PowerSpectrum.mat';
 load(resultsStruct);
@@ -307,7 +387,7 @@ for ee = 1:length(behavFields)
         end
     end
 end
-% statistics - generalized linear mixed effects model (0.02 HbT coherence)
+%% statistics - generalized linear mixed effects model (0.02 HbT coherence)
 HbTC002TableSize = cat(1,data.Coherr.Alert.zDiameter.HbTC002,data.Coherr.Asleep.zDiameter.HbTC002,data.Coherr.All.zDiameter.HbTC002);
 HbTC002Table = table('Size',[size(HbTC002TableSize,1),3],'VariableTypes',{'string','string','double'},'VariableNames',{'Mouse','Behavior','HbTC002'});
 HbTC002Table.Mouse = cat(1,data.Coherr.Alert.zDiameter.animalID,data.Coherr.Asleep.zDiameter.animalID,data.Coherr.All.zDiameter.animalID);
@@ -315,7 +395,26 @@ HbTC002Table.Behavior = cat(1,data.Coherr.Alert.zDiameter.behavField,data.Coherr
 HbTC002Table.HbTC002 = cat(1,data.Coherr.Alert.zDiameter.HbTC002,data.Coherr.Asleep.zDiameter.HbTC002,data.Coherr.All.zDiameter.HbTC002);
 HbTC002FitFormula = 'HbTC002 ~ 1 + Behavior + (1|Mouse)';
 HbTC002Stats = fitglme(HbTC002Table,HbTC002FitFormula);
-% statistics - generalized linear mixed effects model (0.02 gamma coherence)
+
+[HbTC002_pVal11,~,~,~] = coefTest(HbTC002Stats,[ 1  0  0 ]);
+[HbTC002_pVal12,~,~,~] = coefTest(HbTC002Stats,[ 1 -1  0 ]);
+[HbTC002_pVal13,~,~,~] = coefTest(HbTC002Stats,[ 1  0 -1 ]);
+
+[HbTC002_pVal21,~,~,~] = coefTest(HbTC002Stats,[-1  1  0 ]);
+[HbTC002_pVal22,~,~,~] = coefTest(HbTC002Stats,[ 0  1  0 ]);
+[HbTC002_pVal23,~,~,~] = coefTest(HbTC002Stats,[ 0  1 -1 ]);
+
+[HbTC002_pVal31,~,~,~] = coefTest(HbTC002Stats,[-1  0  1 ]);
+[HbTC002_pVal32,~,~,~] = coefTest(HbTC002Stats,[ 0 -1  1 ]);
+[HbTC002_pVal33,~,~,~] = coefTest(HbTC002Stats,[ 0  0  1 ]);
+
+HbTC002X = [HbTC002_pVal11,HbTC002_pVal12,HbTC002_pVal13;...
+    HbTC002_pVal21,HbTC002_pVal22,HbTC002_pVal23;...
+    HbTC002_pVal31,HbTC002_pVal32,HbTC002_pVal33];
+
+state = {'Alert';'Asleep';'All'};
+HbTC002Table = table(array2table(HbTC002X,'VariableNames',{'Alert';'Asleep';'All'}),'RowNames',state);
+%% statistics - generalized linear mixed effects model (0.02 gamma coherence)
 gammaC002TableSize = cat(1,data.Coherr.Alert.zDiameter.gammaC002,data.Coherr.Asleep.zDiameter.gammaC002,data.Coherr.All.zDiameter.gammaC002);
 gammaC002Table = table('Size',[size(gammaC002TableSize,1),3],'VariableTypes',{'string','string','double'},'VariableNames',{'Mouse','Behavior','gammaC002'});
 gammaC002Table.Mouse = cat(1,data.Coherr.Alert.zDiameter.animalID,data.Coherr.Asleep.zDiameter.animalID,data.Coherr.All.zDiameter.animalID);
@@ -323,7 +422,26 @@ gammaC002Table.Behavior = cat(1,data.Coherr.Alert.zDiameter.behavField,data.Cohe
 gammaC002Table.gammaC002 = cat(1,data.Coherr.Alert.zDiameter.gammaC002,data.Coherr.Asleep.zDiameter.gammaC002,data.Coherr.All.zDiameter.gammaC002);
 gammaC002FitFormula = 'gammaC002 ~ 1 + Behavior + (1|Mouse)';
 gammaC002Stats = fitglme(gammaC002Table,gammaC002FitFormula);
-% statistics - generalized linear mixed effects model (0.35 HbT coherence)
+
+[gammaC002_pVal11,~,~,~] = coefTest(gammaC002Stats,[ 1  0  0 ]);
+[gammaC002_pVal12,~,~,~] = coefTest(gammaC002Stats,[ 1 -1  0 ]);
+[gammaC002_pVal13,~,~,~] = coefTest(gammaC002Stats,[ 1  0 -1 ]);
+
+[gammaC002_pVal21,~,~,~] = coefTest(gammaC002Stats,[-1  1  0 ]);
+[gammaC002_pVal22,~,~,~] = coefTest(gammaC002Stats,[ 0  1  0 ]);
+[gammaC002_pVal23,~,~,~] = coefTest(gammaC002Stats,[ 0  1 -1 ]);
+
+[gammaC002_pVal31,~,~,~] = coefTest(gammaC002Stats,[-1  0  1 ]);
+[gammaC002_pVal32,~,~,~] = coefTest(gammaC002Stats,[ 0 -1  1 ]);
+[gammaC002_pVal33,~,~,~] = coefTest(gammaC002Stats,[ 0  0  1 ]);
+
+gammaC002X = [gammaC002_pVal11,gammaC002_pVal12,gammaC002_pVal13;...
+    gammaC002_pVal21,gammaC002_pVal22,gammaC002_pVal23;...
+    gammaC002_pVal31,gammaC002_pVal32,gammaC002_pVal33];
+
+state = {'Alert';'Asleep';'All'};
+gammaC002Table = table(array2table(gammaC002X,'VariableNames',{'Alert';'Asleep';'All'}),'RowNames',state);
+%% statistics - generalized linear mixed effects model (0.35 HbT coherence)
 HbTC035TableSize = cat(1,data.Coherr.Rest.zDiameter.HbTC035,data.Coherr.NREM.zDiameter.HbTC035,data.Coherr.REM.zDiameter.HbTC035,data.Coherr.Alert.zDiameter.HbTC035,data.Coherr.Asleep.zDiameter.HbTC035,data.Coherr.All.zDiameter.HbTC035);
 HbTC035Table = table('Size',[size(HbTC035TableSize,1),3],'VariableTypes',{'string','string','double'},'VariableNames',{'Mouse','Behavior','HbTC035'});
 HbTC035Table.Mouse = cat(1,data.Coherr.Rest.zDiameter.animalID,data.Coherr.NREM.zDiameter.animalID,data.Coherr.REM.zDiameter.animalID,data.Coherr.Alert.zDiameter.animalID,data.Coherr.Asleep.zDiameter.animalID,data.Coherr.All.zDiameter.animalID);
@@ -331,7 +449,59 @@ HbTC035Table.Behavior = cat(1,data.Coherr.Rest.zDiameter.behavField,data.Coherr.
 HbTC035Table.HbTC035 = cat(1,data.Coherr.Rest.zDiameter.HbTC035,data.Coherr.NREM.zDiameter.HbTC035,data.Coherr.REM.zDiameter.HbTC035,data.Coherr.Alert.zDiameter.HbTC035,data.Coherr.Asleep.zDiameter.HbTC035,data.Coherr.All.zDiameter.HbTC035);
 HbTC035FitFormula = 'HbTC035 ~ 1 + Behavior + (1|Mouse)';
 HbTC035Stats = fitglme(HbTC035Table,HbTC035FitFormula);
-% statistics - generalized linear mixed effects model (0.02 HbT coherence)
+
+[HbTC035_pVal11,~,~,~] = coefTest(HbTC035Stats,[ 1  0  0  0  0  0 ]);
+[HbTC035_pVal12,~,~,~] = coefTest(HbTC035Stats,[ 1 -1  0  0  0  0 ]);
+[HbTC035_pVal13,~,~,~] = coefTest(HbTC035Stats,[ 1  0 -1  0  0  0 ]);
+[HbTC035_pVal14,~,~,~] = coefTest(HbTC035Stats,[ 1  0  0 -1  0  0 ]);
+[HbTC035_pVal15,~,~,~] = coefTest(HbTC035Stats,[ 1  0  0  0 -1  0 ]);
+[HbTC035_pVal16,~,~,~] = coefTest(HbTC035Stats,[ 1  0  0  0  0 -1 ]);
+
+[HbTC035_pVal21,~,~,~] = coefTest(HbTC035Stats,[-1  1  0  0  0  0 ]);
+[HbTC035_pVal22,~,~,~] = coefTest(HbTC035Stats,[ 0  1  0  0  0  0 ]);
+[HbTC035_pVal23,~,~,~] = coefTest(HbTC035Stats,[ 0  1 -1  0  0  0 ]);
+[HbTC035_pVal24,~,~,~] = coefTest(HbTC035Stats,[ 0  1  0 -1  0  0 ]);
+[HbTC035_pVal25,~,~,~] = coefTest(HbTC035Stats,[ 0  1  0  0 -1  0 ]);
+[HbTC035_pVal26,~,~,~] = coefTest(HbTC035Stats,[ 0  1  0  0  0 -1 ]);
+
+[HbTC035_pVal31,~,~,~] = coefTest(HbTC035Stats,[-1  0  1  0  0  0 ]);
+[HbTC035_pVal32,~,~,~] = coefTest(HbTC035Stats,[ 0 -1  1  0  0  0 ]);
+[HbTC035_pVal33,~,~,~] = coefTest(HbTC035Stats,[ 0  0  1  0  0  0 ]);
+[HbTC035_pVal34,~,~,~] = coefTest(HbTC035Stats,[ 0  0  1 -1  0  0 ]);
+[HbTC035_pVal35,~,~,~] = coefTest(HbTC035Stats,[ 0  0  1  0 -1  0 ]);
+[HbTC035_pVal36,~,~,~] = coefTest(HbTC035Stats,[ 0  0  1  0  0 -1 ]);
+
+[HbTC035_pVal41,~,~,~] = coefTest(HbTC035Stats,[-1  0  0  1  0  0 ]);
+[HbTC035_pVal42,~,~,~] = coefTest(HbTC035Stats,[ 0 -1  0  1  0  0 ]);
+[HbTC035_pVal43,~,~,~] = coefTest(HbTC035Stats,[ 0  0 -1  1  0  0 ]);
+[HbTC035_pVal44,~,~,~] = coefTest(HbTC035Stats,[ 0  0  0  1  0  0 ]);
+[HbTC035_pVal45,~,~,~] = coefTest(HbTC035Stats,[ 0  0  0  1 -1  0 ]);
+[HbTC035_pVal46,~,~,~] = coefTest(HbTC035Stats,[ 0  0  0  1  0 -1 ]);
+
+[HbTC035_pVal51,~,~,~] = coefTest(HbTC035Stats,[-1  0  0  0  1  0 ]);
+[HbTC035_pVal52,~,~,~] = coefTest(HbTC035Stats,[ 0 -1  0  0  1  0 ]);
+[HbTC035_pVal53,~,~,~] = coefTest(HbTC035Stats,[ 0  0 -1  0  1  0 ]);
+[HbTC035_pVal54,~,~,~] = coefTest(HbTC035Stats,[ 0  0  0 -1  1  0 ]);
+[HbTC035_pVal55,~,~,~] = coefTest(HbTC035Stats,[ 0  0  0  0  1  0 ]);
+[HbTC035_pVal56,~,~,~] = coefTest(HbTC035Stats,[ 0  0  0  0  1 -1 ]);
+
+[HbTC035_pVal61,~,~,~] = coefTest(HbTC035Stats,[-1  0  0  0  0  1 ]);
+[HbTC035_pVal62,~,~,~] = coefTest(HbTC035Stats,[ 0 -1  0  0  0  1 ]);
+[HbTC035_pVal63,~,~,~] = coefTest(HbTC035Stats,[ 0  0 -1  0  0  1 ]);
+[HbTC035_pVal64,~,~,~] = coefTest(HbTC035Stats,[ 0  0  0 -1  0  1 ]);
+[HbTC035_pVal65,~,~,~] = coefTest(HbTC035Stats,[ 0  0  0  0 -1  1 ]);
+[HbTC035_pVal66,~,~,~] = coefTest(HbTC035Stats,[ 0  0  0  0  0  1 ]);
+
+HbTC035X = [HbTC035_pVal11,HbTC035_pVal12,HbTC035_pVal13,HbTC035_pVal14,HbTC035_pVal15,HbTC035_pVal16;...
+    HbTC035_pVal21,HbTC035_pVal22,HbTC035_pVal23,HbTC035_pVal24,HbTC035_pVal25,HbTC035_pVal26;...
+    HbTC035_pVal31,HbTC035_pVal32,HbTC035_pVal33,HbTC035_pVal34,HbTC035_pVal35,HbTC035_pVal36;...
+    HbTC035_pVal41,HbTC035_pVal42,HbTC035_pVal43,HbTC035_pVal44,HbTC035_pVal45,HbTC035_pVal46;...
+    HbTC035_pVal51,HbTC035_pVal52,HbTC035_pVal53,HbTC035_pVal54,HbTC035_pVal55,HbTC035_pVal56;...
+    HbTC035_pVal61,HbTC035_pVal62,HbTC035_pVal63,HbTC035_pVal64,HbTC035_pVal65,HbTC035_pVal66];
+
+state = {'Rest';'NREM';'REM';'Alert';'Asleep';'All'};
+HbTC035Table = table(array2table(HbTC035X,'VariableNames',{'Rest';'NREM';'REM';'Alert';'Asleep';'All'}),'RowNames',state);
+%% statistics - generalized linear mixed effects model (0.02 HbT coherence)
 gammaC035TableSize = cat(1,data.Coherr.Rest.zDiameter.gammaC035,data.Coherr.NREM.zDiameter.gammaC035,data.Coherr.REM.zDiameter.gammaC035,data.Coherr.Alert.zDiameter.gammaC035,data.Coherr.Asleep.zDiameter.gammaC035,data.Coherr.All.zDiameter.gammaC035);
 gammaC035Table = table('Size',[size(gammaC035TableSize,1),3],'VariableTypes',{'string','string','double'},'VariableNames',{'Mouse','Behavior','gammaC035'});
 gammaC035Table.Mouse = cat(1,data.Coherr.Rest.zDiameter.animalID,data.Coherr.NREM.zDiameter.animalID,data.Coherr.REM.zDiameter.animalID,data.Coherr.Alert.zDiameter.animalID,data.Coherr.Asleep.zDiameter.animalID,data.Coherr.All.zDiameter.animalID);
@@ -339,6 +509,72 @@ gammaC035Table.Behavior = cat(1,data.Coherr.Rest.zDiameter.behavField,data.Coher
 gammaC035Table.gammaC035 = cat(1,data.Coherr.Rest.zDiameter.gammaC035,data.Coherr.NREM.zDiameter.gammaC035,data.Coherr.REM.zDiameter.gammaC035,data.Coherr.Alert.zDiameter.gammaC035,data.Coherr.Asleep.zDiameter.gammaC035,data.Coherr.All.zDiameter.gammaC035);
 gammaC035FitFormula = 'gammaC035 ~ 1 + Behavior + (1|Mouse)';
 gammaC035Stats = fitglme(gammaC035Table,gammaC035FitFormula);
+
+[gammaC035_pVal11,~,~,~] = coefTest(gammaC035Stats,[ 1  0  0  0  0  0 ]);
+[gammaC035_pVal12,~,~,~] = coefTest(gammaC035Stats,[ 1 -1  0  0  0  0 ]);
+[gammaC035_pVal13,~,~,~] = coefTest(gammaC035Stats,[ 1  0 -1  0  0  0 ]);
+[gammaC035_pVal14,~,~,~] = coefTest(gammaC035Stats,[ 1  0  0 -1  0  0 ]);
+[gammaC035_pVal15,~,~,~] = coefTest(gammaC035Stats,[ 1  0  0  0 -1  0 ]);
+[gammaC035_pVal16,~,~,~] = coefTest(gammaC035Stats,[ 1  0  0  0  0 -1 ]);
+
+[gammaC035_pVal21,~,~,~] = coefTest(gammaC035Stats,[-1  1  0  0  0  0 ]);
+[gammaC035_pVal22,~,~,~] = coefTest(gammaC035Stats,[ 0  1  0  0  0  0 ]);
+[gammaC035_pVal23,~,~,~] = coefTest(gammaC035Stats,[ 0  1 -1  0  0  0 ]);
+[gammaC035_pVal24,~,~,~] = coefTest(gammaC035Stats,[ 0  1  0 -1  0  0 ]);
+[gammaC035_pVal25,~,~,~] = coefTest(gammaC035Stats,[ 0  1  0  0 -1  0 ]);
+[gammaC035_pVal26,~,~,~] = coefTest(gammaC035Stats,[ 0  1  0  0  0 -1 ]);
+
+[gammaC035_pVal31,~,~,~] = coefTest(gammaC035Stats,[-1  0  1  0  0  0 ]);
+[gammaC035_pVal32,~,~,~] = coefTest(gammaC035Stats,[ 0 -1  1  0  0  0 ]);
+[gammaC035_pVal33,~,~,~] = coefTest(gammaC035Stats,[ 0  0  1  0  0  0 ]);
+[gammaC035_pVal34,~,~,~] = coefTest(gammaC035Stats,[ 0  0  1 -1  0  0 ]);
+[gammaC035_pVal35,~,~,~] = coefTest(gammaC035Stats,[ 0  0  1  0 -1  0 ]);
+[gammaC035_pVal36,~,~,~] = coefTest(gammaC035Stats,[ 0  0  1  0  0 -1 ]);
+
+[gammaC035_pVal41,~,~,~] = coefTest(gammaC035Stats,[-1  0  0  1  0  0 ]);
+[gammaC035_pVal42,~,~,~] = coefTest(gammaC035Stats,[ 0 -1  0  1  0  0 ]);
+[gammaC035_pVal43,~,~,~] = coefTest(gammaC035Stats,[ 0  0 -1  1  0  0 ]);
+[gammaC035_pVal44,~,~,~] = coefTest(gammaC035Stats,[ 0  0  0  1  0  0 ]);
+[gammaC035_pVal45,~,~,~] = coefTest(gammaC035Stats,[ 0  0  0  1 -1  0 ]);
+[gammaC035_pVal46,~,~,~] = coefTest(gammaC035Stats,[ 0  0  0  1  0 -1 ]);
+
+[gammaC035_pVal51,~,~,~] = coefTest(gammaC035Stats,[-1  0  0  0  1  0 ]);
+[gammaC035_pVal52,~,~,~] = coefTest(gammaC035Stats,[ 0 -1  0  0  1  0 ]);
+[gammaC035_pVal53,~,~,~] = coefTest(gammaC035Stats,[ 0  0 -1  0  1  0 ]);
+[gammaC035_pVal54,~,~,~] = coefTest(gammaC035Stats,[ 0  0  0 -1  1  0 ]);
+[gammaC035_pVal55,~,~,~] = coefTest(gammaC035Stats,[ 0  0  0  0  1  0 ]);
+[gammaC035_pVal56,~,~,~] = coefTest(gammaC035Stats,[ 0  0  0  0  1 -1 ]);
+
+[gammaC035_pVal61,~,~,~] = coefTest(gammaC035Stats,[-1  0  0  0  0  1 ]);
+[gammaC035_pVal62,~,~,~] = coefTest(gammaC035Stats,[ 0 -1  0  0  0  1 ]);
+[gammaC035_pVal63,~,~,~] = coefTest(gammaC035Stats,[ 0  0 -1  0  0  1 ]);
+[gammaC035_pVal64,~,~,~] = coefTest(gammaC035Stats,[ 0  0  0 -1  0  1 ]);
+[gammaC035_pVal65,~,~,~] = coefTest(gammaC035Stats,[ 0  0  0  0 -1  1 ]);
+[gammaC035_pVal66,~,~,~] = coefTest(gammaC035Stats,[ 0  0  0  0  0  1 ]);
+
+gammaC035X = [gammaC035_pVal11,gammaC035_pVal12,gammaC035_pVal13,gammaC035_pVal14,gammaC035_pVal15,gammaC035_pVal16;...
+    gammaC035_pVal21,gammaC035_pVal22,gammaC035_pVal23,gammaC035_pVal24,gammaC035_pVal25,gammaC035_pVal26;...
+    gammaC035_pVal31,gammaC035_pVal32,gammaC035_pVal33,gammaC035_pVal34,gammaC035_pVal35,gammaC035_pVal36;...
+    gammaC035_pVal41,gammaC035_pVal42,gammaC035_pVal43,gammaC035_pVal44,gammaC035_pVal45,gammaC035_pVal46;...
+    gammaC035_pVal51,gammaC035_pVal52,gammaC035_pVal53,gammaC035_pVal54,gammaC035_pVal55,gammaC035_pVal56;...
+    gammaC035_pVal61,gammaC035_pVal62,gammaC035_pVal63,gammaC035_pVal64,gammaC035_pVal65,gammaC035_pVal66];
+
+state = {'Rest';'NREM';'REM';'Alert';'Asleep';'All'};
+gammaC035Table = table(array2table(gammaC035X,'VariableNames',{'Rest';'NREM';'REM';'Alert';'Asleep';'All'}),'RowNames',state);
+
+%% bonferroni adjusted alphas
+comparisons = 3;
+alpha3A = 0.05/comparisons;
+alpha3B = 0.01/comparisons;
+alpha3C = 0.001/comparisons;
+comparisons = 10;
+alpha10A = 0.05/comparisons;
+alpha10B = 0.01/comparisons;
+alpha10C = 0.001/comparisons;
+comparisons = 15;
+alpha15A = 0.05/comparisons;
+alpha15B = 0.01/comparisons;
+alpha15C = 0.001/comparisons;
 %% pupil HbT/gamma cross correlation
 resultsStruct = 'Results_CrossCorrelation.mat';
 load(resultsStruct);
@@ -424,28 +660,8 @@ for dd = 1:length(behavFields)
 end
 %% figures
 Fig2 = figure('Name','Figure Panel 2 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
-%% stimulus/whisking evoked zDiameter changes
-ax1 = subplot(3,4,1);
-p1 = plot(timeVector,data.Evoked.interWhisk.zDiameter.mean,'color',colors('vegas gold'),'LineWidth',2);
-hold on
-plot(timeVector,data.Evoked.interWhisk.zDiameter.mean + data.Evoked.interWhisk.zDiameter.sem,'color',colors('vegas gold'),'LineWidth',0.5)
-plot(timeVector,data.Evoked.interWhisk.zDiameter.mean - data.Evoked.interWhisk.zDiameter.sem,'color',colors('vegas gold'),'LineWidth',0.5)
-p2 = plot(timeVector,data.Evoked.stimSolenoid.zDiameter.mean,'color',colors('dark candy apple red'),'LineWidth',2);
-plot(timeVector,data.Evoked.stimSolenoid.zDiameter.mean + data.Evoked.stimSolenoid.zDiameter.sem,'color',colors('dark candy apple red'),'LineWidth',0.5)
-plot(timeVector,data.Evoked.stimSolenoid.zDiameter.mean - data.Evoked.stimSolenoid.zDiameter.sem,'color',colors('dark candy apple red'),'LineWidth',0.5)
-p3 = plot(timeVector,data.Evoked.controlSolenoid.zDiameter.mean,'color',colors('deep carrot orange'),'LineWidth',2);
-plot(timeVector,data.Evoked.controlSolenoid.zDiameter.mean + data.Evoked.controlSolenoid.zDiameter.sem,'color',colors('deep carrot orange'),'LineWidth',0.5)
-plot(timeVector,data.Evoked.controlSolenoid.zDiameter.mean - data.Evoked.controlSolenoid.zDiameter.sem,'color',colors('deep carrot orange'),'LineWidth',0.5)
-ylabel('\DeltaZ Units')
-xlabel('Time (s)')
-title('Evoked pupil zDiameter')
-legend([p1,p2,p3],'Whisk','Stim','Aud','Location','NorthEast')
-set(gca,'box','off')
-xlim([-2,10])
-axis square
-ax1.TickLength = [0.03,0.03];
 %% mm pupil diameter during arousal states
-ax2 = subplot(3,4,2);
+ax2 = subplot(3,4,1);
 s1 = scatter(ones(1,length(data.Diameter.Rest.mmDiameter))*1,data.Diameter.Rest.mmDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom rest'),'jitter','on','jitterAmount',0.25);
 hold on
 e1 = errorbar(1,data.Diameter.Rest.meanDiameter,data.Diameter.Rest.stdDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
@@ -482,7 +698,7 @@ xlim([0,6])
 set(gca,'box','off')
 ax2.TickLength = [0.03,0.03];
 %% z-unit pupil diameter during arousal states
-ax3 = subplot(3,4,3);
+ax3 = subplot(3,4,2);
 scatter(ones(1,length(data.Diameter.Rest.zDiameter))*1,data.Diameter.Rest.zDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom rest'),'jitter','on','jitterAmount',0.25);
 hold on
 e1 = errorbar(1,data.Diameter.Rest.meanzDiameter,data.Diameter.Rest.stdzDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
@@ -509,14 +725,34 @@ e5 = errorbar(5,data.Diameter.REM.meanzDiameter,data.Diameter.REM.stdzDiameter,'
 e5.Color = 'black';
 e5.MarkerSize = 10;
 e5.CapSize = 10;
-ylabel('Z units')
-title('Arousal pupil diameter (z units)')
+ylabel('Diameter (z-units')
+title('Arousal pupil diameter (z-units)')
 set(gca,'xtick',[])
 set(gca,'xticklabel',[])
 axis square
 xlim([0,6])
 set(gca,'box','off')
 ax3.TickLength = [0.03,0.03];
+%% stimulus/whisking evoked zDiameter changes
+ax1 = subplot(3,4,3);
+p1 = plot(timeVector,data.Evoked.interWhisk.zDiameter.mean,'color',colors('sapphire'),'LineWidth',2);
+hold on
+plot(timeVector,data.Evoked.interWhisk.zDiameter.mean + data.Evoked.interWhisk.zDiameter.sem,'color',colors('sapphire'),'LineWidth',0.5)
+plot(timeVector,data.Evoked.interWhisk.zDiameter.mean - data.Evoked.interWhisk.zDiameter.sem,'color',colors('sapphire'),'LineWidth',0.5)
+p2 = plot(timeVector,data.Evoked.stimSolenoid.zDiameter.mean,'color',colors('magenta'),'LineWidth',2);
+plot(timeVector,data.Evoked.stimSolenoid.zDiameter.mean + data.Evoked.stimSolenoid.zDiameter.sem,'color',colors('magenta'),'LineWidth',0.5)
+plot(timeVector,data.Evoked.stimSolenoid.zDiameter.mean - data.Evoked.stimSolenoid.zDiameter.sem,'color',colors('magenta'),'LineWidth',0.5)
+p3 = plot(timeVector,data.Evoked.controlSolenoid.zDiameter.mean,'color',colors('black'),'LineWidth',2);
+plot(timeVector,data.Evoked.controlSolenoid.zDiameter.mean + data.Evoked.controlSolenoid.zDiameter.sem,'color',colors('black'),'LineWidth',0.5)
+plot(timeVector,data.Evoked.controlSolenoid.zDiameter.mean - data.Evoked.controlSolenoid.zDiameter.sem,'color',colors('black'),'LineWidth',0.5)
+title('Evoked diameter (z-units)')
+ylabel('\Deltaz-units')
+xlabel('Time (s)')
+legend([p1,p2,p3],'Whisk','Stim','Aud','Location','NorthEast')
+set(gca,'box','off')
+xlim([-2,10])
+axis square
+ax1.TickLength = [0.03,0.03];
 %% zDiameter pupil power spectrum during arousal states
 ax4 = subplot(3,4,4);
 L1 = loglog(data.PreWhitenedPowerSpec.Rest.zDiameter.meanf,data.PreWhitenedPowerSpec.Rest.zDiameter.meanS,'color',colors('custom rest'),'LineWidth',2);
@@ -541,11 +777,11 @@ loglog(data.PreWhitenedPowerSpec.Asleep.zDiameter.meanf,data.PreWhitenedPowerSpe
 L6 = loglog(data.PreWhitenedPowerSpec.All.zDiameter.meanf,data.PreWhitenedPowerSpec.All.zDiameter.meanS,'color',colors('custom all'),'LineWidth',2);
 loglog(data.PreWhitenedPowerSpec.All.zDiameter.meanf,data.PreWhitenedPowerSpec.All.zDiameter.meanS + data.PreWhitenedPowerSpec.All.zDiameter.semS,'color',colors('custom all'),'LineWidth',0.5);
 loglog(data.PreWhitenedPowerSpec.All.zDiameter.meanf,data.PreWhitenedPowerSpec.All.zDiameter.meanS - data.PreWhitenedPowerSpec.All.zDiameter.semS,'color',colors('custom all'),'LineWidth',0.5);
-title('Pupil power spectrum')
 xline(1/10)
 xline(1/30)
 xline(1/60)
-ylabel('Power (a.u.)')
+title('Diameter power spectrum')
+ylabel('Pre-whitened power (a.u.)')
 xlabel('Freq (Hz)')
 legend([L1,L2,L3,L4,L5,L6],'Rest','NREM','REM','Alert','Asleep','All','Location','NorthWest')
 axis square
@@ -831,7 +1067,7 @@ set(gca,'box','off')
 ax12.TickLength = [0.03,0.03];
 %% save figure(s)
 if saveFigs == true
-    dirpath = [rootFolder delim 'Figure Panels' delim];
+    dirpath = [rootFolder delim 'MATLAB Figures' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
@@ -856,6 +1092,8 @@ if saveFigs == true
     disp(['Stim  diameter (mm): ' num2str(round(data.Diameter.Stim.meanDiameter,2)) ' ± ' num2str(round(data.Diameter.Stim.stdDiameter,2)) ' (n = ' num2str(length(data.Diameter.Stim.mmDiameter)) ') mice']); disp(' ')
     disp(['NREM  diameter (mm): ' num2str(round(data.Diameter.NREM.meanDiameter,2)) ' ± ' num2str(round(data.Diameter.NREM.stdDiameter,2)) ' (n = ' num2str(length(data.Diameter.NREM.mmDiameter)) ') mice']); disp(' ')
     disp(['REM   diameter (mm): ' num2str(round(data.Diameter.REM.meanDiameter,2)) ' ± ' num2str(round(data.Diameter.REM.stdDiameter,2)) ' (n = ' num2str(length(data.Diameter.REM.mmDiameter)) ') mice']); disp(' ')
+    disp(['*p < ' num2str(alpha10A) ' **p < ' num2str(alpha10B) ' ***p < ' num2str(alpha10C)]);
+    disp(mmTable)
     disp('----------------------------------------------------------------------------------------------------------------------')
     % z-unit Diameter statistical diary
     disp('======================================================================================================================')
@@ -868,6 +1106,8 @@ if saveFigs == true
     disp(['Stim  diameter (z-unit): ' num2str(round(data.Diameter.Stim.meanzDiameter,2)) ' ± ' num2str(round(data.Diameter.Stim.stdzDiameter,2)) ' (n = ' num2str(length(data.Diameter.Stim.zDiameter)) ') mice']); disp(' ')
     disp(['NREM  diameter (z-unit): ' num2str(round(data.Diameter.NREM.meanzDiameter,2)) ' ± ' num2str(round(data.Diameter.NREM.stdzDiameter,2)) ' (n = ' num2str(length(data.Diameter.NREM.zDiameter)) ') mice']); disp(' ')
     disp(['REM   diameter (z-unit): ' num2str(round(data.Diameter.REM.meanzDiameter,2)) ' ± ' num2str(round(data.Diameter.REM.stdzDiameter,2)) ' (n = ' num2str(length(data.Diameter.REM.zDiameter)) ') mice']); disp(' ')
+    disp(['*p < ' num2str(alpha10A) ' **p < ' num2str(alpha10B) ' ***p < ' num2str(alpha10C)]);
+    disp(zTable)
     disp('----------------------------------------------------------------------------------------------------------------------')
     % peak whisk/stim
     disp('======================================================================================================================')
@@ -890,6 +1130,8 @@ if saveFigs == true
     disp(['Alert  [HbT]-pupil coherence: ' num2str(round(data.Coherr.Alert.zDiameter.meanHbTC035,2)) ' ± ' num2str(round(data.Coherr.Alert.zDiameter.stdHbTC035,2)) ' (n = ' num2str(length(data.Coherr.Alert.zDiameter.HbTC035)/2) ') mice']); disp(' ')
     disp(['Asleep [HbT]-pupil coherence: ' num2str(round(data.Coherr.Asleep.zDiameter.meanHbTC035,2)) ' ± ' num2str(round(data.Coherr.Asleep.zDiameter.stdHbTC035,2)) ' (n = ' num2str(length(data.Coherr.Asleep.zDiameter.HbTC035)/2) ') mice']); disp(' ')
     disp(['All    [HbT]-pupil coherence: ' num2str(round(data.Coherr.All.zDiameter.meanHbTC035,2)) ' ± ' num2str(round(data.Coherr.All.zDiameter.stdHbTC035,2)) ' (n = ' num2str(length(data.Coherr.All.zDiameter.HbTC035)/2) ') mice']); disp(' ')
+    disp(['*p < ' num2str(alpha15A) ' **p < ' num2str(alpha15B) ' ***p < ' num2str(alpha15C)]);
+    disp(HbTC035Table)
     disp('----------------------------------------------------------------------------------------------------------------------')
     % coherence between pupil diameter and HbT @ 0.02 Hz
     disp('======================================================================================================================')
@@ -900,6 +1142,8 @@ if saveFigs == true
     disp(['Alert  [HbT]-pupil coherence: ' num2str(round(data.Coherr.Alert.zDiameter.meanHbTC002,2)) ' ± ' num2str(round(data.Coherr.Alert.zDiameter.stdHbTC002,2)) ' (n = ' num2str(length(data.Coherr.Alert.zDiameter.HbTC002)/2) ') mice']); disp(' ')
     disp(['Asleep [HbT]-pupil coherence: ' num2str(round(data.Coherr.Asleep.zDiameter.meanHbTC002,2)) ' ± ' num2str(round(data.Coherr.Asleep.zDiameter.stdHbTC002,2)) ' (n = ' num2str(length(data.Coherr.Asleep.zDiameter.HbTC002)/2) ') mice']); disp(' ')
     disp(['All    [HbT]-pupil coherence: ' num2str(round(data.Coherr.All.zDiameter.meanHbTC002,2)) ' ± ' num2str(round(data.Coherr.All.zDiameter.stdHbTC002,2)) ' (n = ' num2str(length(data.Coherr.All.zDiameter.HbTC002)/2) ') mice']); disp(' ')
+    disp(['*p < ' num2str(alpha3A) ' **p < ' num2str(alpha3B) ' ***p < ' num2str(alpha3C)]);
+    disp(HbTC002Table)
     disp('----------------------------------------------------------------------------------------------------------------------')
     % coherence between pupil diameter and gamma @ 0.35 Hz
     disp('======================================================================================================================')
@@ -913,6 +1157,8 @@ if saveFigs == true
     disp(['Alert  Gamma-pupil coherence: ' num2str(round(data.Coherr.Alert.zDiameter.meanGammaC035,2)) ' ± ' num2str(round(data.Coherr.Alert.zDiameter.stdGammaC035,2)) ' (n = ' num2str(length(data.Coherr.Alert.zDiameter.gammaC035)/2) ') mice']); disp(' ')
     disp(['Asleep Gamma-pupil coherence: ' num2str(round(data.Coherr.Asleep.zDiameter.meanGammaC035,2)) ' ± ' num2str(round(data.Coherr.Asleep.zDiameter.stdGammaC035,2)) ' (n = ' num2str(length(data.Coherr.Asleep.zDiameter.gammaC035)/2) ') mice']); disp(' ')
     disp(['All    Gamma-pupil coherence: ' num2str(round(data.Coherr.All.zDiameter.meanGammaC035,2)) ' ± ' num2str(round(data.Coherr.All.zDiameter.stdGammaC035,2)) ' (n = ' num2str(length(data.Coherr.All.zDiameter.gammaC035)/2) ') mice']); disp(' ')
+    disp(['*p < ' num2str(alpha15A) ' **p < ' num2str(alpha15B) ' ***p < ' num2str(alpha15C)]);
+    disp(gammaC035Table)
     disp('----------------------------------------------------------------------------------------------------------------------')
     % coherence between pupil diameter and gamma @ 0.02 Hz
     disp('======================================================================================================================')
@@ -923,6 +1169,8 @@ if saveFigs == true
     disp(['Alert  Gamma-pupil coherence: ' num2str(round(data.Coherr.Alert.zDiameter.meanGammaC002,2)) ' ± ' num2str(round(data.Coherr.Alert.zDiameter.stdGammaC002,2)) ' (n = ' num2str(length(data.Coherr.Alert.zDiameter.gammaC002)/2) ') mice']); disp(' ')
     disp(['Asleep Gamma-pupil coherence: ' num2str(round(data.Coherr.Asleep.zDiameter.meanGammaC002,2)) ' ± ' num2str(round(data.Coherr.Asleep.zDiameter.stdGammaC002,2)) ' (n = ' num2str(length(data.Coherr.Asleep.zDiameter.gammaC002)/2) ') mice']); disp(' ')
     disp(['All    Gamma-pupil coherence: ' num2str(round(data.Coherr.All.zDiameter.meanGammaC002,2)) ' ± ' num2str(round(data.Coherr.All.zDiameter.stdGammaC002,2)) ' (n = ' num2str(length(data.Coherr.All.zDiameter.gammaC002)/2) ') mice']); disp(' ')
+    disp(['*p < ' num2str(alpha3A) ' **p < ' num2str(alpha3B) ' ***p < ' num2str(alpha3C)]);
+    disp(gammaC002Table)
     disp('----------------------------------------------------------------------------------------------------------------------')
     % cross correlation between [HbT] and pupil diameter
     disp('======================================================================================================================')
@@ -950,5 +1198,5 @@ if saveFigs == true
     disp('----------------------------------------------------------------------------------------------------------------------')
     diary off
 end
-
+cd(rootFolder)
 end

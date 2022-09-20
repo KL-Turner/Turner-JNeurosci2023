@@ -23,26 +23,42 @@ modelDataFileIDs = char(modelDataFile);
 procDataFileStruct = dir('*_ProcData.mat');
 procDataFile = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFile);
+% load resting baseline file
+baselineDataFileStruct = dir('*_RestingBaselines.mat');
+baselineDataFiles = {baselineDataFileStruct.name}';
+baselineDataFileID = char(baselineDataFiles);
+load(baselineDataFileID)
+AddPupilSleepParameters_Turner2022(procDataFileIDs,RestingBaselines)
 % go through each file and sleep score the data
+bb = 1;
 for aa = 1:size(modelDataFileIDs,1)
     modelDataFileID = modelDataFileIDs(aa,:);
     procDataFileID = procDataFileIDs(aa,:);
     load(procDataFileID)
+    load(modelDataFileID)
     if strcmp(ProcData.data.Pupil.diameterCheck,'y') == true
-        if aa == 1
-            load(modelDataFileID)
-            dataLength = size(paramsTable,1);
-            joinedTable = paramsTable;
-            joinedEyeMotion = ProcData.sleep.parameters.Pupil.eyeMotion;
-            joinedFileList = cell(size(paramsTable,1),1);
-            joinedFileList(:) = {modelDataFileID};
-        else
-            load(modelDataFileID)
-            fileIDCells = cell(size(paramsTable,1),1);
-            fileIDCells(:) = {modelDataFileID};
-            joinedTable = vertcat(joinedTable,paramsTable); % #ok<*AGROW>
-            joinedEyeMotion = vertcat(joinedEyeMotion,ProcData.sleep.parameters.Pupil.eyeMotion);
-            joinedFileList = vertcat(joinedFileList,fileIDCells);
+        try
+            puffs = ProcData.data.stimulations.LPadSol;
+        catch
+            puffs = ProcData.data.solenoids.LPadSol;
+        end
+        if isempty(puffs) == true
+            if bb == 1
+                dataLength = size(paramsTable,1);
+                joinedTable = paramsTable;
+                joinedEyeMotion = ProcData.sleep.parameters.Pupil.eyeMotion;
+                joinedFileList = cell(size(paramsTable,1),1);
+                joinedFileList(:) = {modelDataFileID};
+                bb = bb + 1;
+            else
+                load(modelDataFileID)
+                fileIDCells = cell(size(paramsTable,1),1);
+                fileIDCells(:) = {modelDataFileID};
+                joinedTable = vertcat(joinedTable,paramsTable); % #ok<*AGROW>
+                joinedEyeMotion = vertcat(joinedEyeMotion,ProcData.sleep.parameters.Pupil.eyeMotion);
+                joinedFileList = vertcat(joinedFileList,fileIDCells);
+                bb = bb + 1;
+            end
         end
     end
 end
@@ -69,11 +85,11 @@ end
 data.awake = []; data.nrem = []; data.rem = [];
 for d = 1:length(labels)
     if strcmp(labels{d,1},'Not Sleep') == true
-        data.awake = vertcat(data.awake,sum(joinedEyeMotion{d,1}));
+        data.awake = vertcat(data.awake,sum(joinedEyeMotion{d,1},'omitnan'));
     elseif strcmp(labels{d,1},'NREM Sleep') == true
-        data.nrem = vertcat(data.nrem,sum(joinedEyeMotion{d,1}));
+        data.nrem = vertcat(data.nrem,sum(joinedEyeMotion{d,1},'omitnan'));
     elseif strcmp(labels{d,1},'REM Sleep') == true
-        data.rem = vertcat(data.rem,sum(joinedEyeMotion{d,1}));
+        data.rem = vertcat(data.rem,sum(joinedEyeMotion{d,1},'omitnan'));
     end
 end
 % save results

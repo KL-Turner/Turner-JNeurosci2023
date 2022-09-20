@@ -9,16 +9,70 @@ function [Results_Example] = AnalyzePupilExample_Turner2022(rootFolder,delim,Res
 
 filePath = [rootFolder delim 'Data' delim 'T141' delim 'Bilateral Imaging'];
 cd(filePath)
+exampleBaselineFileID = 'T141_RestingBaselines.mat';
+load(exampleBaselineFileID,'-mat')
+cd([rootFolder delim])
+% go to manual scores for this file
+filePath = [rootFolder delim 'Data' delim 'T141' delim 'Example Day'];
+cd(filePath)
+% character list of ProcData file IDs
+procDataFileStruct = dir('*_ProcData.mat');
+procDataFiles = {procDataFileStruct.name}';
+procDataFileIDs = char(procDataFiles);
+% prepare pupil training data by updating parameters
+AddPupilSleepParameters_Turner2022(procDataFileIDs,RestingBaselines)
+CreatePupilModelDataSet_Turner2022(procDataFileIDs)
+UpdatePupilTrainingDataSet_Turner2022(procDataFileIDs)
+% prepare physio training data by updating parameters
+AddSleepParameters_Turner2022(procDataFileIDs,RestingBaselines,'manualSelection')
+CreateModelDataSet_Turner2022(procDataFileIDs)
+UpdateTrainingDataSets_Turner2022(procDataFileIDs)
+% character list of training file IDs
+pupilTrainingFileStruct = dir('*_PupilTrainingData.mat');
+pupilTrainingFiles = {pupilTrainingFileStruct.name}';
+pupilTrainingFileIDs = char(pupilTrainingFiles);
+% character list of ProcData file IDs
+physioTrainingFileStruct = dir('*_TrainingData.mat');
+physioTrainingFiles = {physioTrainingFileStruct.name}';
+physioTrainingFileIDs = char(physioTrainingFiles);
+for aa = 1:size(procDataFileIDs)
+    pupilTrainingFileID = pupilTrainingFileIDs(aa,:);
+    load(pupilTrainingFileID,'-mat')
+    Results_Example.allPupilTables{aa,1} = pupilTrainingTable;
+    physioTrainingFileID = physioTrainingFileIDs(aa,:);
+    load(physioTrainingFileID,'-mat')
+    Results_Example.allPhysioTables{aa,1} = trainingTable;
+    Results_Example.allCombinedTables{aa,1} = horzcat(trainingTable(:,1:end - 1),pupilTrainingTable);
+end
+% start with file 2 to focus on the differences between each file
+trialDuration = 15; % min
+binTime = 5; % sec
+for gg = 2:size(procDataFileIDs,1)
+    leadFileID = procDataFileIDs(gg - 1,:);
+    lagFileID = procDataFileIDs(gg,:);
+    [~,~,leadFileInfo] = GetFileInfo_Turner2022(leadFileID);
+    [~,~,lagFileInfo] = GetFileInfo_Turner2022(lagFileID);
+    leadFileStr = ConvertDateTime_Turner2022(leadFileInfo);
+    lagFileStr = ConvertDateTime_Turner2022(lagFileInfo);
+    leadFileTime = datevec(leadFileStr);
+    lagFileTime = datevec(lagFileStr);
+    timeDifference = etime(lagFileTime,leadFileTime) - (trialDuration*60); % seconds
+    Results_Example.timePadBins{gg - 1,1} = cell(floor(timeDifference/binTime),1);
+    Results_Example.timePadBins{gg - 1,1}(:) = {'Time Pad'};
+end
 exampleProcDataFileID = 'T141_201105_12_05_20_ProcData.mat';
 load(exampleProcDataFileID,'-mat')
 exampleSpecDataFileID = 'T141_201105_12_05_20_SpecDataA.mat';
 load(exampleSpecDataFileID,'-mat')
 trainingDataFileID = 'T141_201105_12_05_20_TrainingData.mat';
 load(trainingDataFileID,'-mat')
+trainingDataFileID = 'T141_201105_12_05_20_PupilTrainingData.mat';
+load(trainingDataFileID,'-mat')
 modelDataFileID = 'T141_201105_12_05_20_ModelData.mat';
 load(modelDataFileID,'-mat')
-exampleBaselineFileID = 'T141_RestingBaselines.mat';
-load(exampleBaselineFileID,'-mat')
+%
+filePath = [rootFolder delim 'Data' delim 'T141' delim 'Bilateral Imaging'];
+cd(filePath)
 examplePupilData = 'T141_PupilData.mat';
 load(examplePupilData)
 [~,fileDate,fileID] = GetFileInfo_Turner2022(exampleProcDataFileID);
@@ -33,6 +87,11 @@ Results_Example.dsFs = ProcData.notes.dsFs;
 % pupil area
 Results_Example.filtPupilDiameter= filtfilt(sos2,g2,ProcData.data.Pupil.mmDiameter);
 Results_Example.filtPupilZDiameter= filtfilt(sos2,g2,ProcData.data.Pupil.zDiameter);
+% eye motion
+Results_Example.filtEyeMotion = filtfilt(sos1,g1,ProcData.data.Pupil.distanceTraveled);
+% eye position
+Results_Example.filtCentroidX = filtfilt(sos2,g2,ProcData.data.Pupil.patchCentroidX - RestingBaselines.manualSelection.Pupil.patchCentroidX.(strDay).mean)*ProcData.data.Pupil.mmPerPixel;
+Results_Example.filtCentroidY = filtfilt(sos2,g2,ProcData.data.Pupil.patchCentroidY - RestingBaselines.manualSelection.Pupil.patchCentroidY.(strDay).mean)*ProcData.data.Pupil.mmPerPixel;
 % blink times
 Results_Example.blinkTimes = ProcData.data.Pupil.blinkTimes;
 % whisker angle
@@ -68,20 +127,14 @@ fclose('all');
 % save images of interest
 Results_Example.images = cat(3,imageStack(:,:,1200),imageStack(:,:,4200),imageStack(:,:,7866),...
     imageStack(:,:,13200),imageStack(:,:,18510),imageStack(:,:,23458),imageStack(:,:,26332));
+% combined model table
+combinedJoinedTable = horzcat(trainingTable(:,1:end - 1),pupilTrainingTable);
 % pupil tracking
 [data] = FuncRunPupilTracker_Turner2022(exampleProcDataFileID);
-% create pupil model data set for the example file
-avgPupilDiameter_column = zeros(180,1);
-% extract relevant parameters from each epoch
-for b = 1:length(avgPupilDiameter_column)
-    % average pupil area
-    avgPupilDiameter_column(b,1) = round(mean(ProcData.sleep.parameters.Pupil.zDiameter{b,1},'omitnan'),2);
-end
-variableNames = {'zDiameter'};
-pupilParamsTable = table(avgPupilDiameter_column,'VariableNames',variableNames);
 % save results
+Results_Example.pupilTable = pupilTrainingTable;
 Results_Example.physioTable = paramsTable;
-Results_Example.pupilTable = pupilParamsTable;
+Results_Example.combinedTable = combinedJoinedTable;
 Results_Example.trueLabels = trainingTable.behavState;
 Results_Example.workingImg = data.workingImg;
 Results_Example.x12 = data.x12;
@@ -92,46 +145,6 @@ Results_Example.normFit = data.normFit;
 Results_Example.intensityThresh = data.intensityThresh;
 Results_Example.saveRadonImg = data.saveRadonImg;
 Results_Example.overlay = data.overlay;
-cd([rootFolder delim])
-% go to manual scores for this file
-filePath = [rootFolder delim 'Data' delim 'T141' delim 'Example Day'];
-cd(filePath)
-% character list of ProcData file IDs
-procDataFileStruct = dir('*_ProcData.mat');
-procDataFiles = {procDataFileStruct.name}';
-procDataFileIDs = char(procDataFiles);
-% character list of training file IDs
-pupilTrainingFileStruct = dir('*_PupilTrainingData.mat');
-pupilTrainingFiles = {pupilTrainingFileStruct.name}';
-pupilTrainingFileIDs = char(pupilTrainingFiles);
-% character list of ProcData file IDs
-physioTrainingFileStruct = dir('*_TrainingData.mat');
-physioTrainingFiles = {physioTrainingFileStruct.name}';
-physioTrainingFileIDs = char(physioTrainingFiles);
-for aa = 1:size(procDataFileIDs)
-    pupilTrainingFileID = pupilTrainingFileIDs(aa,:);
-    load(pupilTrainingFileID,'-mat')
-    Results_Example.allPupilTables{aa,1} = pupilTrainingTable;
-    physioTrainingFileID = physioTrainingFileIDs(aa,:);
-    load(physioTrainingFileID,'-mat')
-    Results_Example.allPhysioTables{aa,1} = trainingTable;
-end
-% start with file 2 to focus on the differences between each file
-trialDuration = 15; % min
-binTime = 5; % sec
-for gg = 2:size(procDataFileIDs,1)
-    leadFileID = procDataFileIDs(gg - 1,:);
-    lagFileID = procDataFileIDs(gg,:);
-    [~,~,leadFileInfo] = GetFileInfo_Turner2022(leadFileID);
-    [~,~,lagFileInfo] = GetFileInfo_Turner2022(lagFileID);
-    leadFileStr = ConvertDateTime_Turner2022(leadFileInfo);
-    lagFileStr = ConvertDateTime_Turner2022(lagFileInfo);
-    leadFileTime = datevec(leadFileStr);
-    lagFileTime = datevec(lagFileStr);
-    timeDifference = etime(lagFileTime,leadFileTime) - (trialDuration*60); % seconds
-    Results_Example.timePadBins{gg - 1,1} = cell(floor(timeDifference/binTime),1);
-    Results_Example.timePadBins{gg - 1,1}(:) = {'Time Pad'};
-end
 % save results
 cd([rootFolder delim])
 save('Results_Example.mat','Results_Example','-v7.3')

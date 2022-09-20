@@ -34,7 +34,8 @@ waitBarLength = waitBarLength + length(animalIDs);
 aa = 1;
 multiWaitbar('Training & validating sleep models',0,'Color','P'); pause(0.25);
 for bb = 1:length(animalIDs)
-    if isfield(Results_PupilSleepModel,(animalIDs{1,bb})) == false
+    %     if isfield(Results_PupilSleepModel,(animalIDs{1,bb})) == false
+    if strcmp(animalIDs{1,bb},'T141') == true
         [Results_PupilSleepModel,Results_PhysioSleepModel,Results_CombinedSleepModel] = AnalyzeSleepModelAccuracy_Turner2022(animalIDs{1,bb},rootFolder,delim,Results_PupilSleepModel,Results_PhysioSleepModel,Results_CombinedSleepModel);
     end
     multiWaitbar('Training & validating sleep models','Value',aa/waitBarLength);

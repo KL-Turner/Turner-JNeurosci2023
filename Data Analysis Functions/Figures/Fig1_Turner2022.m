@@ -7,6 +7,8 @@ function [] = Fig1_Turner2022(rootFolder,saveFigs,delim)
 % Purpose: Generate figures and supporting information for Figure Panel 1
 %________________________________________________________________________________________________________________________
 
+dataLocation = [rootFolder delim 'Analysis Structures'];
+cd(dataLocation)
 %% respresentative animal data structure
 dataStructure = 'Results_Example.mat';
 load(dataStructure)
@@ -52,6 +54,45 @@ for aa = 1:length(animalIDs)
 end
 meanThreshold = mean(indStDev,1);
 stdThreshold = std(indStDev,0,1);
+%% Pupil-HbT relationship
+resultsStruct = 'Results_AxisCorrelation.mat';
+load(resultsStruct);
+animalIDs = fieldnames(Results_AxisCorrelation);
+%
+for aa = 1:length(animalIDs)
+    animalID = animalIDs{aa,1};
+    coefR(aa,1) = Results_AxisCorrelation.(animalID).meanR;
+end
+% mean & std of correlation between major and minor axis
+meanR = mean(coefR);
+stdR = std(coefR,0,1);
+%% HbT, theta, gamma power during REM eyes open vs. eyes closed
+resultsStruct = 'Results_PupilREM.mat';
+load(resultsStruct);
+animalIDs = fieldnames(Results_PupilREM);
+hbtOpen = []; hbtClosed = [];
+thetaOpen = []; thetaClosed = [];
+for aa = 1:length(animalIDs)
+    animalID = animalIDs{aa,1};
+    if isnan(Results_PupilREM.(animalID).RH_HbT_closed) == false
+        hbtOpen = cat(2,hbtOpen,Results_PupilREM.(animalID).LH_HbT_open,Results_PupilREM.(animalID).RH_HbT_open);
+        hbtClosed = cat(2,hbtClosed,Results_PupilREM.(animalID).LH_HbT_closed,Results_PupilREM.(animalID).RH_HbT_closed);
+        thetaOpen = cat(2,thetaOpen,Results_PupilREM.(animalID).hip_theta_open);
+        thetaClosed = cat(2,thetaClosed,Results_PupilREM.(animalID).hip_theta_closed);
+    end
+end
+% HbT
+meanHbTOpen = mean(hbtOpen);
+stdHbTOpen = std(hbtOpen,0,2);
+meanHbTClosed = mean(hbtClosed);
+stdHbTClosed = std(hbtClosed,0,2);
+[HbTStats.h,HbTStats.p,HbTStats.ci,HbTStats.stats] = ttest(hbtOpen,hbtClosed);
+% hip theta
+meanThetaOpen = mean(thetaOpen);
+stdThetaOpen = std(thetaOpen,0,2);
+meanThetaClosed = mean(thetaClosed);
+stdThetaClosed = std(thetaClosed,0,2);
+[ThetaStats.h,ThetaStats.p,ThetaStats.ci,ThetaStats.stats] = ttest(thetaOpen,thetaClosed);
 %% tracking algorithm images
 % subplot for eye ROI
 Fig1A = figure('Name','Figure Panel 1 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
@@ -69,7 +110,7 @@ subplot(2,2,2)
 Results_Example.pupilHist = histogram(Results_Example.threshImg((Results_Example.threshImg ~= 0)),'BinEdges',Results_Example.pupilHistEdges,'Normalization','Probability','FaceColor',colors('black'),'EdgeColor',colors('black'));
 hold on;
 plot(Results_Example.pupilHist.BinEdges,Results_Example.normFit,'color',colors('vegas gold'),'LineWidth',2);
-xline(Results_Example.intensityThresh,'color',colors('deep carrot orange'),'LineWidth',2);
+xline(Results_Example.intensityThresh,'color',colors('sapphire'),'LineWidth',2);
 title('Histogram of image pixel intensity')
 xlabel('Pixel intensity');
 ylabel('Probability');
@@ -94,7 +135,7 @@ axis image
 axis off
 % save figure
 if saveFigs == true
-    dirpath = [rootFolder delim 'Figure Panels' delim];
+    dirpath = [rootFolder delim 'MATLAB Figures' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
@@ -113,6 +154,7 @@ if saveFigs == true
     disp('Arousal state times, percentages, data per animal, pupil threshold for tracking')
     disp('======================================================================================================================')
     disp('----------------------------------------------------------------------------------------------------------------------')
+    disp(['Pupil major-minor axis correlation: ' num2str(meanR) ' ± ' num2str(stdR) ' StDev from mean (n = ' num2str(length(coefR)) ') mice']); disp(' ')
     disp(['Pupil threshold: ' num2str(meanThreshold) ' ± ' num2str(stdThreshold) ' StDev from mean (n = ' num2str(length(indStDev)) ') mice']); disp(' ')
     disp([num2str(totalTime) ' total hours with a mean of ' num2str(meanHoursPerMouse) ' ±' num2str(stdHoursPerMouse) ' per mouse (n = ' num2str(length(totalHours)) ') mice']); disp(' ')
     disp([num2str(totalGoodTime) ' hours with good diameter tracking, with a mean of ' num2str(meanGoodHoursPerMouse) ' ±' num2str(stdGoodHoursPerMouse) ' per mouse (n = ' num2str(length(goodHours)) ') mice']); disp(' ')
@@ -120,6 +162,22 @@ if saveFigs == true
     disp(['Awake percentage: ' num2str(meanAwakePercPerMouse) ' ± ' num2str(stdAwakePercPerMouse) '% (n = ' num2str(length(awakePerc)) ') mice']); disp(' ')
     disp(['NREM percentage: ' num2str(meanNremPercPerMouse) ' ± ' num2str(stdNremPercPerMouse) '% (n = ' num2str(length(nremPerc)) ') mice']); disp(' ')
     disp(['REM percentage: ' num2str(meanRemPercPerMouse) ' ± ' num2str(stdRemPercPerMouse) '% (n = ' num2str(length(remPerc)) ') mice']); disp(' ')
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp('======================================================================================================================')
+    disp('REM HbT eyes open vs. eyes closed statistics')
+    disp('======================================================================================================================')
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp(['REM HbT eyes open ' num2str(meanHbTOpen) ' ± ' num2str(stdHbTOpen) ' (n = ' num2str(length(hbtOpen)/2) ') mice']); disp(' ')
+    disp(['REM HbT eyes closed ' num2str(meanHbTClosed) ' ± ' num2str(stdHbTClosed) ' (n = ' num2str(length(hbtClosed)/2) ') mice']); disp(' ')
+    disp(['open vs. closed p < ' num2str(HbTStats.p)]); disp(' ')
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp('======================================================================================================================')
+    disp('REM theta-band eyes open vs. eyes closed statistics')
+    disp('======================================================================================================================')
+    disp('----------------------------------------------------------------------------------------------------------------------')
+    disp(['REM theta-band eyes open ' num2str(meanThetaOpen) ' ± ' num2str(stdThetaOpen) ' (n = ' num2str(length(thetaOpen)) ') mice']); disp(' ')
+    disp(['REM theta-band eyes closed ' num2str(meanThetaClosed) ' ± ' num2str(stdThetaClosed) ' (n = ' num2str(length(thetaClosed)) ') mice']); disp(' ')
+    disp(['open vs. closed p < ' num2str(ThetaStats.p)]); disp(' ')
     disp('----------------------------------------------------------------------------------------------------------------------')
     diary off
 end
@@ -170,7 +228,7 @@ axis image
 axis off
 % save figure
 if saveFigs == true
-    dirpath = [rootFolder delim 'Figure Panels' delim];
+    dirpath = [rootFolder delim 'MATLAB Figures' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
@@ -187,12 +245,12 @@ p1 = plot((1:length(Results_Example.filtPupilDiameter))/Results_Example.dsFs,Res
 blinkInds = find(Results_Example.blinkTimes > 1);
 Results_Example.blinkTimes(blinkInds) = max(Results_Example.filtPupilDiameter);
 hold on;
-x1 = xline(1200/Results_Example.dsFs,'color',colors('custom green'),'LineWidth',2);
-xline(4200/Results_Example.dsFs,'color',colors('custom green'),'LineWidth',2)
+x1 = xline(1200/Results_Example.dsFs,'color',colors('carrot orange'),'LineWidth',2);
+xline(4200/Results_Example.dsFs,'color',colors('carrot orange'),'LineWidth',2)
 x2 = xline(7866/Results_Example.dsFs,'color',colors('magenta'),'LineWidth',2);
-xline(13200/Results_Example.dsFs,'color',colors('custom green'),'LineWidth',2)
-xline(18510/Results_Example.dsFs,'color',colors('custom green'),'LineWidth',2)
-xline(23458/Results_Example.dsFs,'color',colors('custom green'),'LineWidth',2)
+xline(13200/Results_Example.dsFs,'color',colors('carrot orange'),'LineWidth',2)
+xline(18510/Results_Example.dsFs,'color',colors('carrot orange'),'LineWidth',2)
+xline(23458/Results_Example.dsFs,'color',colors('carrot orange'),'LineWidth',2)
 xline(26332/Results_Example.dsFs,'color',colors('magenta'),'LineWidth',2)
 ylabel('Diameter (mm)')
 set(gca,'Xticklabel',[])
@@ -202,11 +260,11 @@ legend([p1,x2,x1],'Pupil Area','Blinks','Rep Imgs','Location','Northwest')
 ax12.TickLength = [0.01,0.01];
 % EMG and force sensor
 ax3 = subplot(6,1,3);
-p2 = plot((1:length(Results_Example.filtWhiskerAngle))/Results_Example.dsFs,-Results_Example.filtWhiskerAngle,'color',colors('black'),'LineWidth',0.5);
+p2 = plot((1:length(Results_Example.filtWhiskerAngle))/Results_Example.dsFs,-Results_Example.filtWhiskerAngle,'color',colors('candy apple red'),'LineWidth',0.5);
 ylabel('Angle (deg)')
 ylim([-10,50])
 yyaxis right
-p3 = plot((1:length(Results_Example.filtEMG))/Results_Example.dsFs,Results_Example.filtEMG,'color',colors('blue-violet'),'LineWidth',0.5);
+p3 = plot((1:length(Results_Example.filtEMG))/Results_Example.dsFs,Results_Example.filtEMG,'color',colors('royal purple'),'LineWidth',0.5);
 ylabel('EMG pwr (a.u.)','rotation',-90,'VerticalAlignment','bottom')
 ylim([-4,2.5])
 legend([p2,p3],'Whisker Angle','EMG','Location','Northwest')
@@ -214,13 +272,13 @@ set(gca,'Xticklabel',[])
 set(gca,'box','off')
 xticks([0,60,120,180,240,300,360,420,480,540,600,660,720,780,840,900])
 ax3.TickLength = [0.01,0.01];
-ax3.YAxis(1).Color = colors('black');
-ax3.YAxis(2).Color = colors('blue-violet');
+ax3.YAxis(1).Color = colors('candy apple red');
+ax3.YAxis(2).Color = colors('royal purple');
 % HbT
 ax45 =subplot(6,1,[4,5]);
-p4 = plot((1:length(Results_Example.filtRH_HbT))/Results_Example.dsFs,Results_Example.filtRH_HbT,'color',colors('black'),'LineWidth',1);
+p4 = plot((1:length(Results_Example.filtRH_HbT))/Results_Example.dsFs,Results_Example.filtRH_HbT,'color',colors('caribbean blue'),'LineWidth',1);
 hold on
-p5 = plot((1:length(Results_Example.filtLH_HbT))/Results_Example.dsFs,Results_Example.filtLH_HbT,'color',colors('blue-green'),'LineWidth',1);
+p5 = plot((1:length(Results_Example.filtLH_HbT))/Results_Example.dsFs,Results_Example.filtLH_HbT,'color',colors('caribbean green'),'LineWidth',1);
 ylabel('\Delta[HbT] (\muM)')
 legend([p4,p5,],'LH HbT','RH HbT','Location','Northwest')
 set(gca,'TickLength',[0,0])
@@ -249,7 +307,7 @@ ax6Pos(3:4) = ax3Pos(3:4);
 set(ax6,'position',ax6Pos);
 % save figure
 if saveFigs == true
-    dirpath = [rootFolder delim 'Figure Panels' delim];
+    dirpath = [rootFolder delim 'MATLAB Figures' delim];
     if ~exist(dirpath,'dir')
         mkdir(dirpath);
     end
@@ -278,13 +336,15 @@ if saveFigs == true
     % pupil
     ax12 = subplot(6,1,[1,2]);
     p1 = plot((1:length(Results_Example.filtPupilDiameter))/Results_Example.dsFs,Results_Example.filtPupilDiameter,'color',colors('black'));
+    blinkInds = find(Results_Example.blinkTimes > 1);
+    Results_Example.blinkTimes(blinkInds) = max(Results_Example.filtPupilDiameter);
     hold on;
-    x1 = xline(1200/Results_Example.dsFs,'color',colors('custom green'),'LineWidth',2);
-    xline(4200/Results_Example.dsFs,'color',colors('custom green'),'LineWidth',2)
+    x1 = xline(1200/Results_Example.dsFs,'color',colors('carrot orange'),'LineWidth',2);
+    xline(4200/Results_Example.dsFs,'color',colors('carrot orange'),'LineWidth',2)
     x2 = xline(7866/Results_Example.dsFs,'color',colors('magenta'),'LineWidth',2);
-    xline(13200/Results_Example.dsFs,'color',colors('custom green'),'LineWidth',2)
-    xline(18510/Results_Example.dsFs,'color',colors('custom green'),'LineWidth',2)
-    xline(23458/Results_Example.dsFs,'color',colors('custom green'),'LineWidth',2)
+    xline(13200/Results_Example.dsFs,'color',colors('carrot orange'),'LineWidth',2)
+    xline(18510/Results_Example.dsFs,'color',colors('carrot orange'),'LineWidth',2)
+    xline(23458/Results_Example.dsFs,'color',colors('carrot orange'),'LineWidth',2)
     xline(26332/Results_Example.dsFs,'color',colors('magenta'),'LineWidth',2)
     ylabel('Diameter (mm)')
     set(gca,'Xticklabel',[])
@@ -294,11 +354,11 @@ if saveFigs == true
     ax12.TickLength = [0.01,0.01];
     % EMG and force sensor
     ax3 = subplot(6,1,3);
-    p2 = plot((1:length(Results_Example.filtWhiskerAngle))/Results_Example.dsFs,-Results_Example.filtWhiskerAngle,'color',colors('black'),'LineWidth',0.5);
+    p2 = plot((1:length(Results_Example.filtWhiskerAngle))/Results_Example.dsFs,-Results_Example.filtWhiskerAngle,'color',colors('candy apple red'),'LineWidth',0.5);
     ylabel('Angle (deg)')
     ylim([-10,50])
     yyaxis right
-    p3 = plot((1:length(Results_Example.filtEMG))/Results_Example.dsFs,Results_Example.filtEMG,'color',colors('blue-violet'),'LineWidth',0.5);
+    p3 = plot((1:length(Results_Example.filtEMG))/Results_Example.dsFs,Results_Example.filtEMG,'color',colors('royal purple'),'LineWidth',0.5);
     ylabel('EMG pwr (a.u.)','rotation',-90,'VerticalAlignment','bottom')
     ylim([-4,2.5])
     legend([p2,p3],'Whisker Angle','EMG','Location','Northwest')
@@ -306,13 +366,13 @@ if saveFigs == true
     set(gca,'box','off')
     xticks([0,60,120,180,240,300,360,420,480,540,600,660,720,780,840,900])
     ax3.TickLength = [0.01,0.01];
-    ax3.YAxis(1).Color = colors('black');
-    ax3.YAxis(2).Color = colors('blue-violet');
+    ax3.YAxis(1).Color = colors('candy apple red');
+    ax3.YAxis(2).Color = colors('royal purple');
     % HbT
     ax45 =subplot(6,1,[4,5]);
-    p4 = plot((1:length(Results_Example.filtRH_HbT))/Results_Example.dsFs,Results_Example.filtRH_HbT,'color',colors('black'),'LineWidth',1);
+    p4 = plot((1:length(Results_Example.filtRH_HbT))/Results_Example.dsFs,Results_Example.filtRH_HbT,'color',colors('caribbean blue'),'LineWidth',1);
     hold on
-    p5 = plot((1:length(Results_Example.filtLH_HbT))/Results_Example.dsFs,Results_Example.filtLH_HbT,'color',colors('blue-green'),'LineWidth',1);
+    p5 = plot((1:length(Results_Example.filtLH_HbT))/Results_Example.dsFs,Results_Example.filtLH_HbT,'color',colors('caribbean green'),'LineWidth',1);
     ylabel('\Delta[HbT] (\muM)')
     legend([p4,p5,],'LH HbT','RH HbT','Location','Northwest')
     set(gca,'TickLength',[0,0])
@@ -340,5 +400,5 @@ if saveFigs == true
     ax6Pos(3:4) = ax3Pos(3:4);
     set(ax6,'position',ax6Pos);
 end
-
+cd(rootFolder)
 end
