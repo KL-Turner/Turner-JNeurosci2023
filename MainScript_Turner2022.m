@@ -4,14 +4,14 @@ function [] = MainScript_Turner2022()
 % The Pennsylvania State University, Dept. of Biomedical Engineering
 % https://github.com/KL-Turner
 %
-% Purpose: Generate figure panels for Turner et al. Pupil Manuscript (TBD) 2022
+% Purpose: Generate figure panels for Turner et al. Pupil Manuscript, J Neurosci 2022
 %
 % Functions used to pre-process the original data are located in the folder "Pre-Processing Functions"
 % Functions used to analyze data for figures are located in the folder "Data Analysis Functions"
 % Functions optained from 3rd party are located in the folder "Shared Functions"
 %________________________________________________________________________________________________________________________
 
-% verify code repository and data are in the current directory/added path
+% Verify code repository and data are in the current directory/added path
 currentFolder = pwd;
 addpath(genpath(currentFolder));
 fileparts = strsplit(currentFolder,filesep);
@@ -22,11 +22,11 @@ else
     rootFolder = fullfile(fileparts{1:end});
     delim = '\';
 end
-% add root folder to Matlab's working directory
+% Add root folder to Matlab's working directory
 addpath(genpath(rootFolder))
 zap;
 multiWaitbar('CloseAll');
-% analysis subfunctions
+% Analysis subfunctions
 runAnalysis = false;
 if runAnalysis == true
     dataLocation = [rootFolder delim 'Analysis Structures'];
@@ -57,16 +57,18 @@ if runAnalysis == true
     multiWaitbar('CloseAll');
     cd(rootFolder)
 end
-% main figures
+% Main figures
 disp('Loading analysis results and generating figures...'); disp(' ')
 saveFigs = true;
+% Figure Panel 8 is schematic diagram
+Fig7_Turner2022(rootFolder,saveFigs,delim)
 Fig6_Turner2022(rootFolder,saveFigs,delim)
 Fig5_Turner2022(rootFolder,saveFigs,delim)
 Fig4_Turner2022(rootFolder,saveFigs,delim)
 Fig3_Turner2022(rootFolder,saveFigs,delim)
 Fig2_Turner2022(rootFolder,saveFigs,delim)
 Fig1_Turner2022(rootFolder,saveFigs,delim)
-% supplemental pupil tracking movie
+% Supplemental pupil tracking movie
 if exist('VideoS1.mp4','file') ~= 2
     VideoS1_Turner2022()
 end

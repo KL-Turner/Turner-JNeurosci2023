@@ -126,12 +126,12 @@ for bb = 1:length(firstFileOfDay)
         threshSet = 2; % StD beyond mean intensity to binarize image for pupil tracking
         medFiltParams = [5,5]; % [x,y] dimensions for 2d median filter of images
         filtImg = medfilt2(workingImg,medFiltParams); % median filter image
-        threshImg = uint8(double(filtImg).*eyeROI); % only look at pixel values in ROI
+        threshImg = double(filtImg).*eyeROI; % only look at pixel values in ROI
         [phat,~] = mle(reshape(threshImg(threshImg ~= 0),1,numel(threshImg(threshImg ~= 0))),'distribution','Normal');
         % figure for verifying pupil threshold
         pupilROIFig = figure;
         subplot(1,3,1)
-        pupilHist = histogram(threshImg((threshImg ~= 0)),'BinEdges',pupilHistEdges,'probability');
+        pupilHist = hhistogram(threshImg((threshImg ~= 0)),'BinEdges',pupilHistEdges,'Normalization','Probability');
         xlabel('Pixel intensities');
         ylabel('Bin Counts');
         title('Histogram of image pixel intensities')
