@@ -687,18 +687,18 @@ set(gca,'box','off')
 ax4.TickLength = [0.03,0.03];
 %% gamma-pupil coherence stats
 ax5 = subplot(4,3,5);
-scatter(ones(1,length(data.Coherr.Alert.zDiameter.gammaC002))*1,data.Coherr.Alert.zDiameter.gammaC002,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom alert'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Coherr.Alert.zDiameter.gammaC002))*1,data.Coherr.Alert.zDiameter.gammaC002,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom alert'),'jitter','on','jitterAmount',0);
 hold on
 e1 = errorbar(1,data.Coherr.Alert.zDiameter.meanGammaC002,data.Coherr.Alert.zDiameter.stdGammaC002,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e1.Color = 'black';
 e1.MarkerSize = 10;
 e1.CapSize = 10;
-scatter(ones(1,length(data.Coherr.Asleep.zDiameter.gammaC002))*2,data.Coherr.Asleep.zDiameter.gammaC002,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom asleep'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Coherr.Asleep.zDiameter.gammaC002))*2,data.Coherr.Asleep.zDiameter.gammaC002,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom asleep'),'jitter','on','jitterAmount',0);
 e2 = errorbar(2,data.Coherr.Asleep.zDiameter.meanGammaC002,data.Coherr.Asleep.zDiameter.stdGammaC002,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e2.Color = 'black';
 e2.MarkerSize = 10;
 e2.CapSize = 10;
-scatter(ones(1,length(data.Coherr.All.zDiameter.gammaC002))*3,data.Coherr.All.zDiameter.gammaC002,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom all'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Coherr.All.zDiameter.gammaC002))*3,data.Coherr.All.zDiameter.gammaC002,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom all'),'jitter','on','jitterAmount',0);
 e3 = errorbar(3,data.Coherr.All.zDiameter.meanGammaC002,data.Coherr.All.zDiameter.stdGammaC002,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e3.Color = 'black';
 e3.MarkerSize = 10;
@@ -713,33 +713,33 @@ set(gca,'box','off')
 ax5.TickLength = [0.03,0.03];
 %% gamma-pupil coherence stats
 ax6 = subplot(4,3,6);
-scatter(ones(1,length(data.Coherr.Rest.zDiameter.gammaC035))*1,data.Coherr.Rest.zDiameter.gammaC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom rest'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Coherr.Rest.zDiameter.gammaC035))*1,data.Coherr.Rest.zDiameter.gammaC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom rest'),'jitter','on','jitterAmount',0);
 hold on
 e1 = errorbar(1,data.Coherr.Rest.zDiameter.meanGammaC035,data.Coherr.Rest.zDiameter.stdGammaC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e1.Color = 'black';
 e1.MarkerSize = 10;
 e1.CapSize = 10;
-scatter(ones(1,length(data.Coherr.NREM.zDiameter.gammaC035))*2,data.Coherr.NREM.zDiameter.gammaC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom nrem'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Coherr.NREM.zDiameter.gammaC035))*2,data.Coherr.NREM.zDiameter.gammaC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom nrem'),'jitter','on','jitterAmount',0);
 e2 = errorbar(2,data.Coherr.NREM.zDiameter.meanGammaC035,data.Coherr.NREM.zDiameter.stdGammaC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e2.Color = 'black';
 e2.MarkerSize = 10;
 e2.CapSize = 10;
-scatter(ones(1,length(data.Coherr.REM.zDiameter.gammaC035))*3,data.Coherr.REM.zDiameter.gammaC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom rem'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Coherr.REM.zDiameter.gammaC035))*3,data.Coherr.REM.zDiameter.gammaC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom rem'),'jitter','on','jitterAmount',0);
 e3 = errorbar(3,data.Coherr.REM.zDiameter.meanGammaC035,data.Coherr.REM.zDiameter.stdGammaC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e3.Color = 'black';
 e3.MarkerSize = 10;
 e3.CapSize = 10;
-scatter(ones(1,length(data.Coherr.Alert.zDiameter.gammaC035))*4,data.Coherr.Alert.zDiameter.gammaC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom alert'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Coherr.Alert.zDiameter.gammaC035))*4,data.Coherr.Alert.zDiameter.gammaC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom alert'),'jitter','on','jitterAmount',0);
 e4 = errorbar(4,data.Coherr.Alert.zDiameter.meanGammaC035,data.Coherr.Alert.zDiameter.stdGammaC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e4.Color = 'black';
 e4.MarkerSize = 10;
 e4.CapSize = 10;
-scatter(ones(1,length(data.Coherr.Asleep.zDiameter.gammaC035))*5,data.Coherr.Asleep.zDiameter.gammaC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom asleep'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Coherr.Asleep.zDiameter.gammaC035))*5,data.Coherr.Asleep.zDiameter.gammaC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom asleep'),'jitter','on','jitterAmount',0);
 e5 = errorbar(5,data.Coherr.Asleep.zDiameter.meanGammaC035,data.Coherr.Asleep.zDiameter.stdGammaC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e5.Color = 'black';
 e5.MarkerSize = 10;
 e5.CapSize = 10;
-scatter(ones(1,length(data.Coherr.All.zDiameter.gammaC035))*6,data.Coherr.All.zDiameter.gammaC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom all'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Coherr.All.zDiameter.gammaC035))*6,data.Coherr.All.zDiameter.gammaC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom all'),'jitter','on','jitterAmount',0);
 e6 = errorbar(6,data.Coherr.All.zDiameter.meanGammaC035,data.Coherr.All.zDiameter.stdGammaC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e6.Color = 'black';
 e6.MarkerSize = 10;
@@ -844,18 +844,18 @@ set(gca,'box','off')
 ax10.TickLength = [0.03,0.03];
 %% HbT-pupil coherence Stats
 ax11 = subplot(4,3,11);
-scatter(ones(1,length(data.Coherr.Alert.zDiameter.HbTC002))*1,data.Coherr.Alert.zDiameter.HbTC002,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom alert'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Coherr.Alert.zDiameter.HbTC002))*1,data.Coherr.Alert.zDiameter.HbTC002,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom alert'),'jitter','on','jitterAmount',0);
 hold on
 e1 = errorbar(1,data.Coherr.Alert.zDiameter.meanHbTC002,data.Coherr.Alert.zDiameter.stdHbTC002,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e1.Color = 'black';
 e1.MarkerSize = 10;
 e1.CapSize = 10;
-scatter(ones(1,length(data.Coherr.Asleep.zDiameter.HbTC002))*2,data.Coherr.Asleep.zDiameter.HbTC002,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom asleep'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Coherr.Asleep.zDiameter.HbTC002))*2,data.Coherr.Asleep.zDiameter.HbTC002,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom asleep'),'jitter','on','jitterAmount',0);
 e2 = errorbar(2,data.Coherr.Asleep.zDiameter.meanHbTC002,data.Coherr.Asleep.zDiameter.stdHbTC002,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e2.Color = 'black';
 e2.MarkerSize = 10;
 e2.CapSize = 10;
-scatter(ones(1,length(data.Coherr.All.zDiameter.HbTC002))*3,data.Coherr.All.zDiameter.HbTC002,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom all'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Coherr.All.zDiameter.HbTC002))*3,data.Coherr.All.zDiameter.HbTC002,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom all'),'jitter','on','jitterAmount',0);
 e3 = errorbar(3,data.Coherr.All.zDiameter.meanHbTC002,data.Coherr.All.zDiameter.stdHbTC002,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e3.Color = 'black';
 e3.MarkerSize = 10;
@@ -870,33 +870,33 @@ set(gca,'box','off')
 ax11.TickLength = [0.03,0.03];
 %% HbT-pupil coherence Stats
 ax12 = subplot(4,3,12);
-scatter(ones(1,length(data.Coherr.Rest.zDiameter.HbTC035))*1,data.Coherr.Rest.zDiameter.HbTC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom rest'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Coherr.Rest.zDiameter.HbTC035))*1,data.Coherr.Rest.zDiameter.HbTC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom rest'),'jitter','on','jitterAmount',0);
 hold on
 e1 = errorbar(1,data.Coherr.Rest.zDiameter.meanHbTC035,data.Coherr.Rest.zDiameter.stdHbTC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e1.Color = 'black';
 e1.MarkerSize = 10;
 e1.CapSize = 10;
-scatter(ones(1,length(data.Coherr.NREM.zDiameter.HbTC035))*2,data.Coherr.NREM.zDiameter.HbTC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom nrem'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Coherr.NREM.zDiameter.HbTC035))*2,data.Coherr.NREM.zDiameter.HbTC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom nrem'),'jitter','on','jitterAmount',0);
 e2 = errorbar(2,data.Coherr.NREM.zDiameter.meanHbTC035,data.Coherr.NREM.zDiameter.stdHbTC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e2.Color = 'black';
 e2.MarkerSize = 10;
 e2.CapSize = 10;
-scatter(ones(1,length(data.Coherr.REM.zDiameter.HbTC035))*3,data.Coherr.REM.zDiameter.HbTC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom rem'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Coherr.REM.zDiameter.HbTC035))*3,data.Coherr.REM.zDiameter.HbTC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom rem'),'jitter','on','jitterAmount',0);
 e3 = errorbar(3,data.Coherr.REM.zDiameter.meanHbTC035,data.Coherr.REM.zDiameter.stdHbTC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e3.Color = 'black';
 e3.MarkerSize = 10;
 e3.CapSize = 10;
-scatter(ones(1,length(data.Coherr.Alert.zDiameter.HbTC035))*4,data.Coherr.Alert.zDiameter.HbTC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom alert'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Coherr.Alert.zDiameter.HbTC035))*4,data.Coherr.Alert.zDiameter.HbTC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom alert'),'jitter','on','jitterAmount',0);
 e4 = errorbar(4,data.Coherr.Alert.zDiameter.meanHbTC035,data.Coherr.Alert.zDiameter.stdHbTC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e4.Color = 'black';
 e4.MarkerSize = 10;
 e4.CapSize = 10;
-scatter(ones(1,length(data.Coherr.Asleep.zDiameter.HbTC035))*5,data.Coherr.Asleep.zDiameter.HbTC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom asleep'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Coherr.Asleep.zDiameter.HbTC035))*5,data.Coherr.Asleep.zDiameter.HbTC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom asleep'),'jitter','on','jitterAmount',0);
 e5 = errorbar(5,data.Coherr.Asleep.zDiameter.meanHbTC035,data.Coherr.Asleep.zDiameter.stdHbTC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e5.Color = 'black';
 e5.MarkerSize = 10;
 e5.CapSize = 10;
-scatter(ones(1,length(data.Coherr.All.zDiameter.HbTC035))*6,data.Coherr.All.zDiameter.HbTC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom all'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Coherr.All.zDiameter.HbTC035))*6,data.Coherr.All.zDiameter.HbTC035,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom all'),'jitter','on','jitterAmount',0);
 e6 = errorbar(6,data.Coherr.All.zDiameter.meanHbTC035,data.Coherr.All.zDiameter.stdHbTC035,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e6.Color = 'black';
 e6.MarkerSize = 10;

@@ -216,19 +216,19 @@ modelAccuracy = round((sum(confVals([1,5,9])/totalScores))*100,1);
 cm.Title = {'Combined MDL',['total accuracy: ' num2str(modelAccuracy) ' (%)']};
 % sleep model 10-fold loss
 subplot(1,4,4);
-s1 = scatter(ones(1,length(data.pupil.loss))*1,data.pupil.loss,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('sapphire'),'jitter','on','jitterAmount',0.25);
+s1 = scatter(ones(1,length(data.pupil.loss))*1,data.pupil.loss,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('sapphire'),'jitter','on','jitterAmount',0);
 hold on
 e1 = errorbar(1,data.pupil.meanLoss,data.pupil.stdLoss,'d','MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'));
 e1.Color = 'black';
 e1.MarkerSize = 10;
 e1.CapSize = 10;
-s2 = scatter(ones(1,length(data.physio.loss))*2,data.physio.loss,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('custom green'),'jitter','on','jitterAmount',0.25);
+s2 = scatter(ones(1,length(data.physio.loss))*2,data.physio.loss,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('custom green'),'jitter','on','jitterAmount',0);
 hold on
 e2 = errorbar(2,data.physio.meanLoss,data.physio.stdLoss,'d','MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'));
 e2.Color = 'black';
 e2.MarkerSize = 10;
 e2.CapSize = 10;
-s3 = scatter(ones(1,length(data.combined.loss))*3,data.combined.loss,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('royal purple'),'jitter','on','jitterAmount',0.25);
+s3 = scatter(ones(1,length(data.combined.loss))*3,data.combined.loss,75,'MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('royal purple'),'jitter','on','jitterAmount',0);
 hold on
 e3 = errorbar(3,data.combined.meanLoss,data.combined.stdLoss,'d','MarkerEdgeColor',colors('black'),'MarkerFaceColor',colors('black'));
 e3.Color = 'black';
@@ -274,7 +274,7 @@ xticks([0,60,120,180,240,300,360,420,480,540,600,660,720,780,840,900])
 % eye location
 subplot(3,1,3);
 plot((1:length(Results_Example.filtEyeMotion))/Results_Example.dsFs,Results_Example.filtEyeMotion,'color',colors('black'));
-ylabel('\DeltaPosition (mm)')
+ylabel('|\DeltaPosition| (mm)')
 set(gca,'Xticklabel',[])
 set(gca,'box','off')
 xticks([0,60,120,180,240,300,360,420,480,540,600,660,720,780,840,900])

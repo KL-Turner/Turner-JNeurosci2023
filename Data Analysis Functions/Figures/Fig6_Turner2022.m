@@ -102,19 +102,19 @@ ax1.YAxis(1).Color = colors('black');
 ax1.YAxis(2).Color = colors('battleship grey');
 %% Eye motion
 subplot(3,4,3:4)
-s1 = scatter(ones(1,length(data.Awake))*1,data.Awake/secPerBin,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('black'),'jitter','on','jitterAmount',0.25);
+s1 = scatter(ones(1,length(data.Awake))*1,data.Awake/secPerBin,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('black'),'jitter','on','jitterAmount',0);
 hold on
 e1 = errorbar(1,meanAwake,stdAwake,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e1.Color = 'black';
 e1.MarkerSize = 10;
 e1.CapSize = 10;
-s2 = scatter(ones(1,length(data.NREM))*2,data.NREM/secPerBin,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('cyan'),'jitter','on','jitterAmount',0.25);
+s2 = scatter(ones(1,length(data.NREM))*2,data.NREM/secPerBin,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('cyan'),'jitter','on','jitterAmount',0);
 hold on
 e2 = errorbar(2,meanNREM,stdNREM,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e2.Color = 'black';
 e2.MarkerSize = 10;
 e2.CapSize = 10;
-s3 = scatter(ones(1,length(data.REM))*3,data.REM/secPerBin,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('candy apple red'),'jitter','on','jitterAmount',0.25);
+s3 = scatter(ones(1,length(data.REM))*3,data.REM/secPerBin,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('candy apple red'),'jitter','on','jitterAmount',0);
 hold on
 e3 = errorbar(3,meanREM,stdREM,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e3.Color = 'black';

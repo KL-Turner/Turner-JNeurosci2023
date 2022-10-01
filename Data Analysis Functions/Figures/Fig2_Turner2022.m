@@ -285,28 +285,28 @@ end
 Fig2 = figure('Name','Figure Panel 2 - Turner et al. 2022','Units','Normalized','OuterPosition',[0,0,1,1]);
 %% mm pupil diameter during arousal states
 ax2 = subplot(1,4,1);
-s1 = scatter(ones(1,length(data.Diameter.Rest.mmDiameter))*1,data.Diameter.Rest.mmDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom rest'),'jitter','on','jitterAmount',0.25);
+s1 = scatter(ones(1,length(data.Diameter.Rest.mmDiameter))*1,data.Diameter.Rest.mmDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom rest'),'jitter','on','jitterAmount',0);
 hold on
 e1 = errorbar(1,data.Diameter.Rest.meanDiameter,data.Diameter.Rest.stdDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e1.Color = 'black';
 e1.MarkerSize = 10;
 e1.CapSize = 10;
-s2 = scatter(ones(1,length(data.Diameter.Whisk.mmDiameter))*2,data.Diameter.Whisk.mmDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom whisk'),'jitter','on','jitterAmount',0.25);
+s2 = scatter(ones(1,length(data.Diameter.Whisk.mmDiameter))*2,data.Diameter.Whisk.mmDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom whisk'),'jitter','on','jitterAmount',0);
 e2 = errorbar(2,data.Diameter.Whisk.meanDiameter,data.Diameter.Whisk.stdDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e2.Color = 'black';
 e2.MarkerSize = 10;
 e2.CapSize = 10;
-s3 = scatter(ones(1,length(data.Diameter.Stim.mmDiameter))*3,data.Diameter.Stim.mmDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom stim'),'jitter','on','jitterAmount',0.25);
+s3 = scatter(ones(1,length(data.Diameter.Stim.mmDiameter))*3,data.Diameter.Stim.mmDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom stim'),'jitter','on','jitterAmount',0);
 e3 = errorbar(3,data.Diameter.Stim.meanDiameter,data.Diameter.Stim.stdDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e3.Color = 'black';
 e3.MarkerSize = 10;
 e3.CapSize = 10;
-s4 = scatter(ones(1,length(data.Diameter.NREM.mmDiameter))*4,data.Diameter.NREM.mmDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom nrem'),'jitter','on','jitterAmount',0.25);
+s4 = scatter(ones(1,length(data.Diameter.NREM.mmDiameter))*4,data.Diameter.NREM.mmDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom nrem'),'jitter','on','jitterAmount',0);
 e4 = errorbar(4,data.Diameter.NREM.meanDiameter,data.Diameter.NREM.stdDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e4.Color = 'black';
 e4.MarkerSize = 10;
 e4.CapSize = 10;
-s5 = scatter(ones(1,length(data.Diameter.REM.mmDiameter))*5,data.Diameter.REM.mmDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom rem'),'jitter','on','jitterAmount',0.25);
+s5 = scatter(ones(1,length(data.Diameter.REM.mmDiameter))*5,data.Diameter.REM.mmDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom rem'),'jitter','on','jitterAmount',0);
 e5 = errorbar(5,data.Diameter.REM.meanDiameter,data.Diameter.REM.stdDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e5.Color = 'black';
 e5.MarkerSize = 10;
@@ -322,28 +322,28 @@ set(gca,'box','off')
 ax2.TickLength = [0.03,0.03];
 %% z-unit pupil diameter during arousal states
 ax3 = subplot(1,4,2);
-scatter(ones(1,length(data.Diameter.Rest.zDiameter))*1,data.Diameter.Rest.zDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom rest'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Diameter.Rest.zDiameter))*1,data.Diameter.Rest.zDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom rest'),'jitter','on','jitterAmount',0);
 hold on
 e1 = errorbar(1,data.Diameter.Rest.meanzDiameter,data.Diameter.Rest.stdzDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e1.Color = 'black';
 e1.MarkerSize = 10;
 e1.CapSize = 10;
-scatter(ones(1,length(data.Diameter.Whisk.zDiameter))*2,data.Diameter.Whisk.zDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom whisk'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Diameter.Whisk.zDiameter))*2,data.Diameter.Whisk.zDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom whisk'),'jitter','on','jitterAmount',0);
 e2 = errorbar(2,data.Diameter.Whisk.meanzDiameter,data.Diameter.Whisk.stdzDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e2.Color = 'black';
 e2.MarkerSize = 10;
 e2.CapSize = 10;
-scatter(ones(1,length(data.Diameter.Stim.zDiameter))*3,data.Diameter.Stim.zDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom stim'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Diameter.Stim.zDiameter))*3,data.Diameter.Stim.zDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom stim'),'jitter','on','jitterAmount',0);
 e3 = errorbar(3,data.Diameter.Stim.meanzDiameter,data.Diameter.Stim.stdzDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e3.Color = 'black';
 e3.MarkerSize = 10;
 e3.CapSize = 10;
-scatter(ones(1,length(data.Diameter.NREM.zDiameter))*4,data.Diameter.NREM.zDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom nrem'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Diameter.NREM.zDiameter))*4,data.Diameter.NREM.zDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom nrem'),'jitter','on','jitterAmount',0);
 e4 = errorbar(4,data.Diameter.NREM.meanzDiameter,data.Diameter.NREM.stdzDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e4.Color = 'black';
 e4.MarkerSize = 10;
 e4.CapSize = 10;
-scatter(ones(1,length(data.Diameter.REM.zDiameter))*5,data.Diameter.REM.zDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom rem'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Diameter.REM.zDiameter))*5,data.Diameter.REM.zDiameter,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('custom rem'),'jitter','on','jitterAmount',0);
 e5 = errorbar(5,data.Diameter.REM.meanzDiameter,data.Diameter.REM.stdzDiameter,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e5.Color = 'black';
 e5.MarkerSize = 10;

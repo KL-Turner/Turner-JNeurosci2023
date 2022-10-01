@@ -166,7 +166,7 @@ set(gca,'box','off')
 ax1.TickLength = [0.03,0.03];
 %% mean interblink interval
 ax5 = subplot(2,3,2);
-scatter(ones(1,length(data.interblink))*1,data.interblink,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('vegas gold'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.interblink))*1,data.interblink,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('vegas gold'),'jitter','on','jitterAmount',0);
 hold on
 e1 = errorbar(1,data.meanInterblink,data.stdInterblink,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e1.Color = 'black';
@@ -197,7 +197,7 @@ axis square
 ax2.TickLength = [0.03,0.03];
 %% percentage blinks post-puff
 ax6 = subplot(2,3,4);
-scatter(ones(1,length(data.stimPerc))*1,data.stimPerc,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('magenta'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.stimPerc))*1,data.stimPerc,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('magenta'),'jitter','on','jitterAmount',0);
 hold on
 e1 = errorbar(1,data.meanStimPerc,data.stdStimPerc,'d','MarkerEdgeColor','k','MarkerFaceColor','k');
 e1.Color = 'black';

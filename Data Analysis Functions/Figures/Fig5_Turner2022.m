@@ -242,13 +242,13 @@ set(gca,'box','off')
 ax1.TickLength = [0.03,0.03];
 % awake gamma-band coherence scatter
 ax2 = subplot(4,5,2);
-scatter(ones(1,length(data.Coherogram.gamma.Awake.leadC021))*1,data.Coherogram.gamma.Awake.leadC021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('caribbean green'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Coherogram.gamma.Awake.leadC021))*1,data.Coherogram.gamma.Awake.leadC021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('caribbean green'),'jitter','on','jitterAmount',0);
 hold on
 e1 = errorbar(1,data.Coherogram.gamma.Awake.meanLeadC021,data.Coherogram.gamma.Awake.stdLeadC021,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
 e1.Color = 'black';
 e1.MarkerSize = 10;
 e1.CapSize = 10;
-scatter(ones(1,length(data.Coherogram.gamma.Awake.lagC021))*2,data.Coherogram.gamma.Awake.lagC021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('caribbean blue'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Coherogram.gamma.Awake.lagC021))*2,data.Coherogram.gamma.Awake.lagC021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('caribbean blue'),'jitter','on','jitterAmount',0);
 hold on
 e2 = errorbar(2,data.Coherogram.gamma.Awake.meanLagC021,data.Coherogram.gamma.Awake.stdLagC021,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
 e2.Color = 'black';
@@ -283,12 +283,12 @@ set(gca,'box','off')
 ax3.TickLength = [0.03,0.03];
 % awake gamma-band power scatter
 ax4 = subplot(4,5,4);
-scatter(ones(1,length(data.Spectrogram.gamma.Awake.leadS021))*1,data.Spectrogram.gamma.Awake.leadS021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('caribbean green'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Spectrogram.gamma.Awake.leadS021))*1,data.Spectrogram.gamma.Awake.leadS021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('caribbean green'),'jitter','on','jitterAmount',0);
 hold on
 scatter(1,data.Spectrogram.gamma.Awake.meanLeadS021,100,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
 e1.MarkerSize = 10;
 e1.CapSize = 10;
-scatter(ones(1,length(data.Spectrogram.gamma.Awake.lagS021))*2,data.Spectrogram.gamma.Awake.lagS021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('caribbean blue'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Spectrogram.gamma.Awake.lagS021))*2,data.Spectrogram.gamma.Awake.lagS021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('caribbean blue'),'jitter','on','jitterAmount',0);
 scatter(2,data.Spectrogram.gamma.Awake.meanLagS021,100,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
 ylabel('Power (a.u.)')
 title('Awake gamma power from 0-0.2 Hz')
@@ -331,13 +331,13 @@ set(gca,'box','off')
 ax6.TickLength = [0.03,0.03];
 % awake HbT-band coherence scatter
 ax7 = subplot(4,5,7);
-scatter(ones(1,length(data.Coherogram.HbT.Awake.leadC021))*1,data.Coherogram.HbT.Awake.leadC021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('candy apple red'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Coherogram.HbT.Awake.leadC021))*1,data.Coherogram.HbT.Awake.leadC021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('candy apple red'),'jitter','on','jitterAmount',0);
 hold on
 e1 = errorbar(1,data.Coherogram.HbT.Awake.meanLeadC021,data.Coherogram.HbT.Awake.stdLeadC021,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
 e1.Color = 'black';
 e1.MarkerSize = 10;
 e1.CapSize = 10;
-scatter(ones(1,length(data.Coherogram.HbT.Awake.lagC021))*2,data.Coherogram.HbT.Awake.lagC021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('deep carrot orange'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Coherogram.HbT.Awake.lagC021))*2,data.Coherogram.HbT.Awake.lagC021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('deep carrot orange'),'jitter','on','jitterAmount',0);
 hold on
 e2 = errorbar(2,data.Coherogram.HbT.Awake.meanLagC021,data.Coherogram.HbT.Awake.stdLagC021,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
 e2.Color = 'black';
@@ -372,12 +372,12 @@ set(gca,'box','off')
 ax8.TickLength = [0.03,0.03];
 % awake HbT-band power scatter
 ax9 = subplot(4,5,9);
-scatter(ones(1,length(data.Spectrogram.HbT.Awake.leadS021))*1,data.Spectrogram.HbT.Awake.leadS021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('candy apple red'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Spectrogram.HbT.Awake.leadS021))*1,data.Spectrogram.HbT.Awake.leadS021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('candy apple red'),'jitter','on','jitterAmount',0);
 hold on
 scatter(1,data.Spectrogram.HbT.Awake.meanLeadS021,100,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
 e1.MarkerSize = 10;
 e1.CapSize = 10;
-scatter(ones(1,length(data.Spectrogram.HbT.Awake.lagS021))*2,data.Spectrogram.HbT.Awake.lagS021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('deep carrot orange'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Spectrogram.HbT.Awake.lagS021))*2,data.Spectrogram.HbT.Awake.lagS021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('deep carrot orange'),'jitter','on','jitterAmount',0);
 scatter(2,data.Spectrogram.HbT.Awake.meanLagS021,100,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
 ylabel('Power (a.u.)')
 title('Awake HbT power from 0-0.2 Hz')
@@ -421,13 +421,13 @@ set(gca,'box','off')
 ax1.TickLength = [0.03,0.03];
 % awake gamma-band coherence scatter
 ax2 = subplot(4,5,12);
-scatter(ones(1,length(data.Coherogram.gamma.Asleep.leadC021))*1,data.Coherogram.gamma.Asleep.leadC021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('caribbean green'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Coherogram.gamma.Asleep.leadC021))*1,data.Coherogram.gamma.Asleep.leadC021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('caribbean green'),'jitter','on','jitterAmount',0);
 hold on
 e1 = errorbar(1,data.Coherogram.gamma.Asleep.meanLeadC021,data.Coherogram.gamma.Asleep.stdLeadC021,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
 e1.Color = 'black';
 e1.MarkerSize = 10;
 e1.CapSize = 10;
-scatter(ones(1,length(data.Coherogram.gamma.Asleep.lagC021))*2,data.Coherogram.gamma.Asleep.lagC021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('caribbean blue'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Coherogram.gamma.Asleep.lagC021))*2,data.Coherogram.gamma.Asleep.lagC021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('caribbean blue'),'jitter','on','jitterAmount',0);
 hold on
 e2 = errorbar(2,data.Coherogram.gamma.Asleep.meanLagC021,data.Coherogram.gamma.Asleep.stdLagC021,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
 e2.Color = 'black';
@@ -462,12 +462,12 @@ set(gca,'box','off')
 ax3.TickLength = [0.03,0.03];
 % awake gamma-band power scatter
 ax4 = subplot(4,5,14);
-scatter(ones(1,length(data.Spectrogram.gamma.Asleep.leadS021))*1,data.Spectrogram.gamma.Asleep.leadS021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('caribbean green'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Spectrogram.gamma.Asleep.leadS021))*1,data.Spectrogram.gamma.Asleep.leadS021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('caribbean green'),'jitter','on','jitterAmount',0);
 hold on
 scatter(1,data.Spectrogram.gamma.Asleep.meanLeadS021,100,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
 e1.MarkerSize = 10;
 e1.CapSize = 10;
-scatter(ones(1,length(data.Spectrogram.gamma.Asleep.lagS021))*2,data.Spectrogram.gamma.Asleep.lagS021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('caribbean blue'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Spectrogram.gamma.Asleep.lagS021))*2,data.Spectrogram.gamma.Asleep.lagS021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('caribbean blue'),'jitter','on','jitterAmount',0);
 scatter(2,data.Spectrogram.gamma.Asleep.meanLagS021,100,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
 ylabel('Power (a.u.)')
 title('Asleep gamma power from 0-0.2 Hz')
@@ -510,13 +510,13 @@ set(gca,'box','off')
 ax6.TickLength = [0.03,0.03];
 % awake HbT-band coherence scatter
 ax7 = subplot(4,5,17);
-scatter(ones(1,length(data.Coherogram.HbT.Asleep.leadC021))*1,data.Coherogram.HbT.Asleep.leadC021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('candy apple red'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Coherogram.HbT.Asleep.leadC021))*1,data.Coherogram.HbT.Asleep.leadC021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('candy apple red'),'jitter','on','jitterAmount',0);
 hold on
 e1 = errorbar(1,data.Coherogram.HbT.Asleep.meanLeadC021,data.Coherogram.HbT.Asleep.stdLeadC021,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
 e1.Color = 'black';
 e1.MarkerSize = 10;
 e1.CapSize = 10;
-scatter(ones(1,length(data.Coherogram.HbT.Asleep.lagC021))*2,data.Coherogram.HbT.Asleep.lagC021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('deep carrot orange'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Coherogram.HbT.Asleep.lagC021))*2,data.Coherogram.HbT.Asleep.lagC021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('deep carrot orange'),'jitter','on','jitterAmount',0);
 hold on
 e2 = errorbar(2,data.Coherogram.HbT.Asleep.meanLagC021,data.Coherogram.HbT.Asleep.stdLagC021,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
 e2.Color = 'black';
@@ -551,12 +551,12 @@ set(gca,'box','off')
 ax8.TickLength = [0.03,0.03];
 % awake HbT-band power scatter
 ax9 = subplot(4,5,19);
-scatter(ones(1,length(data.Spectrogram.HbT.Asleep.leadS021))*1,data.Spectrogram.HbT.Asleep.leadS021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('candy apple red'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Spectrogram.HbT.Asleep.leadS021))*1,data.Spectrogram.HbT.Asleep.leadS021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('candy apple red'),'jitter','on','jitterAmount',0);
 hold on
 scatter(1,data.Spectrogram.HbT.Asleep.meanLeadS021,100,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
 e1.MarkerSize = 10;
 e1.CapSize = 10;
-scatter(ones(1,length(data.Spectrogram.HbT.Asleep.lagS021))*2,data.Spectrogram.HbT.Asleep.lagS021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('deep carrot orange'),'jitter','on','jitterAmount',0.25);
+scatter(ones(1,length(data.Spectrogram.HbT.Asleep.lagS021))*2,data.Spectrogram.HbT.Asleep.lagS021,75,'MarkerEdgeColor','k','MarkerFaceColor',colors('deep carrot orange'),'jitter','on','jitterAmount',0);
 scatter(2,data.Spectrogram.HbT.Asleep.meanLagS021,100,'d','MarkerEdgeColor','k','MarkerFaceColor',colors('black'));
 ylabel('Power (a.u.)')
 title('Asleep HbT power from 0-0.2 Hz')
