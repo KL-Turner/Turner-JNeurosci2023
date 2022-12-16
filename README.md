@@ -1,4 +1,4 @@
-# Arousal state dependence of cortical blood volume and pupil diameter relationship
+# Relating pupil diameter and blinking to cortical activity and hemodynamics across arousal states
 
 This document outlines the steps necessary to generate the figures for the manuscript **Relating pupil diameter and blinking to cortical activity and hemodynamics across arousal states** by K.L. Turner, K.W. Gheres, and P.J. Drew.
 
@@ -29,15 +29,15 @@ The data should be here.
 
 ![](https://user-images.githubusercontent.com/30758521/193093229-5e5c4e2a-0343-4e14-947b-afc60b746dcf.PNG)
 
-From here, open MATLAB and nativate to the code's folder. Open the function **MainScript_Manuscript2022.m**. The final view should look like this:
+From here, open MATLAB and nativate to the code's folder. Open the function **MainScript_JNeurosci2022.m**. The final view should look like this:
 
 ![](https://user-images.githubusercontent.com/30758521/193093597-927d9f57-7183-462e-acac-8115f39aaf51.PNG)
 
 Finally, Click the green **Run** button and the figures will then take a few minutes to generate.
 
-**Software/System Requirements:** Code was written and tested with MATLAB 2019b-2022a. Running **MainScript_Turner2022.m** took < 5 minutes to run on a 2021 Macbook Pro with M1 Pro chipset and 16 Gb RAM.
+**Software/System Requirements:** Code was written and tested with MATLAB 2019b-2022a. Running **MainScript_JNeurosci2022.m** took < 5 minutes to run on a 2021 Macbook Pro with M1 Pro chipset and 16 Gb RAM.
 
-If you would like to automatically save the MATLAB figures and statistical read-outs, change line 62 of **MainScript_Manuscript2022.m** to *saveFigs = true;* This will slightly increase the analysis time and create a new folder */Summary Figures and Structures/MATLAB Analysis Figures/*. All statistical readouts and saved MATLAB figures can be found here.
+If you would like to automatically save the MATLAB figures and statistical read-outs, change line 62 of **MainScript_JNeurosci2022.m** to *saveFigs = true;* This will slightly increase the analysis time and create a new folder */Summary Figures and Structures/MATLAB Analysis Figures/*. All statistical readouts and saved MATLAB figures can be found here.
 
 LabVIEW code used to acquire the data can be found at: https://github.com/DrewLab/LabVIEW-DAQ
 

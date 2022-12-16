@@ -72,3 +72,22 @@ handle = implay(imageStack, Fs);
 handle.Visual.ColorMap.UserRange = 1; 
 handle.Visual.ColorMap.UserRangeMin = min(img(:)); 
 handle.Visual.ColorMap.UserRangeMax = max(img(:));
+
+ % create the video writer with 1 fps
+ writerObj = VideoWriter('myVideo.avi');
+ writerObj.FrameRate = 30;
+ % set the seconds per image
+ secsPerImage = [5 10 15];
+ % open the video writer
+ open(writerObj);
+ % write the frames to the video
+ for u=1:length(images)
+     % convert the image to a frame
+     frame = im2frame(images{u});
+     for v=1:secsPerImage(u) 
+         writeVideo(writerObj, frame);
+     end
+ end
+ % close the writer object
+ close(writerObj);
+

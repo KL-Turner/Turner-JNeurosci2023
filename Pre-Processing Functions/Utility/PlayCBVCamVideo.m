@@ -52,7 +52,7 @@ frameEnd = floor(endTime)*Fs;
 frameInds = frameStart:frameEnd;
 
  % Obtain subset of desired frames - normalize by an artificial baseline
-frames = GetCBVFrameSubset_IOS_eLife2020(windowCamFileID,imageHeight,imageWidth,frameInds);
+frames = GetCBVFrameSubset_IOS(windowCamFileID,imageHeight,imageWidth,frameInds);
 baselineFrame = mean(frames,3);
 
 %% Create a figure to show the baseline frame in color and grey-scale
@@ -76,5 +76,7 @@ handle = implay(normFrames,Fs);
 handle.Visual.ColorMap.UserRange = 1; 
 handle.Visual.ColorMap.UserRangeMin = .95; 
 handle.Visual.ColorMap.UserRangeMax = 1.05;
+
+sliceViewer(frames)
 
 Prompt = msgbox('Warning: May need to edit implay colormap range for best results');
