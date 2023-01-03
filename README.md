@@ -12,8 +12,7 @@ Begin by downloading the code repository by clicking the green **Code** button a
 
 ![](https://user-images.githubusercontent.com/30758521/193090842-d33e2f7f-a12e-4cbd-9bcc-122fa59591a6.PNG)
 
-Next, the data (~4 GB) can be downloaded from the following location and should start automatically.
-* Data repository location: https://datadryad.org/stash/share/pv4ZmJnSk65Y6yWxoO6jdb9ou5H-x5wfOJOTCPkBntE
+Next, the data (~4 GB) can be downloaded from the following location: https://datadryad.org/stash/share/pv4ZmJnSk65Y6yWxoO6jdb9ou5H-x5wfOJOTCPkBntE or searched under the DOI: doi:10.5061/dryad.05qfttf5w
 
 ![](https://user-images.githubusercontent.com/30758521/193082431-7022d924-9eee-4b44-b77a-dd0204cef094.PNG)
 
@@ -28,6 +27,8 @@ The Dryad link contains several pre-analyzed structures that can be used to imme
 The data should be here. 
 
 ![](https://user-images.githubusercontent.com/30758521/193093229-5e5c4e2a-0343-4e14-947b-afc60b746dcf.PNG)
+
+The repository includes pre-analyzed structures for each analysis performed in the paper, each of these has the prefix "Results_" followed by the analysis performed. There are two images with histogram overlays that are saved to be display in figure panels. Finally, there are two examples provided (T123, T141) which includes the binary file for a demo of pupil tracking as well as the accompanying data for all other signals during that 15 minute acquisition.
 
 From here, open MATLAB and nativate to the code's folder. Open the function **MainScript_JNeurosci2022.m**. The final view should look like this:
 
