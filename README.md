@@ -32,41 +32,38 @@ The repository includes pre-analyzed structures for each analysis performed in t
 
 The contents of the data includes the following:
 
-* Results_Transitions.mat
-* Results_StimulusBlinks.mat
-* Results_StateTime.mat
-* Results_SleepProbability.mat
-* Results_PupilThreshold.mat
-* Results_PupilSleepModel.mat
-* Results_PupilREM.mat
-* Results_PupilModelCoherence.mat
-* Results_PupilHbTRelationship.mat
-* Results_PupilGammaRelationship.mat
-* Results_PreWhitenedPowerSpectrum.mat
-* Results_PowerSpectrum.mat
-* Results_PhysioSleepModel.mat
-* Results_InterBlinkInterval.mat
-* Results_EyeMotion.mat
-* Results_Example.mat
-* Results_Evoked.mat
-* Results_CrossCorrelation.mat
-* Results_CombinedSleepModel.mat
-* Results_Coherence.mat
-* Results_BlinkTransition.mat
-* Results_BlinkSpectrogram.mat
-* Results_BlinkResponses.mat
-* Results_BlinkCoherogram.mat
-* Results_BehavData.mat
-* Results_AxisCorrelation.mat
-* HbTPupilStack.png
-* GammaPupilStack.png
+* Results_AxisCorrelation.mat - comparison of major/minor axis of pupil during measurement, in text
+* Results_BehavData.mat - comparison of pupil size between different arousal states, Fig. 2
+* Results_BlinkCoherogram.mat - comparison of neural/hemodynamic coherence before/after a blink, Fig. 5
+* Results_BlinkResponses.mat - comparison of EMG, neural activity, and hemodynamics before/after blinking, Fig. 4
+* Results_BlinkSpectrogram.mat - comparison of neural/hemodynamic power before/after a blink, Fig. 5
+* Results_BlinkTransition.mat - probability of each arousal state surrounding a blink, Fig. 4
+* Results_Coherence.mat - coherence between pupil diameter and hemodynamics or neural activity, Fig. 3 
+* Results_CombinedSleepModel.mat - sleep model based on eye characteristics, Fig. 7
+* Results_CrossCorrelation.mat - cross correlation between pupil diameter and hemodynamics or neural activity, Fig. 3
+* Results_Evoked.mat - whisking/stimulus/auditory evoked changes in pupil diameter, Fig. 2
+* Results_Example.mat - example figure (T141), Fig. 1
+* Results_EyeMotion.mat - analysis of eye motion for detection of REM sleep, Fig. 6
+* Results_InterBlinkInterval.mat - time between each successive blink, Fig. 4
+* Results_PhysioSleepModel.mat - sleep model based on ephys and behavior data not including eye, Fig. 7
+* Results_PowerSpectrum.mat, power spectrum calculations 
+* Results_PreWhitenedPowerSpectrum.mat, power spectra calculations for pupil diameter, Fig. 2
+* Results_PupilGammaRelationship.mat, GammaPupilStack.png - pupil size vs. neural gamma, Fig. 3
+* Results_PupilHbTRelationship.mat, HbTPupilStack.png - pupil size vs. hemodynamics, Fig. 3
+* Results_PupilREM.mat - comparison on REM sleep with eyes open/closed, in text
+* Results_PupilSleepModel.mat - sleep model based on eye characteristics, Fig. 7
+* Results_PupilThreshold.mat - typical distribution of pupil intensity for thresholding in Radon space, in text
+* Results_SleepProbability.mat - probability of being in arousal state as a function of pupil size, Fig. 6
+* Results_StateTime.mat - duration spent in each arousal state, in text
+* Results_StimulusBlinks.mat - probability of blinking following whisker stimuli, Fig. 4
+* Results_Transitions.mat - arousal transitions for pupil diameter/eye motion, Fig. 6
 
 In addition to the data structures, there are example files meant to be run with PupilTrackerDemo_JNeurosci2022.m. There are two animals (T141 and T123) with pre-analyzed MATLAB data structures including all the relevant information (ProcData.mat), as well as the raw binary file of the pupil camera video (PupilCam.bin).
 
-* T141_201105_12_05_20_PupilCam.bin
-* T141_201105_12_05_20_ProcData.mat
-* T123_200304_14_32_00_PupilCam.bin
-* T123_200304_14_32_00_ProcData.mat
+* T141_201105_12_05_20_PupilCam.bin - Fig. 1 example, raw eye data
+* T141_201105_12_05_20_ProcData.mat - Fig. 1 example, processed data
+* T123_200304_14_32_00_PupilCam.bin - Turner eLife 2020 Fig. 1 example, raw eye data
+* T123_200304_14_32_00_ProcData.mat - Turner eLife 2020 Fig. 1 example, processed data
 
 From here, open MATLAB and nativate to the code's folder. Open the function **MainScript_JNeurosci2022.m**. The final view should look like this:
 
