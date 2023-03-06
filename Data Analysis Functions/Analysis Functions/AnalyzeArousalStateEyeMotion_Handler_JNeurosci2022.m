@@ -11,12 +11,14 @@ function [] = AnalyzeArousalStateEyeMotion_Handler_JNeurosci2022(rootFolder,deli
 if runFromStart == true
     Results_EyeMotion = [];
 elseif runFromStart == false
+    cd([rootFolder delim 'Analysis Structures\'])
     % load existing results structure, if it exists
     if exist('Results_EyeMotion.mat','file') == 2
         load('Results_EyeMotion.mat','-mat')
     else
         Results_EyeMotion = [];
     end
+    cd([rootFolder delim])
 end
 % determine waitbar length
 waitBarLength = 0;

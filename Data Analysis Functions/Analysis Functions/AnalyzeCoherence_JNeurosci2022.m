@@ -8,7 +8,6 @@ function [Results_Coherence] = AnalyzeCoherence_JNeurosci2022(animalID,rootFolde
 %________________________________________________________________________________________________________________________
 
 % function parameters
-% dataTypes = {'mmArea','mmDiameter','zArea','zDiameter'};
 dataTypes = {'zDiameter'};
 hemDataTypes = {'LH_HbT','RH_HbT','LH_gammaBandPower','RH_gammaBandPower'};
 modelType = 'Forest';
@@ -107,7 +106,7 @@ for zzz = 1:length(hemDataTypes)
         params.trialave = 1;
         params.err = [2,0.05];
         % calculate the coherence between desired signals
-        [C_RestData,~,~,~,~,f_RestData,confC_RestData,~,cErr_RestData] = coherencyc_eLife2020(HbT_restDataMat,Pupil_restDataMat,params);
+        [C_RestData,~,~,~,~,f_RestData,confC_RestData,~,cErr_RestData] = coherencyc(HbT_restDataMat,Pupil_restDataMat,params);
         % save results
         Results_Coherence.(animalID).Rest.(dataType).(hemDataType).C = C_RestData;
         Results_Coherence.(animalID).Rest.(dataType).(hemDataType).f = f_RestData;
@@ -144,7 +143,7 @@ for zzz = 1:length(hemDataTypes)
                             elseif strcmp(hemDataType,'RH_HbT') == true
                                 HbT_alertData{zz,1} = ProcData.data.CBV_HbT.adjRH;
                             elseif strcmp(hemDataType,'LH_gammaBandPower') == true
-                                HbT_alertData{zz,1} = (ProcData.data.cortical_RH.gammaBandPower - RestingBaselines.manualSelection.cortical_LH.gammaBandPower.(strDay).mean)./RestingBaselines.manualSelection.cortical_LH.gammaBandPower.(strDay).mean;
+                                HbT_alertData{zz,1} = (ProcData.data.cortical_LH.gammaBandPower - RestingBaselines.manualSelection.cortical_LH.gammaBandPower.(strDay).mean)./RestingBaselines.manualSelection.cortical_LH.gammaBandPower.(strDay).mean;
                             elseif strcmp(hemDataType,'RH_gammaBandPower') == true
                                 HbT_alertData{zz,1} = (ProcData.data.cortical_RH.gammaBandPower - RestingBaselines.manualSelection.cortical_RH.gammaBandPower.(strDay).mean)./RestingBaselines.manualSelection.cortical_RH.gammaBandPower.(strDay).mean;
                             end
@@ -214,7 +213,7 @@ for zzz = 1:length(hemDataTypes)
                             elseif strcmp(hemDataType,'RH_HbT') == true
                                 HbT_asleepData{zz,1} = ProcData.data.CBV_HbT.adjRH;
                             elseif strcmp(hemDataType,'LH_gammaBandPower') == true
-                                HbT_asleepData{zz,1} = (ProcData.data.cortical_RH.gammaBandPower - RestingBaselines.manualSelection.cortical_LH.gammaBandPower.(strDay).mean)./RestingBaselines.manualSelection.cortical_LH.gammaBandPower.(strDay).mean;
+                                HbT_asleepData{zz,1} = (ProcData.data.cortical_LH.gammaBandPower - RestingBaselines.manualSelection.cortical_LH.gammaBandPower.(strDay).mean)./RestingBaselines.manualSelection.cortical_LH.gammaBandPower.(strDay).mean;
                             elseif strcmp(hemDataType,'RH_gammaBandPower') == true
                                 HbT_asleepData{zz,1} = (ProcData.data.cortical_RH.gammaBandPower - RestingBaselines.manualSelection.cortical_RH.gammaBandPower.(strDay).mean)./RestingBaselines.manualSelection.cortical_RH.gammaBandPower.(strDay).mean;
                             end
@@ -276,7 +275,7 @@ for zzz = 1:length(hemDataTypes)
                         elseif strcmp(hemDataType,'RH_HbT') == true
                             HbT_allData{zz,1} = ProcData.data.CBV_HbT.adjRH;
                         elseif strcmp(hemDataType,'LH_gammaBandPower') == true
-                            HbT_allData{zz,1} = (ProcData.data.cortical_RH.gammaBandPower - RestingBaselines.manualSelection.cortical_LH.gammaBandPower.(strDay).mean)./RestingBaselines.manualSelection.cortical_LH.gammaBandPower.(strDay).mean;
+                            HbT_allData{zz,1} = (ProcData.data.cortical_LH.gammaBandPower - RestingBaselines.manualSelection.cortical_LH.gammaBandPower.(strDay).mean)./RestingBaselines.manualSelection.cortical_LH.gammaBandPower.(strDay).mean;
                         elseif strcmp(hemDataType,'RH_gammaBandPower') == true
                             HbT_allData{zz,1} = (ProcData.data.cortical_RH.gammaBandPower - RestingBaselines.manualSelection.cortical_RH.gammaBandPower.(strDay).mean)./RestingBaselines.manualSelection.cortical_RH.gammaBandPower.(strDay).mean;
                         end
@@ -397,7 +396,8 @@ for zzz = 1:length(hemDataTypes)
     end
 end
 % save data
-cd([rootFolder delim])
+cd([rootFolder delim 'Analysis Structures\'])
 save('Results_Coherence.mat','Results_Coherence')
+cd([rootFolder delim])
 
 end

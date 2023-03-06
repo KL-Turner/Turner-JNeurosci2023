@@ -33,7 +33,8 @@ for aa = 1:length(strDays)
     Results_PupilThreshold.(animalID).thresholdStDev(aa,1) = (threshold - phat(1))/phat(2);
 end
 % save data
-cd([rootFolder delim])
+cd([rootFolder delim 'Analysis Structures\'])
 save('Results_PupilThreshold.mat','Results_PupilThreshold')
+cd([rootFolder delim])
 
 end

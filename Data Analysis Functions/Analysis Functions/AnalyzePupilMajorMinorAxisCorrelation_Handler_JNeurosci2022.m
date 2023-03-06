@@ -11,12 +11,14 @@ function [] = AnalyzePupilMajorMinorAxisCorrelation_Handler_JNeurosci2022(rootFo
 if runFromStart == true
     Results_AxisCorrelation = [];
 elseif runFromStart == false
+    cd([rootFolder delim 'Analysis Structures\'])
     % load existing results structure, if it exists
     if exist('Results_AxisCorrelation.mat','file') == 2
         load('Results_AxisCorrelation.mat','-mat')
     else
         Results_AxisCorrelation = [];
     end
+    cd([rootFolder delim])
 end
 % determine waitbar length
 waitBarLength = 0;

@@ -11,12 +11,14 @@ function [] = AnalyzeTransitionalAverages_Handler_JNeurosci2022(rootFolder,delim
 if runFromStart == true
     Results_Transitions = [];
 elseif runFromStart == false
+    cd([rootFolder delim 'Analysis Structures\'])
     % load existing results structure, if it exists
     if exist('Results_Transitions.mat','file') == 2
         load('Results_Transitions.mat','-mat')
     else
         Results_Transitions = [];
     end
+    cd([rootFolder delim])
 end
 % determine waitbar length
 waitBarLength = 0;

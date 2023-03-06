@@ -11,12 +11,14 @@ function [] = AnalyzeBlinkResponses_Handler_JNeurosci2022(rootFolder,delim,runFr
 if runFromStart == true
     Results_BlinkResponses = [];
 elseif runFromStart == false
+    cd([rootFolder delim 'Analysis Structures\'])
     % load existing results structure, if it exists
     if exist('Results_BlinkResponses.mat','file') == 2
         load('Results_BlinkResponses.mat','-mat')
     else
         Results_BlinkResponses = [];
     end
+    cd([rootFolder delim])
 end
 % determine waitbar length
 waitBarLength = 0;

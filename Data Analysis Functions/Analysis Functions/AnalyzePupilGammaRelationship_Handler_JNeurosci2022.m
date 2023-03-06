@@ -11,12 +11,14 @@ function [] = AnalyzePupilGammaRelationship_Handler_JNeurosci2022(rootFolder,del
 if runFromStart == true
     Results_PupilGammaRelationship = [];
 elseif runFromStart == false
+    cd([rootFolder delim 'Analysis Structures\'])
     % load existing results structure, if it exists
     if exist('Results_PupilGammaRelationship.mat','file') == 2
         load('Results_PupilGammaRelationship.mat','-mat')
     else
         Results_PupilGammaRelationship = [];
     end
+    cd([rootFolder delim])
 end
 % determine waitbar length
 waitBarLength = 0;

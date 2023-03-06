@@ -247,9 +247,10 @@ Results_CombinedSleepModel.(animalID).combined.outOfBagError = outOfBagError;
 Results_CombinedSleepModel.(animalID).combined.trueTestingLabels = combinedYtesting.behavState;
 Results_CombinedSleepModel.(animalID).combined.predictedTestingLabels = combinedTestingPredictions;
 %% save data
-cd([rootFolder delim])
+cd([rootFolder delim 'Analysis Structures\'])
 save('Results_PupilSleepModel.mat','Results_PupilSleepModel')
 save('Results_PhysioSleepModel.mat','Results_PhysioSleepModel')
 save('Results_CombinedSleepModel.mat','Results_CombinedSleepModel')
+cd([rootFolder delim])
 
 end

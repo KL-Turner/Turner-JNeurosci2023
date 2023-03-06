@@ -11,12 +11,14 @@ function [] = AnalyzePupilThreshold_Handler_JNeurosci2022(rootFolder,delim,runFr
 if runFromStart == true
     Results_PupilThreshold = [];
 elseif runFromStart == false
+    cd([rootFolder delim 'Analysis Structures\'])
     % load existing results structure, if it exists
     if exist('Results_PupilThreshold.mat','file') == 2
         load('Results_PupilThreshold.mat','-mat')
     else
         Results_PupilThreshold = [];
     end
+    cd([rootFolder delim])
 end
 % determine waitbar length
 waitBarLength = 0;

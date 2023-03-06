@@ -27,10 +27,8 @@ end
 addpath(genpath(rootFolder))
 multiWaitbar('CloseAll');
 % Analysis subfunctions
-runAnalysis = false;
+runAnalysis = true;
 if runAnalysis == true
-    dataLocation = [rootFolder delim 'Analysis Structures'];
-    cd(dataLocation)
     AnalyzeSleepModelAccuracy_Handler_JNeurosci2022(rootFolder,delim,false)
     AnalyzePupilExample_Handler_JNeurosci2022(rootFolder,delim,false)
     AnalyzePupilThreshold_Handler_JNeurosci2022(rootFolder,delim,false)

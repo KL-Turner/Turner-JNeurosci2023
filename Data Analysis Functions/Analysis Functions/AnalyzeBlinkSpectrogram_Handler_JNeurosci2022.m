@@ -11,12 +11,14 @@ function [] = AnalyzeBlinkSpectrogram_Handler_JNeurosci2022(rootFolder,delim,run
 if runFromStart == true
     Results_BlinkSpectrogram = [];
 elseif runFromStart == false
+    cd([rootFolder delim 'Analysis Structures\'])
     % load existing results structure, if it exists
     if exist('Results_BlinkSpectrogram.mat','file') == 2
         load('Results_BlinkSpectrogram.mat','-mat')
     else
         Results_BlinkSpectrogram = [];
     end
+    cd([rootFolder delim])
 end
 % determine waitbar length
 waitBarLength = 0;

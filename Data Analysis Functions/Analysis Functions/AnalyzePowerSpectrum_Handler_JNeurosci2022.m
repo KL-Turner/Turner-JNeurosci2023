@@ -11,12 +11,14 @@ function [] = AnalyzePowerSpectrum_Handler_JNeurosci2022(rootFolder,delim,runFro
 if runFromStart == true
     Results_PowerSpectrum = [];
 elseif runFromStart == false
+    cd([rootFolder delim 'Analysis Structures\'])
     % load existing results structure, if it exists
     if exist('Results_PowerSpectrum.mat','file') == 2
         load('Results_PowerSpectrum.mat','-mat')
     else
         Results_PowerSpectrum = [];
     end
+    cd([rootFolder delim])
 end
 % determine waitbar length
 waitBarLength = 0;

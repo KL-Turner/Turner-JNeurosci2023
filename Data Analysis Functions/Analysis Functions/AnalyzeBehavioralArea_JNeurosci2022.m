@@ -202,7 +202,8 @@ for aa = 1:length(dataTypes)
     end
 end
 % save data
-cd([rootFolder delim])
+cd([rootFolder delim 'Analysis Structures\'])
 save('Results_BehavData.mat','Results_BehavData')
+cd([rootFolder delim])
 
 end

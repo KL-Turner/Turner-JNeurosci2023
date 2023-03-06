@@ -20,7 +20,7 @@ clc
 % User inputs for file information
 pupilCamFileID = uigetfile('*_PupilCam.bin','MultiSelect','off');
 animalID = input('Input the animal ID: ', 's'); disp(' ')
-rawDataFileID = [animalID '_' pupilCamFileID(1:end - 13) '_RawData.mat'];
+rawDataFileID = [animalID '_' pupilCamFileID(1:end - 13) '_ProcData.mat'];
 
 disp(['Loading relevant file information from ' rawDataFileID '...']); disp(' ')
 try
@@ -30,7 +30,7 @@ catch
     return
 end
 
-trialDuration = RawData.notes.trialDuration_sec;
+trialDuration = ProcData.notes.trialDuration_sec;
 disp([pupilCamFileID ' is ' num2str(trialDuration) ' seconds long.']); disp(' ')
 startTime = input('Input the desired start time (sec): '); disp(' ')
 endTime = input('Input the desired end time (sec): '); disp(' ')
@@ -43,9 +43,9 @@ elseif endTime > trialDuration || endTime <= startTime || endTime <= 0
     return
 end
 
-imageHeight = RawData.notes.pupilCamPixelHeight;                                                                                                            
-imageWidth = RawData.notes.pupilCamPixelWidth;
-Fs = RawData.notes.pupilCamSamplingRate;
+imageHeight = ProcData.notes.pupilCamPixelHeight;                                                                                                            
+imageWidth = ProcData.notes.pupilCamPixelWidth;
+Fs = ProcData.notes.pupilCamSamplingRate;
 
 frameStart = floor(startTime)*Fs;
 frameEnd = floor(endTime)*Fs;         

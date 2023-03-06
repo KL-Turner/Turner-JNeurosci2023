@@ -133,7 +133,8 @@ Results_SleepProbability.nremProbPerc = nremProbPerc;
 Results_SleepProbability.remProbPerc = remProbPerc;
 Results_SleepProbability.asleepProbPerc = asleepProbPerc;
 % save data
-cd([rootFolder delim])
+cd([rootFolder delim 'Analysis Structures\'])
 save('Results_SleepProbability.mat','Results_SleepProbability')
+cd([rootFolder delim])
 
 end

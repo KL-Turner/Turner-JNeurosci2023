@@ -11,12 +11,14 @@ function [] = AnalyzePupilExample_Handler_JNeurosci2022(rootFolder,delim,runFrom
 if runFromStart == true
     Results_Example = [];
 elseif runFromStart == false
+    cd([rootFolder delim 'Analysis Structures\'])
     % load existing results structure, if it exists
     if exist('Results_Example.mat','file') == 2
         load('Results_Example.mat','-mat')
     else
         Results_Example = [];
     end
+    cd([rootFolder delim])
 end
 % run analysis for each animal in the group
 if isempty(Results_Example) == true

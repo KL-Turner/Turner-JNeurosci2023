@@ -11,12 +11,14 @@ function [] = AnalyzeBlinkCoherogram_Handler_JNeurosci2022(rootFolder,delim,runF
 if runFromStart == true
     Results_BlinkCoherogram = [];
 elseif runFromStart == false
+    cd([rootFolder delim 'Analysis Structures\'])
     % load existing results structure, if it exists
     if exist('Results_BlinkCoherogram.mat','file') == 2
         load('Results_BlinkCoherogram.mat','-mat')
     else
         Results_BlinkCoherogram = [];
     end
+    cd([rootFolder delim])
 end
 % determine waitbar length
 waitBarLength = 0;

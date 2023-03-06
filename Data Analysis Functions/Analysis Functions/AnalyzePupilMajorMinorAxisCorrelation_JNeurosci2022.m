@@ -32,7 +32,8 @@ end
 Results_AxisCorrelation.(animalID).rArray = rValue;
 Results_AxisCorrelation.(animalID).meanR = mean(rValue);
 % save data
-cd([rootFolder delim])
+cd([rootFolder delim 'Analysis Structures\'])
 save('Results_AxisCorrelation.mat','Results_AxisCorrelation')
+cd([rootFolder delim])
 
 end

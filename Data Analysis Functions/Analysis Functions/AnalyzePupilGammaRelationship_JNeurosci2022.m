@@ -73,7 +73,8 @@ Results_PupilGammaRelationship.(animalID).Awake.Gamma = mean(cat(2,catLH_Gamma.A
 Results_PupilGammaRelationship.(animalID).NREM.Gamma = mean(cat(2,catLH_Gamma.NREM,catRH_Gamma.NREM),2);
 Results_PupilGammaRelationship.(animalID).REM.Gamma = mean(cat(2,catLH_Gamma.REM,catRH_Gamma.REM),2);
 % save data
-cd([rootFolder delim])
+cd([rootFolder delim 'Analysis Structures\'])
 save('Results_PupilGammaRelationship.mat','Results_PupilGammaRelationship')
+cd([rootFolder delim])
 
 end

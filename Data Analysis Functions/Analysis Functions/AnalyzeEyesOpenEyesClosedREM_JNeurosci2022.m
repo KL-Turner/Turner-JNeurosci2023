@@ -144,5 +144,8 @@ Results_PupilREM.(animalID).LH_gamma_closed = mean(LH_gamma_closed);
 Results_PupilREM.(animalID).RH_gamma_closed = mean(RH_gamma_closed);
 Results_PupilREM.(animalID).hip_theta_closed = mean(hip_theta_closed);
 % save data
-cd([rootFolder delim])
+cd([rootFolder delim 'Analysis Structures\'])
 save('Results_PupilREM.mat','Results_PupilREM')
+cd([rootFolder delim])
+
+end

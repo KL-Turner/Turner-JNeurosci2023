@@ -8,7 +8,6 @@ function [Results_PowerSpectrum] = AnalyzePowerSpectrum_JNeurosci2022(animalID,r
 %________________________________________________________________________________________________________________________
 
 % function parameters
-% dataTypes = {'mmArea','mmDiameter','zArea','zDiameter','LH_HbT','RH_HbT','LH_gammaBandPower','RH_gammaBandPower'};
 dataTypes = {'zDiameter','LH_HbT','RH_HbT','LH_gammaBandPower','RH_gammaBandPower'};
 modelType = 'Forest';
 params.minTime.Rest = 10;
@@ -141,7 +140,7 @@ for aa = 1:length(dataTypes)
                         alertData{zz,1} = ProcData.data.CBV_HbT.adjRH;
                         zz = zz + 1;
                     elseif strcmp(dataType,'LH_gammaBandPower') == true
-                        alertData{zz,1} = (ProcData.data.cortical_RH.gammaBandPower - RestingBaselines.manualSelection.cortical_LH.gammaBandPower.(strDay).mean)./RestingBaselines.manualSelection.cortical_LH.gammaBandPower.(strDay).mean;
+                        alertData{zz,1} = (ProcData.data.cortical_LH.gammaBandPower - RestingBaselines.manualSelection.cortical_LH.gammaBandPower.(strDay).mean)./RestingBaselines.manualSelection.cortical_LH.gammaBandPower.(strDay).mean;
                         zz = zz + 1;
                     elseif strcmp(dataType,'RH_gammaBandPower') == true
                         alertData{zz,1} = (ProcData.data.cortical_RH.gammaBandPower - RestingBaselines.manualSelection.cortical_RH.gammaBandPower.(strDay).mean)./RestingBaselines.manualSelection.cortical_RH.gammaBandPower.(strDay).mean;
@@ -211,7 +210,7 @@ for aa = 1:length(dataTypes)
                         asleepData{zz,1} = ProcData.data.CBV_HbT.adjRH;
                         zz = zz + 1;
                     elseif strcmp(dataType,'LH_gammaBandPower') == true
-                        asleepData{zz,1} = (ProcData.data.cortical_RH.gammaBandPower - RestingBaselines.manualSelection.cortical_LH.gammaBandPower.(strDay).mean)./RestingBaselines.manualSelection.cortical_LH.gammaBandPower.(strDay).mean;
+                        asleepData{zz,1} = (ProcData.data.cortical_LH.gammaBandPower - RestingBaselines.manualSelection.cortical_LH.gammaBandPower.(strDay).mean)./RestingBaselines.manualSelection.cortical_LH.gammaBandPower.(strDay).mean;
                         zz = zz + 1;
                     elseif strcmp(dataType,'RH_gammaBandPower') == true
                         asleepData{zz,1} = (ProcData.data.cortical_RH.gammaBandPower - RestingBaselines.manualSelection.cortical_RH.gammaBandPower.(strDay).mean)./RestingBaselines.manualSelection.cortical_RH.gammaBandPower.(strDay).mean;
@@ -273,7 +272,7 @@ for aa = 1:length(dataTypes)
                     allData{zz,1} = ProcData.data.CBV_HbT.adjRH;
                     zz = zz + 1;
                 elseif strcmp(dataType,'LH_gammaBandPower') == true
-                    allData{zz,1} = (ProcData.data.cortical_RH.gammaBandPower - RestingBaselines.manualSelection.cortical_LH.gammaBandPower.(strDay).mean)./RestingBaselines.manualSelection.cortical_LH.gammaBandPower.(strDay).mean;
+                    allData{zz,1} = (ProcData.data.cortical_LH.gammaBandPower - RestingBaselines.manualSelection.cortical_LH.gammaBandPower.(strDay).mean)./RestingBaselines.manualSelection.cortical_LH.gammaBandPower.(strDay).mean;
                     zz = zz + 1;
                 elseif strcmp(dataType,'RH_gammaBandPower') == true
                     allData{zz,1} = (ProcData.data.cortical_RH.gammaBandPower - RestingBaselines.manualSelection.cortical_RH.gammaBandPower.(strDay).mean)./RestingBaselines.manualSelection.cortical_RH.gammaBandPower.(strDay).mean;
@@ -374,7 +373,8 @@ for aa = 1:length(dataTypes)
     end
 end
 %% save data
-cd([rootFolder delim])
+cd([rootFolder delim 'Analysis Structures\'])
 save('Results_PowerSpectrum.mat','Results_PowerSpectrum')
+cd([rootFolder delim])
 
 end

@@ -11,12 +11,14 @@ function [] = AnalyzeAnimalStateTime_Handler_JNeurosci2022(rootFolder,delim,runF
 if runFromStart == true
     Results_StateTime = [];
 elseif runFromStart == false
+    cd([rootFolder delim 'Analysis Structures\'])
     % load existing results structure, if it exists
     if exist('Results_StateTime.mat','file') == 2
         load('Results_StateTime.mat','-mat')
     else
         Results_StateTime = [];
     end
+    cd([rootFolder delim])
 end
 % determine waitbar length
 waitBarLength = 0;

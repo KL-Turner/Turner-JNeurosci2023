@@ -11,12 +11,14 @@ function [] = AnalyzeInterBlinkInterval_Handler_JNeurosci2022(rootFolder,delim,r
 if runFromStart == true
     Results_InterBlinkInterval = [];
 elseif runFromStart == false
+    cd([rootFolder delim 'Analysis Structures\'])
     % load existing results structure, if it exists
     if exist('Results_InterBlinkInterval.mat','file') == 2
         load('Results_InterBlinkInterval.mat','-mat')
     else
         Results_InterBlinkInterval = [];
     end
+    cd([rootFolder delim])
 end
 % determine waitbar length
 waitBarLength = 0;

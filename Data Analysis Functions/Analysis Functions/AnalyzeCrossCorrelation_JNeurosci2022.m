@@ -9,7 +9,6 @@ function [Results_CrossCorrelation] = AnalyzeCrossCorrelation_JNeurosci2022(anim
 
 % function parameters & data types
 dataTypes = {'LH_HbT','RH_HbT','LH_gammaBandPower','RH_gammaBandPower'};
-% pupilDataTypes = {'mmArea','mmDiameter','zArea','zDiameter'};
 pupilDataTypes = {'zDiameter'};
 modelType = 'Forest';
 params.minTime.Rest = 10;
@@ -405,7 +404,8 @@ for aa = 1:length(dataTypes)
     end
 end
 % save data
-cd([rootFolder delim])
+cd([rootFolder delim 'Analysis Structures\'])
 save('Results_CrossCorrelation.mat','Results_CrossCorrelation')
+cd([rootFolder delim])
 
 end

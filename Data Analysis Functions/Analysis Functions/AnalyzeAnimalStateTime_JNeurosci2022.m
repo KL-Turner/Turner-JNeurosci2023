@@ -69,7 +69,8 @@ Results_StateTime.(animalID).nremPerc = (sum(nremLogical)/length(nremLogical))*1
 Results_StateTime.(animalID).remHours = ((sum(remLogical)*timePerBin)/60)/60; % sec to minutes to hours
 Results_StateTime.(animalID).remPerc = (sum(remLogical)/length(remLogical))*100;
 % save data
-cd([rootFolder delim])
+cd([rootFolder delim 'Analysis Structures\'])
 save('Results_StateTime.mat','Results_StateTime')
+cd([rootFolder delim])
 
 end

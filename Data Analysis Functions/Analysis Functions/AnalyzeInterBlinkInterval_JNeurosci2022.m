@@ -139,7 +139,8 @@ Results_InterBlinkInterval.(animalID).durations = catDurations;
 Results_InterBlinkInterval.(animalID).allDurations = catAllDurations;
 Results_InterBlinkInterval.(animalID).interBlinkInterval = catInterBlinkInterval;
 % save data
-cd([rootFolder delim])
+cd([rootFolder delim 'Analysis Structures\'])
 save('Results_InterBlinkInterval.mat','Results_InterBlinkInterval')
+cd([rootFolder delim])
 
 end

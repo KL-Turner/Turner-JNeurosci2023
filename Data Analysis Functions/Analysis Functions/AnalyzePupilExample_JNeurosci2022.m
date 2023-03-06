@@ -146,7 +146,8 @@ Results_Example.intensityThresh = data.intensityThresh;
 Results_Example.saveRadonImg = data.saveRadonImg;
 Results_Example.overlay = data.overlay;
 % save results
-cd([rootFolder delim])
+cd([rootFolder delim 'Analysis Structures\'])
 save('Results_Example.mat','Results_Example','-v7.3')
+cd([rootFolder delim])
 
 end

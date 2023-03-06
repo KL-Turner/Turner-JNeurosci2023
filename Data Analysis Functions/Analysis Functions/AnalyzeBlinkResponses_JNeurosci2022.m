@@ -261,7 +261,8 @@ for bb = 1:length(blinkStates)
     Results_BlinkResponses.(animalID).(blinkState).count_highWhisk = size(data.(blinkState).zDiameter_highWhisk,1);
 end
 % save data
-cd([rootFolder delim])
+cd([rootFolder delim 'Analysis Structures\'])
 save('Results_BlinkResponses.mat','Results_BlinkResponses')
+cd([rootFolder delim])
 
 end

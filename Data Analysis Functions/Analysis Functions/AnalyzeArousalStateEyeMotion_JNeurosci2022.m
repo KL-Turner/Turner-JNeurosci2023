@@ -97,7 +97,8 @@ Results_EyeMotion.(animalID).Awake = data.awake;
 Results_EyeMotion.(animalID).NREM = data.nrem;
 Results_EyeMotion.(animalID).REM = data.rem;
 % save data
-cd([rootFolder delim])
+cd([rootFolder delim 'Analysis Structures\'])
 save('Results_EyeMotion.mat','Results_EyeMotion')
+cd([rootFolder delim])
 
 end

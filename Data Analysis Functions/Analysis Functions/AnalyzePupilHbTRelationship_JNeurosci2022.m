@@ -73,7 +73,8 @@ Results_PupilHbTRelationship.(animalID).Awake.HbT = mean(cat(2,catLH_HbT.Awake,c
 Results_PupilHbTRelationship.(animalID).NREM.HbT = mean(cat(2,catLH_HbT.NREM,catRH_HbT.NREM),2);
 Results_PupilHbTRelationship.(animalID).REM.HbT = mean(cat(2,catLH_HbT.REM,catRH_HbT.REM),2);
 % save data
-cd([rootFolder delim])
+cd([rootFolder delim 'Analysis Structures\'])
 save('Results_PupilHbTRelationship.mat','Results_PupilHbTRelationship')
+cd([rootFolder delim])
 
 end

@@ -181,7 +181,8 @@ for d = 1:length(transitions)
     Results_Transitions.(animalID).(transition).centroidY = data.(transition).centroidY;
 end
 % save data
-cd([rootFolder delim])
+cd([rootFolder delim 'Analysis Structures\'])
 save('Results_Transitions.mat','Results_Transitions')
+cd([rootFolder delim])
 
 end

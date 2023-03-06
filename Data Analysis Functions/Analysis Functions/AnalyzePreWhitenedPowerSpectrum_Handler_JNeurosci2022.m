@@ -11,12 +11,14 @@ function [] = AnalyzePreWhitenedPowerSpectrum_Handler_JNeurosci2022(rootFolder,d
 if runFromStart == true
     Results_PreWhitenedPowerSpectrum = [];
 elseif runFromStart == false
+    cd([rootFolder delim 'Analysis Structures\'])
     % load existing results structure, if it exists
     if exist('Results_PreWhitenedPowerSpectrum.mat','file') == 2
         load('Results_PreWhitenedPowerSpectrum.mat','-mat')
     else
         Results_PreWhitenedPowerSpectrum = [];
     end
+    cd([rootFolder delim])
 end
 % determine waitbar length
 waitBarLength = 0;

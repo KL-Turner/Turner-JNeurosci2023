@@ -11,12 +11,14 @@ function [] = AnalyzePupilAreaSleepProbability_Handler_JNeurosci2022(rootFolder,
 if runFromStart == true
     Results_SleepProbability = [];
 elseif runFromStart == false
+    cd([rootFolder delim 'Analysis Structures\'])
     % load existing results structure, if it exists
     if exist('Results_SleepProbability.mat','file') == 2
         load('Results_SleepProbability.mat','-mat')
     else
         Results_SleepProbability = [];
     end
+    cd([rootFolder delim])
 end
 folderList = dir('Data');
 folderList = folderList(~startsWith({folderList.name},'.'));

@@ -11,12 +11,14 @@ function [] = AnalyzeCoherence_Handler_JNeurosci2022(rootFolder,delim,runFromSta
 if runFromStart == true
     Results_Coherence = [];
 elseif runFromStart == false
+    cd([rootFolder delim 'Analysis Structures\'])
     % load existing results structure, if it exists
     if exist('Results_Coherence.mat','file') == 2
         load('Results_Coherence.mat','-mat')
     else
         Results_Coherence = [];
     end
+    cd([rootFolder delim])
 end
 % determine waitbar length
 waitBarLength = 0;

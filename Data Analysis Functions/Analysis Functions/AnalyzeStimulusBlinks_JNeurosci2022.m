@@ -209,7 +209,8 @@ for aa = 1:length(data.stimIndex)
 end
 Results_StimulusBlinks.(animalID).indBinProbability = [cc/mm,dd/mm,ee/mm,ff/mm,gg/mm,hh/mm,ii/mm,jj/mm,kk/mm,ll/mm];
 % save data
-cd([rootFolder delim])
+cd([rootFolder delim 'Analysis Structures\'])
 save('Results_StimulusBlinks.mat','Results_StimulusBlinks')
+cd([rootFolder delim])
 
 end

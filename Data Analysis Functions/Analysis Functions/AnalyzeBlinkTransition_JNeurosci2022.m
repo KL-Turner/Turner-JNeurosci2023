@@ -140,7 +140,8 @@ Results_BlinkTransition.(animalID).awakeProbabilityMatrix = classMatrix{1,1};
 Results_BlinkTransition.(animalID).nremProbabilityMatrix = classMatrix{2,1};
 Results_BlinkTransition.(animalID).remProbabilityMatrix = classMatrix{3,1};
 % save data
-cd([rootFolder delim])
+cd([rootFolder delim 'Analysis Structures\'])
 save('Results_BlinkTransition.mat','Results_BlinkTransition')
+cd([rootFolder delim])
 
 end

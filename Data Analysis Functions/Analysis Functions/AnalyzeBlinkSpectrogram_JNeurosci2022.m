@@ -191,7 +191,8 @@ for bb = 1:length(dataTypes)
     end
 end
 % save data
-cd([rootFolder delim])
+cd([rootFolder delim 'Analysis Structures\'])
 save('Results_BlinkSpectrogram.mat','Results_BlinkSpectrogram','-v7.3')
+cd([rootFolder delim])
 
 end
