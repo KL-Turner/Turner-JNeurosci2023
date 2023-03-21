@@ -60,6 +60,7 @@ if isfield(PupilData,'firstFileOfDay') == false
             title(['Session ' num2str(dd)])
         end
         % choose desired file
+        drawnow()
         desiredFile = input('Which file looks best for ROI drawing: '); disp(' ')
         PupilData.firstFileOfDay{1,bb} = dayFilenames.(strDay)(desiredFile,:);
         % resize image if larger than 200x200
@@ -131,7 +132,7 @@ for bb = 1:length(firstFileOfDay)
         % figure for verifying pupil threshold
         pupilROIFig = figure;
         subplot(1,3,1)
-        pupilHist = hhistogram(threshImg((threshImg ~= 0)),'BinEdges',pupilHistEdges,'Normalization','Probability');
+        pupilHist = histogram(threshImg((threshImg ~= 0)),'BinEdges',pupilHistEdges,'Normalization','Probability');
         xlabel('Pixel intensities');
         ylabel('Bin Counts');
         title('Histogram of image pixel intensities')
@@ -203,8 +204,7 @@ for cc = 1:size(procDataFileIDs,1)
     end
     load(char(procDataFileID))
     disp(['Checking pupil tracking status of file (' num2str(cc) '/' num2str(size(procDataFileIDs,1)) ')']); disp(' ')
-    % if isfield(ProcData.data,'Pupil') == false
-    if isfield(ProcData.data.Pupil,'algorithmUpdate') == false
+    if isfield(ProcData.data,'Pupil') == false
         ProcData.data.Pupil.originalPupilArea = ProcData.data.Pupil.pupilArea;
         ProcData.data.Pupil.originalBlinkInds = ProcData.data.Pupil.blinkInds;
         [animalID,fileDate,fileID] = GetFileInfo_JNeurosci2022(procDataFileID);

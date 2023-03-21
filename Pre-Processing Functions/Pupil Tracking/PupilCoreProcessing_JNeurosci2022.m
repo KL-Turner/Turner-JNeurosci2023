@@ -17,14 +17,14 @@
 
 %% load the script's necessary variables and data structures.
 % clear the workspace variables and command windyow.
-% % zap;
+zap;
 % character list of all ProcData files
 procDataFileStruct = dir('*_ProcData.mat');
 procDataFiles = {procDataFileStruct.name}';
 procDataFileIDs = char(procDataFiles);
 [animalID,~,~] = GetFileInfo_JNeurosci2022(procDataFileIDs(1,:));
 %% track pupil area and blink detetction
-RunPupilTracker_JNeurosci2022(procDataFileIDs)
+RunPupilTracker(procDataFileIDs)
 %% patch pupil area
 for aa = 1:size(procDataFileIDs,1)
     disp(['Patching pupil area of file ' num2str(aa) '/' num2str(size(procDataFileIDs,1))]); disp(' ')
