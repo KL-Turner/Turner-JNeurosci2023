@@ -1,6 +1,6 @@
 # Relating pupil diameter and blinking to cortical activity and hemodynamics across arousal states
 
-This document outlines the steps necessary to generate the figures for the manuscript **Relating pupil diameter and blinking to cortical activity and hemodynamics across arousal states** by K.L. Turner, K.W. Gheres, and P.J. Drew.
+This document outlines the steps necessary to generate the figures for the manuscript **Relating pupil diameter and blinking to cortical activity and hemodynamics across arousal states** by K.L. Turner, K.W. Gheres, and P.J. Drew
 
 ---
 ## Generating the figures
